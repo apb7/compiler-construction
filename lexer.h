@@ -12,6 +12,6 @@
 
 // void fill_keywords();
 
-FILE* getStream(FILE *fp);
+char* getStream(FILE *fp);
 struct tokenInfo* getNextToken(char *buffer);
 void removeComments(char *testcaseFile, char *cleanFile);
