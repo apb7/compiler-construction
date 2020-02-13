@@ -12,6 +12,7 @@
 
 // void fill_keywords();
 
+bool checkPos(uint pos)
 char* getStream(FILE *fp);
-struct tokenInfo* getNextToken(FILE *fp);
+tokenInfo* getNextToken(FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);

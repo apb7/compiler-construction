@@ -16,7 +16,7 @@ struct tokenInfo {
     union {
         int num;
         float rnum;
-        char *lexeme;
+        char lexeme[21];
     } value;
 };
 
@@ -24,6 +24,9 @@ struct tokenNode {
     struct tokenInfo *tk;
     struct tokenNode *next;
 };
+
+typedef struct tokenInfo tokenInfo;
+typedef struct tokenNode tokenNode;
 
 // struct tokenQueue {
 //     int size;
