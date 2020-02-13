@@ -12,14 +12,11 @@ uint BUFFER_SIZE = 512;
 uint line_number = 0;
 
 char* getStream(FILE *fp) {
-    char *buffer = (char*) calloc(BUFFER_SIZE, sizeof(char));
-    uint status = fread(buffer, BUFFER_SIZE, sizeof(char), fp);
-
-    if(status == 0) {
-        free(buffer);
+    if(feof(fp))
         return NULL;
-    }
 
+    char *buffer = (char*) calloc(BUFFER_SIZE, sizeof(char));
+    fread(buffer, BUFFER_SIZE, sizeof(char), fp);
     return buffer;
 }
 
@@ -41,25 +38,33 @@ void removeComments(char *testcaseFile, char *cleanFile) {
     char *buffer = getStream(fp_testcaseFile);
     char *buffer_to_write = (char*) malloc(BUFFER_SIZE * sizeof(char));
 
-    while(buffer) {
-        uint i,j;
+    int isComment = 0, wasAsterisk = 0;
 
-        for(i=0,j=0; i < BUFFER_SIZE && buffer[i] != '\0';) {
-            if(buffer[i] == '*' && (i < BUFFER_SIZE - 1 && buffer[i+1] == '*')) {
-                i = i + 2;
-                while(i < BUFFER_SIZE-1 && buffer[i] != '*' && buffer[i+1] != '*') {
-                    buffer_to_write[j] = buffer[i];
-                    ++i;
-                    ++j;
-                }
-                i = i + 2;
-            }
-            else {
-                ++i;
-            }
+    while(buffer) {
+        uint i = 0, j = 0;
+
+        if(wasAsterisk && buffer[0] == '*'){
+            isComment ^= 1;
+            i++;
         }
 
-        fwrite(buffer_to_write, sizeof(char), j-1, fp_cleanFile);
+        for(; i < BUFFER_SIZE && buffer[i] != '\0'; i++){
+
+            if(buffer[i] == '*' && (i < BUFFER_SIZE - 1 && buffer[i+1] == '*')){
+                isComment ^= 1;
+                i += 2;
+            }
+
+            if(!isComment)
+                buffer_to_write[j++] = buffer[i];
+        }
+
+        fwrite(buffer_to_write, sizeof(char), j, fp_cleanFile);
+
+        if(buffer[BUFFER_SIZE - 1] == '*')
+            wasAsterisk = 1;
+        else
+            wasAsterisk = 0;
 
         free(buffer);
         buffer = getStream(fp_testcaseFile);
@@ -78,3 +83,8 @@ struct tokenInfo* getNextToken(FILE *fp) {
     }
 }
 
+int main() {
+    removeComments("abc.txt", "abc1.txt");
+
+    return 0;
+}
