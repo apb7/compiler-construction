@@ -17,3 +17,4 @@ void addKeyword(char *keyword);
 bool searchKeyword(char *keyword);
 int hashFunction(char *keyword);
 struct hashTable* createHashTable(int size);
+void printHashTable();
