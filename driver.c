@@ -7,7 +7,7 @@
 struct hashTable *ht;
 
 int main(){
-    ht= createHashTable(37);
+    ht= createHashTable(31);
     
     FILE *fp = fopen("keywords.txt", "r");
     
@@ -23,16 +23,25 @@ int main(){
     }
     fclose(fp);
 
-    printHashTable();
+    //printHashTable();
     
-    removeComments("abc.txt", "abc1.txt");
+    //removeComments("abc.txt", "abc1.txt");
     
-    fp = fopen("abc2.txt", "r");
+    fp = fopen("abc1.txt", "r");
 
     tokenInfo *tk = getNextToken(fp);
 
     while(tk!=NULL){
-        printf("%u %s\n", tk, tk->value.lexeme);
+
+        if(tk->type==NUM)
+            printf("%d\n", tk->value.num);
+
+        else if(tk->type ==RNUM)
+            printf("%f\n", tk->value.rnum);
+
+        else
+            printf("%s\n", tk->value.lexeme);
+
         tk = getNextToken(fp);
     }
     

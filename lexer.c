@@ -103,7 +103,7 @@ tokenInfo* getNextToken(FILE *fp) {
 
     while(pos_in_buffer < BUFFER_SIZE) {
         lookahead = buffer_for_tokenization[pos_in_buffer];
-        printf("'%d'", lookahead);
+    //    printf("'%d'", lookahead);
 
         // TODO: Check line number mechanism
 
@@ -111,6 +111,7 @@ tokenInfo* getNextToken(FILE *fp) {
         if(lookahead == '+') {
             tkin->type = PLUS;
             tkin->lno = line_number;
+            strcpy(tkin->value.lexeme, "+");
             tkin->value.lexeme[0] = '+';
             tkin->value.lexeme[1] = '\0';
             pos_in_buffer++;
@@ -318,18 +319,123 @@ tokenInfo* getNextToken(FILE *fp) {
         }
 
         // TODO: NUM, RNUM and ID/Keywords
+        if(isdigit(lookahead)) {
+            int i = pos_in_buffer;
+            while(isdigit(buffer_for_tokenization[i]))
+                i++;
+
+            if(buffer_for_tokenization[i] == '.') {
+                if(isdigit(buffer_for_tokenization[i+1])) {
+                    i++;
+                    while(isdigit(buffer_for_tokenization[i]))
+                        i++;
+
+                    if(buffer_for_tokenization[i] == 'e') {
+                        i++;
+                        if(buffer_for_tokenization[i] == '+' || buffer_for_tokenization[i] == '-') {
+                            i++;
+                        }
+                        if(isdigit(buffer_for_tokenization[i])) {
+                            while(isdigit(buffer_for_tokenization[i]))
+                                i++;
+                            
+                            char *str_rnum = malloc(sizeof(char) * (i - pos_in_buffer + 1));
+                            strncpy(str_rnum, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
+                            str_rnum[i - pos_in_buffer] = '\0';
+
+                            tkin->type = RNUM;
+                            tkin->lno = line_number;
+                            tkin->value.rnum = atof(str_rnum);
+                            pos_in_buffer = i;
+                            free(str_rnum);
+
+                            return tkin;
+                        }
+                        else {
+                            //TODO: throw error "123.45e(+/-) but no number"
+                        }
+                    }
+                    else {
+                        char *str_rnum = malloc(sizeof(char) * (i - pos_in_buffer + 1));
+                        strncpy(str_rnum, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
+                        str_rnum[i - pos_in_buffer] = '\0';
+
+                        tkin->type = RNUM;
+                        tkin->lno = line_number;
+                        tkin->value.rnum = atof(str_rnum);
+                        pos_in_buffer = i;
+                        free(str_rnum);
+
+                        return tkin;
+                    }
+
+                }
+                else if(buffer_for_tokenization[i+1] == '.') {
+                    char *str_num = malloc(sizeof(char) * (i - pos_in_buffer + 1));
+                    strncpy(str_num, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
+                    str_num[i - pos_in_buffer] = '\0';
+
+                    tkin->type = NUM;
+                    tkin->lno = line_number;
+                    tkin->value.num = atoi(str_num);
+                    pos_in_buffer = i - 1;
+                    free(str_num);
+
+                    return tkin;
+                }
+                else {
+                    //TODO : throw error "1234.rubbish"
+                }
+            }
+            else {
+                char *str_num = malloc(sizeof(char) * (i - pos_in_buffer + 1));
+                strncpy(str_num, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
+                str_num[i - pos_in_buffer] = '\0';
+
+                tkin->type = NUM;
+                tkin->lno = line_number;
+                tkin->value.num = atoi(str_num);
+                pos_in_buffer = i;
+                free(str_num);
+
+                return tkin;
+            }
+
+        }
+
+        if(isalpha(lookahead)) {
+            int i = pos_in_buffer;
+
+            while(isalnum(buffer_for_tokenization[i]) || buffer_for_tokenization[i] == '_')
+                i++;
+
+            if( i - pos_in_buffer > 20) {
+                //TODO: throw error
+            }
+            else{
+                strncpy(tkin->value.lexeme, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
+                tkin->value.lexeme[i - pos_in_buffer] = '\0';
+
+                //TODO: check for keywords!!!
+                tkin->type = ID;
+                tkin->lno = line_number;
+                pos_in_buffer = i;
+
+                return tkin;
+            }
+        }
 
         if(lookahead == '\n') {
             line_number += 1;
             pos_in_buffer += 1;
         }
 
-        if(lookahead == '\t' || lookahead == ' ') {
+        else if(lookahead == '\t' || lookahead == ' ') {
             pos_in_buffer++;
         }
+        else
+            pos_in_buffer++;
 
-        if(lookahead == '\0')
-        	break;
     }
     return NULL;
 }
