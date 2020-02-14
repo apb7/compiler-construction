@@ -66,7 +66,7 @@ void removeComments(char *testcaseFile, char *cleanFile) {
                 i += 2;
             }
 
-            if(!isComment)
+            if(!isComment || buffer_to_read[i] == '\n')
                 buffer_to_write[j++] = buffer_to_read[i];
         }
 
@@ -80,6 +80,8 @@ void removeComments(char *testcaseFile, char *cleanFile) {
         free(buffer_to_read);
         buffer_to_read = getStream(fp_testcaseFile);
     }
+
+    free(buffer_to_write);
 }
 
 tokenInfo* getNextToken(FILE *fp) {
@@ -101,6 +103,7 @@ tokenInfo* getNextToken(FILE *fp) {
 
     while(pos_in_buffer < BUFFER_SIZE) {
         lookahead = buffer_for_tokenization[pos_in_buffer];
+        printf("'%d'", lookahead);
 
         // TODO: Check line number mechanism
 
@@ -324,7 +327,11 @@ tokenInfo* getNextToken(FILE *fp) {
         if(lookahead == '\t' || lookahead == ' ') {
             pos_in_buffer++;
         }
+
+        if(lookahead == '\0')
+        	break;
     }
+    return NULL;
 }
 
 // int main() {

@@ -11,8 +11,9 @@
 // void DFA(char *buffer); //static line no
 
 // void fill_keywords();
+#include "lexerDef.h"
 
-bool checkPos(uint pos)
+bool checkPos(uint pos);
 char* getStream(FILE *fp);
 tokenInfo* getNextToken(FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);

@@ -2,7 +2,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -21,7 +22,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -40,7 +42,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -59,7 +62,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -78,7 +82,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -97,7 +102,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -116,7 +122,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -135,7 +142,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -154,7 +162,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -173,7 +182,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -192,7 +202,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -211,7 +222,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -230,7 +242,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -249,7 +262,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -268,7 +282,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
@@ -287,7 +302,8 @@ declare module mod1;
 <<driver Program>>
 start a=b*c
 declare v, w, r :integer;
-get_value(v); a=bcomment 2comment 1c
+get_value(v); a=bcomment 2
+comment 1c
 declare m:real;
 [r,m] := use mod1 with parameters v, w;
 print(r);
