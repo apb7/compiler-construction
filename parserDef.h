@@ -1,0 +1,4 @@
+#ifndef CCGIT_PARSERDEF_H
+#define CCGIT_PARSERDEF_H
+
+#endif //CCGIT_PARSERDEF_H
