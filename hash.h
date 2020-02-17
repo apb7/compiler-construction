@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 struct hashNode {
     char* keyword;
     struct hashNode *next;

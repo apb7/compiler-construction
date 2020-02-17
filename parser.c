@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #define MAX_LINE_LEN 150
-#define rrx(y) y - g_EPS - 1
+#define rrx(y) y - g_EOS - 1
 extern grammarNode *G;
 int numRules;
 ruleRange rule_range[nt_numNonTerminals];
