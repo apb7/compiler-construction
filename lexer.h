@@ -14,6 +14,6 @@
 #include "lexerDef.h"
 
 bool checkPos(uint pos);
-char* getStream(FILE *fp);
+bool getStream(FILE *fp);
 tokenInfo* getNextToken(FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);

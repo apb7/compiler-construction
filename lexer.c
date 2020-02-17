@@ -11,9 +11,11 @@
 typedef unsigned int uint;
 
 uint BUFFER_SIZE = 512;
+uint TWIN_BUFFER_SIZE = 1024;
 uint line_number = 1;
-uint pos_in_buffer = 0;
-char *buffer_for_tokenization = NULL;
+uint bp = 0; // begin ptr
+uint fp = 0; // forward ptr
+char *buffer_for_tokenization[1024]; // a global buffer of size 2 * BUFFER_SIZE
 
 bool checkPos(uint pos) {
     if(pos < BUFFER_SIZE-1)
@@ -21,16 +23,22 @@ bool checkPos(uint pos) {
     return false;
 }
 
-char* getStream(FILE *fp) {
-    if(feof(fp))
-        return NULL;
+bool getStream(FILE *file_ptr) {
+    static int status = 1;
 
-    // An extra char for delimitor '\0'
-    char *buffer_from_file = (char*) calloc(BUFFER_SIZE+1, sizeof(char));
-    fread(buffer_from_file, BUFFER_SIZE, sizeof(char), fp);
-    return buffer_from_file;
+    if(feof(file_ptr))
+        return false;
+
+    // TODO: Fill the global buffer with zeros.
+
+    // Selecting a half from the global buffer, alternatively.
+    status ^= 1;
+
+    fread(buffer_for_tokenization + (status * BUFFER_SIZE), BUFFER_SIZE, sizeof(char), file_ptr);
+    return true;
 }
 
+// TODO: Correct getStream functionality.
 void removeComments(char *testcaseFile, char *cleanFile) {
     FILE *fp_testcaseFile = fopen(testcaseFile, "r");
 
@@ -84,243 +92,513 @@ void removeComments(char *testcaseFile, char *cleanFile) {
     free(buffer_to_write);
 }
 
-tokenInfo* getNextToken(FILE *fp) {
+// Prints the string in global buffer from start to end, including end.
+// [start, end]
+void print_lexical_error(uint start, uint end) {
+    printf("LEXICAL ERROR: No such token ");
 
-    if(buffer_for_tokenization == NULL) {
-        buffer_for_tokenization = getStream(fp);
+    // Do we need these?
+    start = start % TWIN_BUFFER_SIZE;
+    end = end % TWIN_BUFFER_SIZE;
+
+    do {
+        print("%c", buffer_for_tokenization[start]);
+        start = (start + 1) % TWIN_BUFFER_SIZE;
     }
-    else if(pos_in_buffer >= BUFFER_SIZE) {
-        free(buffer_for_tokenization);
-        buffer_for_tokenization = getStream(fp);
-        pos_in_buffer = 0;
-    }
-    else if(buffer_for_tokenization[pos_in_buffer] == '\0') {
-        return NULL;
+    while(start != end);
+
+    print(" found on line number %ui.\n", line_number);
+}
+
+tokenInfo* getNextToken(FILE *file_ptr) {
+
+    if(fp == 0 || fp == BUFFER_SIZE) {
+        getStream(file_ptr);
     }
 
+    // TODO: Clarify allocation.
     tokenInfo* tkin = (tokenInfo*) malloc(sizeof(tokenInfo));
     char lookahead;
 
-    while(pos_in_buffer < BUFFER_SIZE) {
-        lookahead = buffer_for_tokenization[pos_in_buffer];
+    while(fp < TWIN_BUFFER_SIZE) {
+        lookahead = buffer_for_tokenization[fp];
     //    printf("'%d'", lookahead);
 
         // TODO: Check line number mechanism
+        // TODO: Maintain state variable (why?)
 
         // Non-lookhead tokens: + - / [ ] ( ) , ;
-        if(lookahead == '+') {
-            tkin->type = PLUS;
-            tkin->lno = line_number;
-            strcpy(tkin->value.lexeme, "+");
-            tkin->value.lexeme[0] = '+';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == '-') {
-            tkin->type = MINUS;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '-';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == '/') {
-            tkin->type = DIV;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '/';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == '[') {
-            tkin->type = SQBO;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '[';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == ']') {
-            tkin->type = SQBC;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = ']';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == '(') {
-            tkin->type = BO;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '(';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == ')') {
-            tkin->type = BC;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = ')';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == ',') {
-            tkin->type = COMMA;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = ',';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == ';') {
-            tkin->type = SEMICOL;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = ';';
-            tkin->value.lexeme[1] = '\0';
-            pos_in_buffer++;
-            return tkin;
-        }
-
-        if(lookahead == '!' && checkPos(pos_in_buffer) &&  buffer_for_tokenization[pos_in_buffer+1] == '=') {
-            tkin->type = NE;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '!';
-            tkin->value.lexeme[1] = '=';
-            tkin->value.lexeme[2] = '\0';
-            pos_in_buffer += 2;
-            return tkin;
-        }
-
-        if(lookahead == '=' && checkPos(pos_in_buffer) &&  buffer_for_tokenization[pos_in_buffer+1] == '=') {
-            tkin->type = EQ;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '=';
-            tkin->value.lexeme[1] = '=';
-            tkin->value.lexeme[2] = '\0';
-            pos_in_buffer += 2;
-            return tkin;
-        }
-
-        if(lookahead == ':') {
-            if(checkPos(pos_in_buffer) &&  buffer_for_tokenization[pos_in_buffer+1] == '=') {
-                tkin->type = ASSIGNOP;
+        switch (lookahead)
+        {
+            case '+':
+            {
+                tkin->type = PLUS;
                 tkin->lno = line_number;
-                tkin->value.lexeme[0] = ':';
-                tkin->value.lexeme[1] = '=';
-                tkin->value.lexeme[2] = '\0';
-                pos_in_buffer += 2;
-                return tkin;
-            }
-            else {
-                tkin->type = COLON;
-                tkin->lno = line_number;
-                tkin->value.lexeme[0] = ':';
+                tkin->value.lexeme[0] = '+';
                 tkin->value.lexeme[1] = '\0';
-                pos_in_buffer += 1;
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
                 return tkin;
             }
-        }
+            break;
 
-        if(lookahead == '.' && checkPos(pos_in_buffer) &&  buffer_for_tokenization[pos_in_buffer+1] == '.') {
-            tkin->type = RANGEOP;
-            tkin->lno = line_number;
-            tkin->value.lexeme[0] = '.';
-            tkin->value.lexeme[1] = '.';
-            tkin->value.lexeme[2] = '\0';
-            pos_in_buffer += 2;
-            return tkin;
-        }
+            case '-':
+            {
+                tkin->type = MINUS;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = '-';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+                return tkin;
+            }
+            break;
 
-        if(lookahead == '<') {
-            if(checkPos(pos_in_buffer)) {
-                if(buffer_for_tokenization[pos_in_buffer+1] == '=') {
-                    tkin->type = LE;
-                    tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '<';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
-                    pos_in_buffer += 2;
-                    return tkin;
+            case '/':
+            {
+                tkin->type = DIV;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = '/';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+                return tkin;
+            }
+            break;
+
+            case '[':
+            {
+                tkin->type = SQBO;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = '-';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+                return tkin;
+            }
+            break;
+
+            case ']':
+            {
+                tkin->type = SQBC;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = ']';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+            }
+            break;
+
+            case '(':
+            {
+                tkin->type = BO;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = '(';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+                return tkin;
+            }
+            break;
+
+            case ')':
+            {
+                tkin->type = BC;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = ')';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+                return tkin;
+            }
+            break;
+
+            case ',':
+            {
+                tkin->type = COMMA;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = ',';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+                return tkin;
+            }
+            break;
+
+            case ';':
+            {
+                tkin->type = SEMICOL;
+                tkin->lno = line_number;
+                tkin->value.lexeme[0] = ';';
+                tkin->value.lexeme[1] = '\0';
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                bp = fp;
+            }
+            break;
+
+            case '!':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '=':
+                    {
+                        tkin->type = NE;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '!';
+                        tkin->value.lexeme[1] = '=';
+                        tkin->value.lexeme[2] = '\0';
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+
+                    // Trap state for !=
+                    default:
+                    {
+                        // No retract required since lexical error.
+                        // Lexical Error for !
+                        print_lexical_error(bp, (fp+TWIN_BUFFER_SIZE-1)%TWIN_BUFFER_SIZE);
+                        // Since fp has already been moved forward, bring bp to fp.
+                        bp = fp;
+                        // Recursive call not required. We are in a loop.
+                        // return getNextToken(file_ptr);
+                    }
+                    break;
                 }
 
-                if(buffer_for_tokenization[pos_in_buffer+1] == '<') {
-                    tkin->type = DEF;
-                    tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '<';
-                    tkin->value.lexeme[1] = '<';
-                    tkin->value.lexeme[2] = '\0';
-                    pos_in_buffer += 2;
-                    return tkin;
+            }
+            break;
+
+            case '=':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '=':
+                    {
+                        tkin->type = EQ;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '=';
+                        tkin->value.lexeme[1] = '=';
+                        tkin->value.lexeme[2] = '\0';
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+
+                    // Trap state for ==
+                    default:
+                    {
+                        // Lexical Error for =
+                        print_lexical_error(bp, (fp+TWIN_BUFFER_SIZE-1)%TWIN_BUFFER_SIZE);
+                        bp = fp;
+                        // return getNextToken(file_ptr);
+                    }
+                    break;
                 }
-            }
-            else {
-                tkin->type = LT;
-                tkin->lno = line_number;
-                tkin->value.lexeme[0] = '<';
-                tkin->value.lexeme[1] = '\0';
-                pos_in_buffer += 1;
-                return tkin;
-            }
-        }
 
-        if(lookahead == '>') {
-            if(checkPos(pos_in_buffer)) {
-                if(buffer_for_tokenization[pos_in_buffer+1] == '=') {
-                    tkin->type = GE;
-                    tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '>';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
-                    pos_in_buffer += 2;
-                    return tkin;
+            }
+            break;
+
+            case ':':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '=':
+                    {
+                        tkin->type = ASSIGNOP;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = ':';
+                        tkin->value.lexeme[1] = '=';
+                        tkin->value.lexeme[2] = '\0';
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+
+                    // Other state for :
+                    default:
+                    {
+                        // Retract by 1.
+                        // Since fp has already been incremented, move bp to fp. (TODO: Check!)
+                        tkin->type = COLON;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = ':';
+                        tkin->value.lexeme[1] = '\0';
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
                 }
 
-                if(buffer_for_tokenization[pos_in_buffer+1] == '>') {
-                    tkin->type = ENDDEF;
-                    tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '>';
-                    tkin->value.lexeme[1] = '>';
-                    tkin->value.lexeme[2] = '\0';
-                    pos_in_buffer += 2;
-                    return tkin;
+            }
+            break;
+
+            case '.':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '.':
+                    {
+                        tkin->type = RANGEOP;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '.';
+                        tkin->value.lexeme[1] = '.';
+                        tkin->value.lexeme[2] = '\0';
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+
+                    // Trap state for ..
+                    default:
+                    {
+                        // Lexical Error for .
+                        print_lexical_error(bp, (fp+TWIN_BUFFER_SIZE-1)%TWIN_BUFFER_SIZE);
+                        bp = fp;
+                        // return getNextToken(file_ptr);
+                    }
+                    break;
                 }
-            }
-            else {
-                tkin->type = GT;
-                tkin->lno = line_number;
-                tkin->value.lexeme[0] = '>';
-                tkin->value.lexeme[1] = '\0';
-                pos_in_buffer += 1;
-                return tkin;
-            }
-        }
 
-        if(lookahead == '*') {
-            if(checkPos(pos_in_buffer) && buffer_for_tokenization[pos_in_buffer+1] == '*') {
-                // TODO: Ignore comments
             }
-            else {
-                tkin->type = MUL;
-                tkin->lno = line_number;
-                tkin->value.lexeme[0] = '*';
-                tkin->value.lexeme[1] = '\0';
-                pos_in_buffer += 1;
-                return tkin;
-            }
-        }
+            break;
 
-        // TODO: NUM, RNUM and ID/Keywords
+            case '<':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '=':
+                    {
+                        tkin->type = LE;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '<';
+                        tkin->value.lexeme[1] = '=';
+                        tkin->value.lexeme[2] = '\0';
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+
+                    case '<':
+                    {
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                        if(fp == 0 || fp == BUFFER_SIZE)
+                            getStream(file_ptr);
+
+                        char lookahead_two = buffer_for_tokenization[fp];
+
+                        switch(lookahead_two)
+                        {
+                            case '<':
+                            {
+                                tkin->type = DRIVERDEF;
+                                tkin->lno = line_number;
+                                tkin->value.lexeme[0] = '<';
+                                tkin->value.lexeme[1] = '<';
+                                tkin->value.lexeme[2] = '<';
+                                tkin->value.lexeme[3] = '\0';
+                                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                                bp = fp;
+                                return tkin;
+                            }
+                            break;
+
+                            default:
+                            {
+                                // For <<
+                                tkin->type = DEF;
+                                tkin->lno = line_number;
+                                tkin->value.lexeme[0] = '<';
+                                tkin->value.lexeme[1] = '<';
+                                tkin->value.lexeme[2] = '\0';
+                                bp = fp;
+                                return tkin;
+                            }
+                            break;
+                        }
+                    }
+                    break;
+
+                    // Other state for <
+                    default:
+                    {
+                        // Retract by 1.
+                        // Since fp has already been incremented, move bp to fp. (TODO: Check!)
+                        tkin->type = LT;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '<';
+                        tkin->value.lexeme[1] = '\0';
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+                }
+
+            }
+            break;
+
+            case '>':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '=':
+                    {
+                        tkin->type = GE;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '>';
+                        tkin->value.lexeme[1] = '=';
+                        tkin->value.lexeme[2] = '\0';
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+
+                    case '>':
+                    {
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                        if(fp == 0 || fp == BUFFER_SIZE)
+                            getStream(file_ptr);
+
+                        char lookahead_two = buffer_for_tokenization[fp];
+
+                        switch(lookahead_two)
+                        {
+                            case '>':
+                            {
+                                tkin->type = DRIVERENDDEF;
+                                tkin->lno = line_number;
+                                tkin->value.lexeme[0] = '>';
+                                tkin->value.lexeme[1] = '>';
+                                tkin->value.lexeme[2] = '>';
+                                tkin->value.lexeme[3] = '\0';
+                                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                                bp = fp;
+                                return tkin;
+                            }
+                            break;
+
+                            default:
+                            {
+                                // For >>
+                                tkin->type = ENDDEF;
+                                tkin->lno = line_number;
+                                tkin->value.lexeme[0] = '>';
+                                tkin->value.lexeme[1] = '>';
+                                tkin->value.lexeme[2] = '\0';
+                                bp = fp;
+                                return tkin;
+                            }
+                            break;
+                        }
+                    }
+                    break;
+
+                    // Other state for >
+                    default:
+                    {
+                        // Retract by 1.
+                        // Since fp has already been incremented, move bp to fp. (TODO: Check!)
+                        tkin->type = GT;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '>';
+                        tkin->value.lexeme[1] = '\0';
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+                }
+
+            }
+            break;
+
+            case '*':
+            {
+                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+
+                char lookahead_one = buffer_for_tokenization[fp];
+
+                switch(lookahead_one)
+                {
+                    case '*':
+                    {
+                        // TODO: Ignore comments.
+                    }
+                    break;
+
+                    // Other state for *
+                    default:
+                    {
+                        // Retract by 1
+                        tkin->type = MUL;
+                        tkin->lno = line_number;
+                        tkin->value.lexeme[0] = '*';
+                        tkin->value.lexeme[1] = '\0';
+                        bp = fp;
+                        return tkin;
+                    }
+                    break;
+                }
+
+            }
+            break;
+
+            // TODO: Modify NUM, RNUM and ID/Keywords code for case.
+/*
         if(isdigit(lookahead)) {
-            int i = pos_in_buffer;
+            int i = fp;
             while(isdigit(buffer_for_tokenization[i]))
                 i++;
 
@@ -339,14 +617,14 @@ tokenInfo* getNextToken(FILE *fp) {
                             while(isdigit(buffer_for_tokenization[i]))
                                 i++;
                             
-                            char *str_rnum = malloc(sizeof(char) * (i - pos_in_buffer + 1));
-                            strncpy(str_rnum, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
-                            str_rnum[i - pos_in_buffer] = '\0';
+                            char *str_rnum = malloc(sizeof(char) * (i - fp + 1));
+                            strncpy(str_rnum, buffer_for_tokenization + fp, i - fp);
+                            str_rnum[i - fp] = '\0';
 
                             tkin->type = RNUM;
                             tkin->lno = line_number;
                             tkin->value.rnum = atof(str_rnum);
-                            pos_in_buffer = i;
+                            fp = i;
                             free(str_rnum);
 
                             return tkin;
@@ -356,14 +634,14 @@ tokenInfo* getNextToken(FILE *fp) {
                         }
                     }
                     else {
-                        char *str_rnum = malloc(sizeof(char) * (i - pos_in_buffer + 1));
-                        strncpy(str_rnum, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
-                        str_rnum[i - pos_in_buffer] = '\0';
+                        char *str_rnum = malloc(sizeof(char) * (i - fp + 1));
+                        strncpy(str_rnum, buffer_for_tokenization + fp, i - fp);
+                        str_rnum[i - fp] = '\0';
 
                         tkin->type = RNUM;
                         tkin->lno = line_number;
                         tkin->value.rnum = atof(str_rnum);
-                        pos_in_buffer = i;
+                        fp = i;
                         free(str_rnum);
 
                         return tkin;
@@ -371,14 +649,14 @@ tokenInfo* getNextToken(FILE *fp) {
 
                 }
                 else if(buffer_for_tokenization[i+1] == '.') {
-                    char *str_num = malloc(sizeof(char) * (i - pos_in_buffer + 1));
-                    strncpy(str_num, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
-                    str_num[i - pos_in_buffer] = '\0';
+                    char *str_num = malloc(sizeof(char) * (i - fp + 1));
+                    strncpy(str_num, buffer_for_tokenization + fp, i - fp);
+                    str_num[i - fp] = '\0';
 
                     tkin->type = NUM;
                     tkin->lno = line_number;
                     tkin->value.num = atoi(str_num);
-                    pos_in_buffer = i - 1;
+                    fp = i - 1;
                     free(str_num);
 
                     return tkin;
@@ -388,14 +666,14 @@ tokenInfo* getNextToken(FILE *fp) {
                 }
             }
             else {
-                char *str_num = malloc(sizeof(char) * (i - pos_in_buffer + 1));
-                strncpy(str_num, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
-                str_num[i - pos_in_buffer] = '\0';
+                char *str_num = malloc(sizeof(char) * (i - fp + 1));
+                strncpy(str_num, buffer_for_tokenization + fp, i - fp);
+                str_num[i - fp] = '\0';
 
                 tkin->type = NUM;
                 tkin->lno = line_number;
                 tkin->value.num = atoi(str_num);
-                pos_in_buffer = i;
+                fp = i;
                 free(str_num);
 
                 return tkin;
@@ -404,39 +682,35 @@ tokenInfo* getNextToken(FILE *fp) {
         }
 
         if(isalpha(lookahead)) {
-            int i = pos_in_buffer;
+            int i = fp;
 
             while(isalnum(buffer_for_tokenization[i]) || buffer_for_tokenization[i] == '_')
                 i++;
 
-            if( i - pos_in_buffer > 20) {
+            if( i - fp > 20) {
                 //TODO: throw error
             }
             else{
-                strncpy(tkin->value.lexeme, buffer_for_tokenization + pos_in_buffer, i - pos_in_buffer);
-                tkin->value.lexeme[i - pos_in_buffer] = '\0';
+                strncpy(tkin->value.lexeme, buffer_for_tokenization + fp, i - fp);
+                tkin->value.lexeme[i - fp] = '\0';
 
                 //TODO: check for keywords!!!
                 tkin->type = ID;
                 tkin->lno = line_number;
-                pos_in_buffer = i;
+                fp = i;
 
                 return tkin;
             }
         }
-
-        if(lookahead == '\n') {
-            line_number += 1;
-            pos_in_buffer += 1;
+*/
+            // Run these cases together.
+            case '\n': line_number += 1;
+            case '\t':
+            case ' ':
+            default: fp = (fp + 1) % TWIN_BUFFER_SIZE;
         }
-
-        else if(lookahead == '\t' || lookahead == ' ') {
-            pos_in_buffer++;
-        }
-        else
-            pos_in_buffer++;
-
     }
+
     return NULL;
 }
 
