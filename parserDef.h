@@ -13,6 +13,7 @@ typedef enum {
 typedef enum{
     #define X(a) g_ ## a,
     #include "data/tokens.txt"
+    g_EOS,
     g_EPS,
     #include "data/nonTerminals.txt"
     #undef X
