@@ -43,20 +43,12 @@ typedef struct{
     rhsNode *head;
 } grammarNode;
 
-
-
-typedef enum {
-    S_T,S_NT
-} symbolType;
-
-typedef struct{
-    symbolType tag;
+struct mappingTableNode{
+    gSymbol sym;
     char str[25];
-    union {
-        terminalType t;
-        nonTerminalType nt;
-    } sym;
-} mappingTable[131];    //113 around symbols
+    struct mappingTableNode *next;
+}; //114 around symbols
+typedef struct mappingTableNode mappingTableNode;
 
 
 
