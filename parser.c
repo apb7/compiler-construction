@@ -127,7 +127,8 @@ void populateGrammarStruct(char *grFile){
     if(!grFile)
         return;
     FILE *fp = fopen(grFile,"r");
-
+    if(!fp)
+        return;
     int i;
     char buf[MAX_LINE_LEN] = {0};
     fgets(buf,MAX_LINE_LEN,fp);
