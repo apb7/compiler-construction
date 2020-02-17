@@ -151,3 +151,160 @@ void populateGrammarStruct(char *grFile){
 
 }
 
+
+
+
+//set elt bit
+unsigned long long add_elt(unsigned long long s, unsigned long long elt) {return s|(1UL<<elt);}
+
+//unset elt bit
+unsigned long long remove_elt(unsigned long long s, unsigned long long elt) {return s&(~(1UL<<elt));}
+
+//returns 0 if elt bit is 0
+unsigned long long isPresent(unsigned long long s, unsigned long long elt) {return s&(1UL<<elt);}
+
+// union of 2 sets
+unsigned long long union_set(unsigned long long s1, unsigned long long s2) {return (s1|s2);}
+
+//intersection of 2 sets
+unsigned long long intersect_set(unsigned long long s1, unsigned long long s2) {return (s1&s2);}
+
+
+unsigned long long* firstSet;
+unsigned long long* followSet;
+int size() {
+    if(sizeof(G)==0) return 0;
+    return sizeof(G)/sizeof(G[0]);
+}
+
+int isEpsilon(gSymbol symbol) {
+    return (symbol==g_EPS?1:0);
+}
+
+int isTerminal(gSymbol symbol) {
+    return (symbol<g_EPS-1?1:0);
+}
+
+int isNonTerminal(gSymbol symbol) {
+    return ((symbol>g_EPS && symbol<g_numSymbols)?1:0);
+}
+
+void first_set() {
+    int n=numRules;
+    int isChanged=1;
+    int nonTerminal_count=g_numSymbols-g_EPS-1;
+    firstSet = (unsigned long long*)malloc(nonTerminal_count * sizeof(unsigned long long));
+    memset(firstSet,0,sizeof(firstSet));
+    while(isChanged) {
+        isChanged=0;
+        for(int i = 0; i < n; i++) {
+            gSymbol left_val=G[i].lhs;
+            rhsNode* first = G[i].head;
+            while(first!=NULL) {
+                gSymbol ff_val=first->s;
+                if(isTerminal(ff_val)) {
+                    unsigned long long prev=firstSet[left_val - g_EPS - 1];
+                    firstSet[left_val - g_EPS - 1]=add_elt(firstSet[left_val - g_EPS - 1],ff_val);
+                    if(prev != firstSet[left_val - g_EPS - 1]) 
+                        isChanged=1;
+                    break;
+                } else if(isEpsilon(ff_val)) {
+                    first=first->next;
+                } else {
+                    unsigned long long prev=firstSet[left_val - g_EPS - 1];
+                    firstSet[left_val - g_EPS - 1]=union_set(firstSet[left_val - g_EPS - 1],remove_elt(firstSet[ff_val - g_EPS - 1],g_EPS));
+                    if(prev != firstSet[left_val - g_EPS - 1])
+                        isChanged=1;
+                    if(isPresent(firstSet[ff_val - g_EPS - 1],g_EPS)) {
+                        first=first->next;
+                    }
+                    else break;
+                }
+            }
+            if(first==NULL) {
+                unsigned long long prev=firstSet[left_val - g_EPS - 1];
+                firstSet[left_val - g_EPS - 1]=add_elt(firstSet[left_val - g_EPS - 1],g_EPS);
+                if(prev != firstSet[left_val - g_EPS - 1])
+                    isChanged=1;
+            }
+        }
+    }
+}
+
+
+void follow_set() {
+    int n=numRules;
+    int isChanged=1;
+    int nonTerminal_count=g_numSymbols-g_EPS-1;
+    followSet = (unsigned long long*)malloc(nonTerminal_count * sizeof(unsigned long long)); 
+    memset(followSet,0,sizeof(followSet));
+    //follow of topmost NT is $;
+    followSet[0]=add_elt(followSet[0],g_EOS);
+    while(isChanged) {
+
+        isChanged=0;
+        
+        for(int i = 0; i < n; i++) {
+            gSymbol left_val=G[i].lhs;
+            rhsNode* first = G[i].head;
+            while(first!=NULL) {
+                gSymbol ff_val=first->s;
+                if(isTerminal(ff_val) || isEpsilon(ff_val)) {
+                    first=first->next;
+                    continue;
+                }
+                rhsNode* second = first->next;
+
+                while(1) {
+                    if(second==NULL) {
+                        unsigned long long prev=followSet[ff_val-g_EPS-1];
+                        followSet[ff_val-g_EPS-1]=union_set(followSet[ff_val-g_EPS-1],followSet[left_val-g_EPS-1]);
+                        if(prev!=followSet[ff_val-g_EPS-1])
+                            isChanged=1;
+                        break;
+                    }
+                    gSymbol ss_val=second->s;
+                    //this case should not occur
+                    if(isEpsilon(ss_val)) {
+                        second=second->next;
+                    } else if(isTerminal(ss_val)) {
+                        unsigned long long prev=followSet[ff_val-g_EPS-1];
+                        followSet[ff_val-g_EPS-1]=add_elt(followSet[ff_val-g_EPS-1],ss_val);
+                        if(prev!=followSet[ff_val-g_EPS-1])
+                            isChanged=1;
+                        break;
+                    } else {
+                        unsigned long long prev=followSet[ff_val-g_EPS-1];
+                        followSet[ff_val-g_EPS-1]=union_set(followSet[ff_val-g_EPS-1],firstSet[ss_val-g_EPS-1]);
+                        if(prev!=followSet[ff_val-g_EPS-1])
+                            isChanged=1;
+                        if(isPresent(firstSet[ss_val-g_EPS-1],g_EPS)) second=second->next; 
+                        else break;
+                    }
+                }
+
+                first=first->next;
+            }
+        }
+    }
+    for(int i = 0; i < nonTerminal_count; i++) {
+        if(isPresent(followSet[i],g_EPS))
+            followSet[i] = remove_elt(followSet[i],g_EPS);
+    }
+}
+
+void printGrammar() {
+    int n=numRules;
+    printf("%d\n",n);
+    for(int i = 0; i < n; i++) {
+        printf("%d -> { ",G[i].lhs);
+        rhsNode* start=G[i].head;
+        while(start!=NULL) {
+            printf("%d,", start->s);
+            start=start->next;
+        }
+        printf("}\n");
+    }
+}
+
+
