@@ -17,6 +17,7 @@ ruleRange rule_range[nt_numNonTerminals];
 intSet* firstSet;
 intSet* followSet;
 
+
 int isEpsilon(gSymbol symbol) {
     return (symbol==g_EPS?1:0);
 }
