@@ -161,6 +161,7 @@ void fillMappingTable(char *tokenPath, char *nonTerminalsPath){
     fclose(fp);
 
 // read nonTerminalsPath
+    indexEnum++; // skip g_EOS
     fp = fopen(nonTerminalsPath, "r");
 
     if(fp == NULL){
