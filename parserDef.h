@@ -19,6 +19,7 @@ typedef enum{
     g_numSymbols
 } gSymbol;
 //g_EPS is for Epsilon
+//g_EOS is end of string
 
 typedef enum {
 #define X(a) nt_ ## a,
@@ -42,9 +43,5 @@ typedef struct{
     gSymbol lhs;    //non terminal symbol
     rhsNode *head;
 } grammarNode;
-
-
-
-
 
 #endif //CCGIT_PARSERDEF_H
