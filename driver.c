@@ -27,10 +27,11 @@ int main(){
 
     //removeComments("abc.txt", "abc1.txt");
 
-    fp = fopen("abc.txt", "r");
+    fp = fopen("abc1.txt", "r");
 
     tokenInfo *tk = getNextToken(fp);
 
+    int i=0;
     while(tk!=NULL){
 
         if(tk->type==NUM)
@@ -43,6 +44,10 @@ int main(){
             printf("%s\n", tk->value.lexeme);
 
         tk = getNextToken(fp);
+        i++;
+
+        if(i== 125000)
+            break;
     }
 
 }

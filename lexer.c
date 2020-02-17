@@ -19,9 +19,13 @@ char buffer_for_tokenization[1024]; // a global buffer of size 2 * BUFFER_SIZE
 
 bool getStream(FILE *file_ptr) {
     static int status = 1;
+    static int count = 0;
+
+    count++;
 
     if(feof(file_ptr))
-        return false;
+        printf("\n\n\n\n\reached EOF\n\n\n");
+    //    return false;
 
     // TODO: Fill the global buffer with zeros.
 
@@ -35,6 +39,8 @@ bool getStream(FILE *file_ptr) {
     fread(buffer_for_tokenization + (status * BUFFER_SIZE), BUFFER_SIZE, sizeof(char), file_ptr);
     return true;
 }
+// TODO: ensure only 1 time file is read, avoid fake reading
+
 
 // TODO: Correct getStream functionality.
 // void removeComments(char *testcaseFile, char *cleanFile) {
@@ -109,6 +115,8 @@ void print_lexical_error(uint start, uint end) {
 
 tokenInfo* getNextToken(FILE *file_ptr) {
 
+    printf("bp:%d fp:%d %c ", bp, fp, buffer_for_tokenization[fp]);
+
     if(fp == 0 || fp == BUFFER_SIZE) {
         getStream(file_ptr);
     }
@@ -167,7 +175,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
             {
                 tkin->type = SQBO;
                 tkin->lno = line_number;
-                tkin->value.lexeme[0] = '-';
+                tkin->value.lexeme[0] = '[';
                 tkin->value.lexeme[1] = '\0';
                 fp = (fp + 1) % TWIN_BUFFER_SIZE;
                 bp = fp;
@@ -183,6 +191,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 tkin->value.lexeme[1] = '\0';
                 fp = (fp + 1) % TWIN_BUFFER_SIZE;
                 bp = fp;
+                return tkin;
             }
             break;
 
@@ -230,6 +239,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 tkin->value.lexeme[1] = '\0';
                 fp = (fp + 1) % TWIN_BUFFER_SIZE;
                 bp = fp;
+                return tkin;
             }
             break;
 
@@ -593,121 +603,228 @@ tokenInfo* getNextToken(FILE *file_ptr) {
             break;
 
             // TODO: Modify NUM, RNUM and ID/Keywords code for case.
-/*
-        if(isdigit(lookahead)) {
-            int i = fp;
-            while(isdigit(buffer_for_tokenization[i]))
-                i++;
 
-            if(buffer_for_tokenization[i] == '.') {
-                if(isdigit(buffer_for_tokenization[i+1])) {
-                    i++;
-                    while(isdigit(buffer_for_tokenization[i]))
-                        i++;
-
-                    if(buffer_for_tokenization[i] == 'e') {
-                        i++;
-                        if(buffer_for_tokenization[i] == '+' || buffer_for_tokenization[i] == '-') {
-                            i++;
-                        }
-                        if(isdigit(buffer_for_tokenization[i])) {
-                            while(isdigit(buffer_for_tokenization[i]))
-                                i++;
-                            
-                            char *str_rnum = malloc(sizeof(char) * (i - fp + 1));
-                            strncpy(str_rnum, buffer_for_tokenization + fp, i - fp);
-                            str_rnum[i - fp] = '\0';
-
-                            tkin->type = RNUM;
-                            tkin->lno = line_number;
-                            tkin->value.rnum = atof(str_rnum);
-                            fp = i;
-                            free(str_rnum);
-
-                            return tkin;
-                        }
-                        else {
-                            //TODO: throw error "123.45e(+/-) but no number"
-                        }
-                    }
-                    else {
-                        char *str_rnum = malloc(sizeof(char) * (i - fp + 1));
-                        strncpy(str_rnum, buffer_for_tokenization + fp, i - fp);
-                        str_rnum[i - fp] = '\0';
-
-                        tkin->type = RNUM;
-                        tkin->lno = line_number;
-                        tkin->value.rnum = atof(str_rnum);
-                        fp = i;
-                        free(str_rnum);
-
-                        return tkin;
-                    }
-
-                }
-                else if(buffer_for_tokenization[i+1] == '.') {
-                    char *str_num = malloc(sizeof(char) * (i - fp + 1));
-                    strncpy(str_num, buffer_for_tokenization + fp, i - fp);
-                    str_num[i - fp] = '\0';
-
-                    tkin->type = NUM;
-                    tkin->lno = line_number;
-                    tkin->value.num = atoi(str_num);
-                    fp = i - 1;
-                    free(str_num);
-
-                    return tkin;
-                }
-                else {
-                    //TODO : throw error "1234.rubbish"
-                }
-            }
-            else {
-                char *str_num = malloc(sizeof(char) * (i - fp + 1));
-                strncpy(str_num, buffer_for_tokenization + fp, i - fp);
-                str_num[i - fp] = '\0';
-
-                tkin->type = NUM;
-                tkin->lno = line_number;
-                tkin->value.num = atoi(str_num);
-                fp = i;
-                free(str_num);
-
-                return tkin;
-            }
-
-        }
-
-        if(isalpha(lookahead)) {
-            int i = fp;
-
-            while(isalnum(buffer_for_tokenization[i]) || buffer_for_tokenization[i] == '_')
-                i++;
-
-            if( i - fp > 20) {
-                //TODO: throw error
-            }
-            else{
-                strncpy(tkin->value.lexeme, buffer_for_tokenization + fp, i - fp);
-                tkin->value.lexeme[i - fp] = '\0';
-
-                //TODO: check for keywords!!!
-                tkin->type = ID;
-                tkin->lno = line_number;
-                fp = i;
-
-                return tkin;
-            }
-        }
-*/
             // Run these cases together.
             case '\n': line_number += 1;
             case '\t':
-            case ' ': fp = (fp + 1) % TWIN_BUFFER_SIZE; bp = fp;
+            case ' ': 
+                fp = (fp + 1) % TWIN_BUFFER_SIZE; 
+                if(fp == 0 || fp == BUFFER_SIZE)
+                    getStream(file_ptr);
+                bp = fp;
             break;
 
-            default: print_lexical_error(bp, (fp+1)%TWIN_BUFFER_SIZE);
-            fp = (fp + 1) % TWIN_BUFFER_SIZE; bp = fp;
+            default: 
+            {    
+               if(isalpha(lookahead)) {
+                    char lookahead_i;
+
+                    do{
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                        //ADD more conditions
+                        if(fp == 0 || fp == BUFFER_SIZE)
+                            getStream(file_ptr);
+
+                        lookahead_i = buffer_for_tokenization[fp];
+
+                    } while(isalnum(lookahead_i) || lookahead_i == '_');
+
+                    if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 20) {
+                        //TODO: throw error
+                    }
+                    else{
+                        if(fp > bp)
+                            strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, fp - bp);
+                        else {
+                            strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                            fprintf(stderr, "%d %c %s\n", bp, buffer_for_tokenization[bp], tkin->value.lexeme);
+                            strncpy(tkin->value.lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                            fprintf(stderr, "%d %s\n", bp, tkin->value.lexeme);
+                        }
+                        tkin->value.lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+
+                        //TODO: check for keywords!!!
+                        tkin->type = ID;
+                        tkin->lno = line_number;
+                        bp = fp;
+
+                        return tkin;
+                    }
+                }
+
+                else if(isdigit(lookahead)) {
+
+                    char lookahead_i;
+
+                    do{
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                        if(fp == 0 || fp == BUFFER_SIZE)
+                            getStream(file_ptr);
+
+                        lookahead_i = buffer_for_tokenization[fp];
+
+                    } while(isdigit(lookahead_i));
+
+                    switch(lookahead_i){
+                        case '.':
+                        {
+                            fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                            // TODO: set flags
+                            if(fp == 0 || fp == BUFFER_SIZE)
+                                getStream(file_ptr);
+
+                            char lookahead_i_one = buffer_for_tokenization[fp];
+
+                            if(isdigit(lookahead_i_one)) {
+
+                                do{
+                                    fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                                    if(fp == 0 || fp == BUFFER_SIZE)
+                                        getStream(file_ptr);
+
+                                    lookahead_i = buffer_for_tokenization[fp];
+
+                                } while(isdigit(lookahead_i));
+
+                                if(lookahead_i == 'e') {
+                                    fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                                    if(fp == 0 || fp == BUFFER_SIZE)
+                                        getStream(file_ptr);
+
+                                    lookahead_i_one = buffer_for_tokenization[fp];
+                                        
+                                    if(lookahead_i_one == '+' || lookahead_i_one == '-') {
+                                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                                        if(fp == 0 || fp == BUFFER_SIZE)
+                                            getStream(file_ptr);
+
+                                        lookahead_i_one = buffer_for_tokenization[fp];
+                                    }
+
+                                    if(isdigit(lookahead_i_one)) {
+                                        do{
+                                            fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                                            if(fp == 0 || fp == BUFFER_SIZE)
+                                                getStream(file_ptr);
+
+                                            lookahead_i = buffer_for_tokenization[fp];
+
+                                        } while(isdigit(lookahead_i));
+                                        
+                                        char *str_rnum = malloc(sizeof(char) * ((fp - bp + 1 + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE));
+
+                                        if(fp > bp)
+                                            strncpy(str_rnum, buffer_for_tokenization + bp, fp - bp);
+                                        else {
+                                            strncpy(str_rnum, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                                            strncpy(str_rnum + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                                        }
+
+                                        str_rnum[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+
+                                        tkin->type = RNUM;
+                                        tkin->lno = line_number;
+                                        tkin->value.rnum = atof(str_rnum);
+                                        bp = fp;
+                                        free(str_rnum);
+
+                                        return tkin;
+                                    }
+                                    else {
+                                        //TODO: throw error "123.45e(+/-) but no number"
+
+                                    }
+                                }
+                                else {
+                                    char *str_rnum = malloc(sizeof(char) * ((fp - bp + 1 + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE));
+                                    
+                                    if(fp > bp)
+                                            strncpy(str_rnum, buffer_for_tokenization + bp, fp - bp);
+                                    else {
+                                        strncpy(str_rnum, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                                        strncpy(str_rnum + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                                    }
+
+                                    str_rnum[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+
+                                    tkin->type = RNUM;
+                                    tkin->lno = line_number;
+                                    tkin->value.rnum = atof(str_rnum);
+                                    bp = fp;
+                                    free(str_rnum);
+
+                                    return tkin;
+                                }
+                            }
+
+                            else if(lookahead_i_one == '.') {
+                                char *str_num = malloc(sizeof(char) * ((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE));
+
+                                if(fp > bp)
+                                        strncpy(str_num, buffer_for_tokenization + bp, fp - bp);
+                                else {
+                                    strncpy(str_num, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                                    strncpy(str_num + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                                }
+
+                                str_num[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+
+                                tkin->type = NUM;
+                                tkin->lno = line_number;
+                                tkin->value.num = atoi(str_num);
+                                bp = fp - 1;
+                                free(str_num);
+
+                                return tkin;
+                            }
+
+                            else {
+                                //TODO : throw error "1234.rubbish"
+                            }
+                        }
+                        break;
+
+                        default:
+                        {
+                            char *str_num = malloc(sizeof(char) * ((fp - bp + 1 + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE));
+                            
+                            if(fp > bp)
+                                strncpy(str_num, buffer_for_tokenization + bp, fp - bp);
+                            else {
+                                strncpy(str_num, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                                strncpy(str_num + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                            }
+
+                            str_num[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+
+                            tkin->type = NUM;
+                            tkin->lno = line_number;
+                            tkin->value.num = atoi(str_num);
+                            bp = fp;
+                            free(str_num);
+
+                            return tkin;
+                        }
+                    }
+                }
+
+                else
+                {
+                    print_lexical_error(bp, (fp+1)%TWIN_BUFFER_SIZE);
+                    // if fp is incremented, make sure, buffers ARE READ
+                    fp = (fp + 1) % TWIN_BUFFER_SIZE; 
+                    if(fp == 0 || fp == BUFFER_SIZE)
+                            getStream(file_ptr);
+                    bp = fp;
+                }                
+            }
         }
     }
 
