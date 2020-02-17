@@ -1,6 +1,6 @@
 #ifndef CCGIT_SET_H
 #define CCGIT_SET_H
-
+#include <stdbool.h>
 typedef unsigned long long intSet;
 
 intSet add_elt(intSet s, unsigned int elt);
