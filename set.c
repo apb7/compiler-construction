@@ -1,5 +1,6 @@
 #include "set.h"
-#include <stdbool.h>
+
+
 
 //set elt bit
 intSet add_elt(intSet s, unsigned int elt) {return s|(1ULL<<elt);}

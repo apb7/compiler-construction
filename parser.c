@@ -6,16 +6,19 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "set.h"
+#include "parserHash.h"
 
 #define MAX_LINE_LEN 150
 //ntx can be used to map NonTerminal Enums to 0 based indexing
 #define ntx(y) y - g_EOS - 1
 
 extern grammarNode *G;
+extern struct mappingTable *mt;
 int numRules;
 ruleRange rule_range[nt_numNonTerminals];
-intSet* firstSet;
-intSet* followSet;
+extern intSet* firstSet;
+extern intSet* followSet;
+
 
 int isEpsilon(gSymbol symbol) {
     return (symbol==g_EPS?1:0);
@@ -107,7 +110,7 @@ char **strSplit(char *str, char tk){
 
 rhsNode *createRhsNode(char *rhsTk){
     rhsNode *rhs = (rhsNode *) malloc(sizeof(rhsNode));
-    rhs->s = 0; //change this to mapping_func(rhsTk)
+    rhs->s = getEnumValue(rhsTk);
     rhs->next = NULL;
     return rhs;
 }
@@ -119,7 +122,7 @@ grammarNode createRuleNode(char *rule){
     //rule has the format "A,B,c,D,a" for a rule of type A -> BcDa
     char **ruleArr = strSplit(rule,',');
     grammarNode gnode;
-    gnode.lhs = 0;  //change this to mapping_func(ruleArr[0])
+    gnode.lhs = getEnumValue(ruleArr[0]);
     gnode.head = createRhsNode(ruleArr[1]);
     int i = 2;
     rhsNode *tmp = gnode.head;
@@ -165,11 +168,6 @@ void populateGrammarStruct(char *grFile){
     }
     rule_range[ntx(G[numRules-1].lhs)].end = numRules - 1;
 
-}
-
-int size() {
-    if(sizeof(G)==0) return 0;
-    return sizeof(G)/sizeof(G[0]);
 }
 
 
