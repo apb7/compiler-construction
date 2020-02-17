@@ -1,7 +1,6 @@
 #ifndef lexerDef
 #define lexerDef
 
-typedef unsigned int uint;
 typedef enum {
     INTEGER, REAL, BOOLEAN, OF, ARRAY, START, END, DECLARE, MODULE, DRIVER,
     PROGRAM, DRIVERDEF, DRIVERENDDEF, GET_VALUE, PRINT, USE, WITH, PARAMETERS,

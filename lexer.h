@@ -12,8 +12,7 @@
 
 // void fill_keywords();
 #include "lexerDef.h"
-#include <stdbool.h>
-#include <stdio.h>
+
 bool checkPos(uint pos);
 char* getStream(FILE *fp);
 tokenInfo* getNextToken(FILE *fp);
