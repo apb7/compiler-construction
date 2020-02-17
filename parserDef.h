@@ -14,12 +14,12 @@ typedef enum{
     #define X(a) g_ ## a,
     #include "data/tokens.txt"
     g_EOS,
-    g_EPS,
     #include "data/nonTerminals.txt"
     #undef X
     g_numSymbols
 } gSymbol;
 //g_EPS is for Epsilon
+//g_EOS is end of string
 
 typedef enum {
 #define X(a) nt_ ## a,
@@ -44,21 +44,13 @@ typedef struct{
     rhsNode *head;
 } grammarNode;
 
-
-
-typedef enum {
-    S_T,S_NT
-} symbolType;
-
-typedef struct{
-    symbolType tag;
+struct mappingTableNode{
+    gSymbol sym;
     char str[25];
-    union {
-        terminalType t;
-        nonTerminalType nt;
-    } sym;
-} mappingTable[131];    //113 around symbols
+    struct mappingTableNode *next;
+}; //114 around symbols
+typedef struct mappingTableNode mappingTableNode;
 
-
+struct mappingTableNode mt[131];
 
 #endif //CCGIT_PARSERDEF_H
