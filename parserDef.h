@@ -44,13 +44,4 @@ typedef struct{
     rhsNode *head;
 } grammarNode;
 
-struct mappingTableNode{
-    gSymbol sym;
-    char str[25];
-    struct mappingTableNode *next;
-}; //114 around symbols
-typedef struct mappingTableNode mappingTableNode;
-
-struct mappingTableNode mt[131];
-
 #endif //CCGIT_PARSERDEF_H
