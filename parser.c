@@ -171,10 +171,6 @@ unsigned long long intersect_set(unsigned long long s1, unsigned long long s2) {
 
 unsigned long long* firstSet;
 unsigned long long* followSet;
-int size() {
-    if(sizeof(G)==0) return 0;
-    return sizeof(G)/sizeof(G[0]);
-}
 
 int isEpsilon(gSymbol symbol) {
     return (symbol==g_EPS?1:0);
@@ -189,7 +185,7 @@ int isNonTerminal(gSymbol symbol) {
 }
 
 void first_set() {
-    int n=size();
+    int n=numRules;
     int isChanged=0;
     int nonTerminal_count=g_numSymbols-g_EPS-1;
     firstSet = (unsigned long long*)malloc(nonTerminal_count * sizeof(unsigned long long)); 
@@ -238,7 +234,7 @@ void first_set() {
 
 //Need first set from mdrp aka proof aka refurbished
 void follow_set() {
-    int n=size();
+    int n=numRules;
     int isChanged=0;
     int nonTerminal_count=g_numSymbols-g_EPS-1;
     followSet = (unsigned long long*)malloc(nonTerminal_count * sizeof(unsigned long long)); 
@@ -297,7 +293,7 @@ void follow_set() {
 }
 
 void printGrammar() {
-    int n=size();
+    int n=numRules;
     printf("%d\n",n);
     for(int i = 0; i < n; i++) {
         printf("%d -> { ",G[i].lhs);
