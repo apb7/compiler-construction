@@ -8,7 +8,7 @@
 
 #include "lexerDef.h"
 
-//typedef unsigned int uint;
+typedef unsigned int uint;
 
 uint BUFFER_SIZE = 512;
 uint line_number = 1;
