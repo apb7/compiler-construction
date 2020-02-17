@@ -15,13 +15,7 @@ uint TWIN_BUFFER_SIZE = 1024;
 uint line_number = 1;
 uint bp = 0; // begin ptr
 uint fp = 0; // forward ptr
-char *buffer_for_tokenization[1024]; // a global buffer of size 2 * BUFFER_SIZE
-
-bool checkPos(uint pos) {
-    if(pos < BUFFER_SIZE-1)
-        return true;
-    return false;
-}
+char buffer_for_tokenization[1024]; // a global buffer of size 2 * BUFFER_SIZE
 
 bool getStream(FILE *file_ptr) {
     static int status = 1;
@@ -34,80 +28,83 @@ bool getStream(FILE *file_ptr) {
     // Selecting a half from the global buffer, alternatively.
     status ^= 1;
 
+    uint i;
+    for(i=0; i<BUFFER_SIZE; i++)
+        buffer_for_tokenization[(status * BUFFER_SIZE) + i] = 0;
+
     fread(buffer_for_tokenization + (status * BUFFER_SIZE), BUFFER_SIZE, sizeof(char), file_ptr);
     return true;
 }
 
 // TODO: Correct getStream functionality.
-void removeComments(char *testcaseFile, char *cleanFile) {
-    FILE *fp_testcaseFile = fopen(testcaseFile, "r");
+// void removeComments(char *testcaseFile, char *cleanFile) {
+//     FILE *fp_testcaseFile = fopen(testcaseFile, "r");
 
-    if(fp_testcaseFile == NULL) {
-        printf("ERROR: Failed to open %s", testcaseFile);
-        return;
-    }
+//     if(fp_testcaseFile == NULL) {
+//         printf("ERROR: Failed to open %s", testcaseFile);
+//         return;
+//     }
 
-    FILE *fp_cleanFile = fopen(cleanFile, "w");
+//     FILE *fp_cleanFile = fopen(cleanFile, "w");
 
-    if(fp_cleanFile == NULL) {
-        printf("ERROR: Failed to open %s", cleanFile);
-        return;
-    }
+//     if(fp_cleanFile == NULL) {
+//         printf("ERROR: Failed to open %s", cleanFile);
+//         return;
+//     }
 
-    char *buffer_to_read = getStream(fp_testcaseFile);
-    char *buffer_to_write = (char*) malloc(BUFFER_SIZE * sizeof(char));
+//     char *buffer_to_read = getStream(fp_testcaseFile);
+//     char *buffer_to_write = (char*) malloc(BUFFER_SIZE * sizeof(char));
 
-    int isComment = 0, wasAsterisk = 0;
+//     int isComment = 0, wasAsterisk = 0;
 
-    while(buffer_to_read) {
-        uint i = 0, j = 0;
+//     while(buffer_to_read) {
+//         uint i = 0, j = 0;
 
-        if(wasAsterisk && buffer_to_read[0] == '*'){
-            isComment ^= 1;
-            i++;
-        }
+//         if(wasAsterisk && buffer_to_read[0] == '*'){
+//             isComment ^= 1;
+//             i++;
+//         }
 
-        for(; i < BUFFER_SIZE && buffer_to_read[i] != '\0'; i++){
+//         for(; i < BUFFER_SIZE && buffer_to_read[i] != '\0'; i++){
 
-            if(buffer_to_read[i] == '*' && (i < BUFFER_SIZE - 1 && buffer_to_read[i+1] == '*')){
-                isComment ^= 1;
-                i += 2;
-            }
+//             if(buffer_to_read[i] == '*' && (i < BUFFER_SIZE - 1 && buffer_to_read[i+1] == '*')){
+//                 isComment ^= 1;
+//                 i += 2;
+//             }
 
-            if(!isComment || buffer_to_read[i] == '\n')
-                buffer_to_write[j++] = buffer_to_read[i];
-        }
+//             if(!isComment || buffer_to_read[i] == '\n')
+//                 buffer_to_write[j++] = buffer_to_read[i];
+//         }
 
-        fwrite(buffer_to_write, sizeof(char), j, fp_cleanFile);
+//         fwrite(buffer_to_write, sizeof(char), j, fp_cleanFile);
 
-        if(buffer_to_read[BUFFER_SIZE - 1] == '*')
-            wasAsterisk = 1;
-        else
-            wasAsterisk = 0;
+//         if(buffer_to_read[BUFFER_SIZE - 1] == '*')
+//             wasAsterisk = 1;
+//         else
+//             wasAsterisk = 0;
 
-        free(buffer_to_read);
-        buffer_to_read = getStream(fp_testcaseFile);
-    }
+//         free(buffer_to_read);
+//         buffer_to_read = getStream(fp_testcaseFile);
+//     }
 
-    free(buffer_to_write);
-}
+//     free(buffer_to_write);
+// }
 
 // Prints the string in global buffer from start to end, including end.
-// [start, end]
+// [start, end)
 void print_lexical_error(uint start, uint end) {
-    printf("LEXICAL ERROR: No such token ");
+    // printf("LEXICAL ERROR: %u %u No such token ", start, end);
+    // // Do we need these?
+    // start = start % TWIN_BUFFER_SIZE;
+    // end = end % TWIN_BUFFER_SIZE;
 
-    // Do we need these?
-    start = start % TWIN_BUFFER_SIZE;
-    end = end % TWIN_BUFFER_SIZE;
+    // do {
+    //     printf("%c", buffer_for_tokenization[start]);
+    //     start = (start + 1) % TWIN_BUFFER_SIZE;
+    // }
+    // while(start != end);
 
-    do {
-        print("%c", buffer_for_tokenization[start]);
-        start = (start + 1) % TWIN_BUFFER_SIZE;
-    }
-    while(start != end);
-
-    print(" found on line number %ui.\n", line_number);
+    // printf(" found on line number %u.\n", line_number);
 }
 
 tokenInfo* getNextToken(FILE *file_ptr) {
@@ -120,7 +117,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
     tokenInfo* tkin = (tokenInfo*) malloc(sizeof(tokenInfo));
     char lookahead;
 
-    while(fp < TWIN_BUFFER_SIZE) {
+    while(buffer_for_tokenization[fp] != '\0') {
         lookahead = buffer_for_tokenization[fp];
     //    printf("'%d'", lookahead);
 
@@ -343,7 +340,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     default:
                     {
                         // Retract by 1.
-                        // Since fp has already been incremented, move bp to fp. (TODO: Check!)
+                        // Since fp has already been incremented, move bp to fp.
                         tkin->type = COLON;
                         tkin->lno = line_number;
                         tkin->value.lexeme[0] = ':';
@@ -706,16 +703,13 @@ tokenInfo* getNextToken(FILE *file_ptr) {
             // Run these cases together.
             case '\n': line_number += 1;
             case '\t':
-            case ' ':
-            default: fp = (fp + 1) % TWIN_BUFFER_SIZE;
+            case ' ': fp = (fp + 1) % TWIN_BUFFER_SIZE; bp = fp;
+            break;
+
+            default: print_lexical_error(bp, (fp+1)%TWIN_BUFFER_SIZE);
+            fp = (fp + 1) % TWIN_BUFFER_SIZE; bp = fp;
         }
     }
 
     return NULL;
 }
-
-// int main() {
-//     removeComments("abc.txt", "abc1.txt");
-
-//     return 0;
-// }

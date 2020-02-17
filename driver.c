@@ -8,9 +8,9 @@ struct hashTable *ht;
 
 int main(){
     ht= createHashTable(31);
-    
+
     FILE *fp = fopen("keywords.txt", "r");
-    
+
     if(fp == NULL){
         printf("Can't open file");
         exit(1);
@@ -24,10 +24,10 @@ int main(){
     fclose(fp);
 
     //printHashTable();
-    
+
     //removeComments("abc.txt", "abc1.txt");
-    
-    fp = fopen("abc1.txt", "r");
+
+    fp = fopen("abc.txt", "r");
 
     tokenInfo *tk = getNextToken(fp);
 
@@ -44,5 +44,5 @@ int main(){
 
         tk = getNextToken(fp);
     }
-    
+
 }
