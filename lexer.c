@@ -23,8 +23,6 @@ void getStream(FILE *file_ptr) {
     static int count = 0;
 
     count++;
-      
-    // TODO: Fill the global buffer with zeros.
 
     // Selecting a half from the global buffer, alternatively.
     status ^= 1;
