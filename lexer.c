@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "hash.h"
 #include "lexerDef.h"
 
 typedef unsigned int uint;
@@ -34,6 +35,7 @@ void getStream(FILE *file_ptr) {
         return;
     }
 
+    // Fill one half of the global buffer with zeros.
     uint i;
     for(i=0; i<BUFFER_SIZE; i++)
         buffer_for_tokenization[(status * BUFFER_SIZE) + i] = 0;
@@ -116,11 +118,12 @@ void removeComments(char *testcaseFile, char *cleanFile) {
 // [start, end)
 void print_lexical_error(uint start, uint end) {
     fprintf(stderr, "LEXICAL ERROR: invalid token on line number %u.\n \t", line_number);
-    // Do we need these?
+
     start = start % TWIN_BUFFER_SIZE;
     end = end % TWIN_BUFFER_SIZE;
 
     do {
+        // Put the error in the error stream, stderr.
         fprintf(stderr, "%c", buffer_for_tokenization[start]);
         start = (start + 1) % TWIN_BUFFER_SIZE;
     }
@@ -130,8 +133,6 @@ void print_lexical_error(uint start, uint end) {
 }
 
 tokenInfo* getNextToken(FILE *file_ptr) {
-
-    //printf("bp:%d fp:%d %c ", bp, fp, buffer_for_tokenization[fp]);
 
     if(fp == 0 || fp == BUFFER_SIZE) {
         getStream(file_ptr);
@@ -143,9 +144,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
     while(buffer_for_tokenization[fp] != '\0') {
         lookahead = buffer_for_tokenization[fp];
-    //    printf("'%d'", lookahead);
 
-        // TODO: Check line number mechanism
         // TODO: Maintain state variable (why?)
 
         // Non-lookhead tokens: + - / [ ] ( ) , ;
@@ -291,8 +290,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         print_lexical_error(bp, fp);
                         // Since fp has already been moved forward, bring bp to fp.
                         bp = fp;
-                        // Recursive call not required. We are in a loop.
-                        // return getNextToken(file_ptr);
                     }
                     break;
                 }
@@ -330,7 +327,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         // Lexical Error for =
                         print_lexical_error(bp, fp);
                         bp = fp;
-                        // return getNextToken(file_ptr);
                     }
                     break;
                 }
@@ -408,10 +404,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     default:
                     {
                         // Lexical Error for .
-                        fprintf(stderr,"%c %c Enetering here? %d %d\n", lookahead_one, buffer_for_tokenization[fp], fp, bp);
                         print_lexical_error(bp, fp);
                         bp = fp;
-                        // return getNextToken(file_ptr);
                     }
                     break;
                 }
@@ -619,7 +613,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                                 if(fp == 0 || fp == BUFFER_SIZE)
                                     getStream(file_ptr);
 
-                                lookahead_i = buffer_for_tokenization[fp]; //maybe second '*'
+                                lookahead_i = buffer_for_tokenization[fp]; // maybe second '*'
 
                                 if(lookahead_i == '\n')
                                     line_number++;
@@ -627,7 +621,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         } while(lookahead_i != '*'); // will always check for second consecutive '*'
                         
                         fp = (fp + 1) % TWIN_BUFFER_SIZE;
-                        bp = fp; //move 1 ahead of second consecutive '*'
+                        bp = fp; // move 1 ahead of second consecutive '*'
                     }
                     break;
 
@@ -658,15 +652,16 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 bp = fp;
             break;
 
+            // Check for NUM, RNUM, ID/Keywords and Invalid characters.
             default: 
-            {    
-               if(isalpha(lookahead)) {
+            {
+                // Check for ID/Keywords.
+                if(isalpha(lookahead)) {
                     char lookahead_i;
 
                     do {
                         fp = (fp + 1) % TWIN_BUFFER_SIZE;
 
-                        //ADD more conditions
                         if(fp == 0 || fp == BUFFER_SIZE)
                             getStream(file_ptr);
 
@@ -688,10 +683,11 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                         tkin->value.lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
-                        if(searchKeyword(tkin->value.lexeme)==-1)
+                        int keywordType = searchKeyword(tkin->value.lexeme);
+                        if(keywordType == -1)
                             tkin->type = ID;
                         else
-                            tkin->type = searchKeyword(tkin->value.lexeme);
+                            tkin->type = keywordType;
 
                         tkin->lno = line_number;
                         bp = fp;
@@ -873,7 +869,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     if(fp == 0 || fp == BUFFER_SIZE)
                             getStream(file_ptr);
                     bp = fp;
-                }                
+                }
             }
         }
     }

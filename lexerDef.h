@@ -13,7 +13,7 @@ typedef enum {
 
 struct tokenInfo {
     tokenType type;
-    int lno;
+    unsigned int lno;
     union {
         int num;
         float rnum;
