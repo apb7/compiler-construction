@@ -24,13 +24,18 @@ bool getStream(FILE *file_ptr) {
     count++;
 
     if(feof(file_ptr))
-        printf("\n\n\n\n\reached EOF\n\n\n");
+        printf("\n\n\n\nreached EOF\n\n\n");
     //    return false;
 
     // TODO: Fill the global buffer with zeros.
 
     // Selecting a half from the global buffer, alternatively.
     status ^= 1;
+
+    if((fp == 0 && status != 0) || (fp == BUFFER_SIZE && status != 1)) {
+        status ^= 1;
+        return true;
+    }
 
     uint i;
     for(i=0; i<BUFFER_SIZE; i++)
@@ -619,7 +624,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                if(isalpha(lookahead)) {
                     char lookahead_i;
 
-                    do{
+                    do {
                         fp = (fp + 1) % TWIN_BUFFER_SIZE;
 
                         //ADD more conditions
@@ -633,7 +638,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 20) {
                         //TODO: throw error
                     }
-                    else{
+                    else {
                         if(fp > bp)
                             strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, fp - bp);
                         else {
