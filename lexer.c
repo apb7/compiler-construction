@@ -410,6 +410,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     default:
                     {
                         // Lexical Error for .
+                        fprintf(stderr,"%c %c Enetering here? %d %d\n", lookahead_one, buffer_for_tokenization[fp], fp, bp);
                         print_lexical_error(bp, fp);
                         bp = fp;
                         // return getNextToken(file_ptr);
@@ -827,7 +828,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                                 tkin->type = NUM;
                                 tkin->lno = line_number;
                                 tkin->value.num = atoi(str_num);
-                                bp = fp - 1;
+                                fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE;
+                                bp = fp;
                                 free(str_num);
 
                                 return tkin;

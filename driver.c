@@ -6,7 +6,9 @@
 
 struct hashTable *ht;
 
-int main(){
+int main() {
+
+    //  Create and poplate hash table for keywords
     ht= createHashTable(31);
 
     FILE *fp = fopen("keywords.txt", "r");
@@ -24,15 +26,34 @@ int main(){
     }
     fclose(fp);
 
+    // Populate token name
+    char tokenName[57][21]; // Sync with terminals.txt
+
+    fp = fopen("terminals.txt", "r");
+
+    if(fp == NULL){
+        printf("Can't open file");
+        exit(1);
+    }
+
+    i = 0;
+    while(!feof(fp)){
+        fscanf(fp, " %s", tokenName[i++]);
+    }
+    fclose(fp);
+
     //printHashTable();
 
     //removeComments("abc.txt", "abc1.txt");
 
-    fp = fopen("abc.txt", "r");
+    fp = fopen("test_cases.txt", "r");
 
     tokenInfo *tk = getNextToken(fp);
 
     while(tk!=NULL){
+
+        printf("LNo %d ", tk->lno);
+        printf("%d %s ", tk->type, tokenName[tk->type]);
 
         if(tk->type==NUM)
             printf("%d\n", tk->value.num);
