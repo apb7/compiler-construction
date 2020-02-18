@@ -73,8 +73,6 @@ CMakeLists.txt
 # Executables
 /cmake-build-debug/
 /cmake-build-debug-wsl/
-.idea/compiler-construction.iml
 CMakeLists.txt~
-.idea/compiler-construction.iml
-.idea/compiler-construction.iml
+.idea
 *.iml
