@@ -17,9 +17,10 @@ int main(){
     }
 
     char keyword[21];
+    int i = 0;
     while(!feof(fp)){
         fscanf(fp, " %s", keyword);
-        addKeyword(keyword);
+        addKeyword(keyword, i++);
     }
     fclose(fp);
 
@@ -27,11 +28,10 @@ int main(){
 
     //removeComments("abc.txt", "abc1.txt");
 
-    fp = fopen("abc1.txt", "r");
+    fp = fopen("abc.txt", "r");
 
     tokenInfo *tk = getNextToken(fp);
 
-    int i=0;
     while(tk!=NULL){
 
         if(tk->type==NUM)

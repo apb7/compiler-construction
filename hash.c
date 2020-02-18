@@ -7,7 +7,7 @@
 
 extern struct hashTable *ht;
 
-void addKeyword(char *keyword){
+void addKeyword(char *keyword, int val) {
     if(ht == NULL) {
         printf("HashTable doesn't exist\n");
         return;
@@ -25,34 +25,35 @@ void addKeyword(char *keyword){
     new->keyword = malloc(sizeof(char) * (strlen(keyword) + 1));
     strcpy(new->keyword, keyword);
 
+    new->val = val;
     new->next = ht->entries[h].first;
 
     ht->entries[h].size += 1;
     ht->entries[h].first = new;
 }
 
-bool searchKeyword(char *keyword){
+int searchKeyword(char *keyword){
     if(ht == NULL) {
         printf("HashTable doesn't exist\n");
-        return false;
+        return -1;
     }
 
     int h = hashFunction(keyword);
 
     if(h < 0 || h > ht->size) {
         printf("HashTable not initialised properly\n");
-        return false;
+        return -1;
     }
 
     struct hashNode *ptr = ht->entries[h].first;
 
     while(ptr != NULL) {
         if(strcmp(keyword, ptr->keyword) == 0)
-            return true;
+            return ptr->val;
         ptr = ptr->next;
     }
 
-    return false;
+    return -1;
 }
 
 int hashFunction(char *keyword){

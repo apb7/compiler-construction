@@ -1,5 +1,6 @@
 struct hashNode {
     char* keyword;
+    int val;
     struct hashNode *next;
 };
 
@@ -13,8 +14,8 @@ struct hashTable {
     struct hashEntry *entries;
 };
 
-void addKeyword(char *keyword);
-bool searchKeyword(char *keyword);
+void addKeyword(char *keyword, int val);
+int searchKeyword(char *keyword);
 int hashFunction(char *keyword);
 struct hashTable* createHashTable(int size);
 void printHashTable();

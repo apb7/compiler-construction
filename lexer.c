@@ -17,110 +17,123 @@ uint bp = 0; // begin ptr
 uint fp = 0; // forward ptr
 char buffer_for_tokenization[1024]; // a global buffer of size 2 * BUFFER_SIZE
 
-bool getStream(FILE *file_ptr) {
+
+void getStream(FILE *file_ptr) {
     static int status = 1;
     static int count = 0;
 
     count++;
-
-    if(feof(file_ptr))
-        printf("\n\n\n\nreached EOF\n\n\n");
-    //    return false;
-
+      
     // TODO: Fill the global buffer with zeros.
 
     // Selecting a half from the global buffer, alternatively.
     status ^= 1;
 
+    // Invalid call, discard all changes
     if((fp == 0 && status != 0) || (fp == BUFFER_SIZE && status != 1)) {
         status ^= 1;
-        return true;
+        count--;
+        return;
     }
 
     uint i;
     for(i=0; i<BUFFER_SIZE; i++)
         buffer_for_tokenization[(status * BUFFER_SIZE) + i] = 0;
 
+    if(feof(file_ptr))
+        fprintf(stderr, "EOF REACHED : %d buffer reads\n", count-1);
+
     fread(buffer_for_tokenization + (status * BUFFER_SIZE), BUFFER_SIZE, sizeof(char), file_ptr);
-    return true;
+
+    if(feof(file_ptr))
+        fprintf(stderr, "EOF REACHED : %d buffer reads\n", count);
+
+    return;
 }
-// TODO: ensure only 1 time file is read, avoid fake reading
 
+// only for removeComments, don't need twin buffers there
+char* getBlock(FILE *fp) {
+    if(feof(fp))
+        return NULL;
 
-// TODO: Correct getStream functionality.
-// void removeComments(char *testcaseFile, char *cleanFile) {
-//     FILE *fp_testcaseFile = fopen(testcaseFile, "r");
+    char *buffer_from_file = (char*) calloc(BUFFER_SIZE, sizeof(char));
+    fread(buffer_from_file, BUFFER_SIZE, sizeof(char), fp);
+    return buffer_from_file;
+}
 
-//     if(fp_testcaseFile == NULL) {
-//         printf("ERROR: Failed to open %s", testcaseFile);
-//         return;
-//     }
+void removeComments(char *testcaseFile, char *cleanFile) {
+    FILE *fp_testcaseFile = fopen(testcaseFile, "r");
 
-//     FILE *fp_cleanFile = fopen(cleanFile, "w");
+    if(fp_testcaseFile == NULL) {
+        printf("ERROR: Failed to open %s", testcaseFile);
+        return;
+    }
 
-//     if(fp_cleanFile == NULL) {
-//         printf("ERROR: Failed to open %s", cleanFile);
-//         return;
-//     }
+    FILE *fp_cleanFile = fopen(cleanFile, "w");
 
-//     char *buffer_to_read = getStream(fp_testcaseFile);
-//     char *buffer_to_write = (char*) malloc(BUFFER_SIZE * sizeof(char));
+    if(fp_cleanFile == NULL) {
+        printf("ERROR: Failed to open %s", cleanFile);
+        return;
+    }
 
-//     int isComment = 0, wasAsterisk = 0;
+    char *buffer_to_read = getBlock(fp_testcaseFile);
+    char *buffer_to_write = (char*) malloc(BUFFER_SIZE * sizeof(char));
 
-//     while(buffer_to_read) {
-//         uint i = 0, j = 0;
+    int isComment = 0, wasAsterisk = 0;
 
-//         if(wasAsterisk && buffer_to_read[0] == '*'){
-//             isComment ^= 1;
-//             i++;
-//         }
+    while(buffer_to_read) {
+        uint i = 0, j = 0;
 
-//         for(; i < BUFFER_SIZE && buffer_to_read[i] != '\0'; i++){
+        if(wasAsterisk && buffer_to_read[0] == '*'){
+            isComment ^= 1;
+            i++;
+        }
 
-//             if(buffer_to_read[i] == '*' && (i < BUFFER_SIZE - 1 && buffer_to_read[i+1] == '*')){
-//                 isComment ^= 1;
-//                 i += 2;
-//             }
+        for(; i < BUFFER_SIZE && buffer_to_read[i] != '\0'; i++){
 
-//             if(!isComment || buffer_to_read[i] == '\n')
-//                 buffer_to_write[j++] = buffer_to_read[i];
-//         }
+            if(buffer_to_read[i] == '*' && (i < BUFFER_SIZE - 1 && buffer_to_read[i+1] == '*')){
+                isComment ^= 1;
+                i += 2;
+            }
 
-//         fwrite(buffer_to_write, sizeof(char), j, fp_cleanFile);
+            if(!isComment || buffer_to_read[i] == '\n')
+                buffer_to_write[j++] = buffer_to_read[i];
+        }
 
-//         if(buffer_to_read[BUFFER_SIZE - 1] == '*')
-//             wasAsterisk = 1;
-//         else
-//             wasAsterisk = 0;
+        fwrite(buffer_to_write, sizeof(char), j, fp_cleanFile);
 
-//         free(buffer_to_read);
-//         buffer_to_read = getStream(fp_testcaseFile);
-//     }
+        if(buffer_to_read[BUFFER_SIZE - 1] == '*')
+            wasAsterisk = 1;
+        else
+            wasAsterisk = 0;
 
-//     free(buffer_to_write);
-// }
+        free(buffer_to_read);
+        buffer_to_read = getBlock(fp_testcaseFile);
+    }
 
-// Prints the string in global buffer from start to end, including end.
+    free(buffer_to_write);
+}
+
+// Prints the string in global buffer from start to end, not including end.
 // [start, end)
 void print_lexical_error(uint start, uint end) {
-    // printf("LEXICAL ERROR: %u %u No such token ", start, end);
-    // // Do we need these?
-    // start = start % TWIN_BUFFER_SIZE;
-    // end = end % TWIN_BUFFER_SIZE;
+    fprintf(stderr, "LEXICAL ERROR: invalid token on line number %u.\n \t", line_number);
+    // Do we need these?
+    start = start % TWIN_BUFFER_SIZE;
+    end = end % TWIN_BUFFER_SIZE;
 
-    // do {
-    //     printf("%c", buffer_for_tokenization[start]);
-    //     start = (start + 1) % TWIN_BUFFER_SIZE;
-    // }
-    // while(start != end);
+    do {
+        fprintf(stderr, "%c", buffer_for_tokenization[start]);
+        start = (start + 1) % TWIN_BUFFER_SIZE;
+    }
+    while(start != end);
 
-    // printf(" found on line number %u.\n", line_number);
+    fprintf(stderr, "\n");
 }
 
 tokenInfo* getNextToken(FILE *file_ptr) {
 
-    printf("bp:%d fp:%d %c ", bp, fp, buffer_for_tokenization[fp]);
+    //printf("bp:%d fp:%d %c ", bp, fp, buffer_for_tokenization[fp]);
 
     if(fp == 0 || fp == BUFFER_SIZE) {
         getStream(file_ptr);
@@ -277,7 +290,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     {
                         // No retract required since lexical error.
                         // Lexical Error for !
-                        print_lexical_error(bp, (fp+TWIN_BUFFER_SIZE-1)%TWIN_BUFFER_SIZE);
+                        print_lexical_error(bp, fp);
                         // Since fp has already been moved forward, bring bp to fp.
                         bp = fp;
                         // Recursive call not required. We are in a loop.
@@ -317,7 +330,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     default:
                     {
                         // Lexical Error for =
-                        print_lexical_error(bp, (fp+TWIN_BUFFER_SIZE-1)%TWIN_BUFFER_SIZE);
+                        print_lexical_error(bp, fp);
                         bp = fp;
                         // return getNextToken(file_ptr);
                     }
@@ -397,7 +410,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     default:
                     {
                         // Lexical Error for .
-                        print_lexical_error(bp, (fp+TWIN_BUFFER_SIZE-1)%TWIN_BUFFER_SIZE);
+                        print_lexical_error(bp, fp);
                         bp = fp;
                         // return getNextToken(file_ptr);
                     }
@@ -586,7 +599,36 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 {
                     case '*':
                     {
-                        // TODO: Ignore comments.
+                        // Ignore comments.
+                        char lookahead_i;
+
+                        do {
+                            fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                            if(fp == 0 || fp == BUFFER_SIZE)
+                                getStream(file_ptr);
+
+                            lookahead_i = buffer_for_tokenization[fp];
+
+                            if(lookahead_i == '\n')
+                                line_number++;
+
+                            // first '*' encountered
+                            if(lookahead_i == '*') {
+                                fp = (fp + 1) % TWIN_BUFFER_SIZE;
+
+                                if(fp == 0 || fp == BUFFER_SIZE)
+                                    getStream(file_ptr);
+
+                                lookahead_i = buffer_for_tokenization[fp]; //maybe second '*'
+
+                                if(lookahead_i == '\n')
+                                    line_number++;
+                            }
+                        } while(lookahead_i != '*'); // will always check for second consecutive '*'
+                        
+                        fp = (fp + 1) % TWIN_BUFFER_SIZE;
+                        bp = fp; //move 1 ahead of second consecutive '*'
                     }
                     break;
 
@@ -606,8 +648,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
             }
             break;
-
-            // TODO: Modify NUM, RNUM and ID/Keywords code for case.
 
             // Run these cases together.
             case '\n': line_number += 1;
@@ -636,21 +676,24 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     } while(isalnum(lookahead_i) || lookahead_i == '_');
 
                     if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 20) {
-                        //TODO: throw error
+                        print_lexical_error(bp, fp);
+                        bp = fp;
                     }
                     else {
                         if(fp > bp)
                             strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, fp - bp);
                         else {
                             strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
-                            fprintf(stderr, "%d %c %s\n", bp, buffer_for_tokenization[bp], tkin->value.lexeme);
                             strncpy(tkin->value.lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
-                            fprintf(stderr, "%d %s\n", bp, tkin->value.lexeme);
                         }
+
                         tkin->value.lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
-                        //TODO: check for keywords!!!
-                        tkin->type = ID;
+                        if(searchKeyword(tkin->value.lexeme)==-1)
+                            tkin->type = ID;
+                        else
+                            tkin->type = searchKeyword(tkin->value.lexeme);
+
                         tkin->lno = line_number;
                         bp = fp;
 
@@ -677,7 +720,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         {
                             fp = (fp + 1) % TWIN_BUFFER_SIZE;
 
-                            // TODO: set flags
                             if(fp == 0 || fp == BUFFER_SIZE)
                                 getStream(file_ptr);
 
@@ -744,7 +786,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                                     }
                                     else {
                                         //TODO: throw error "123.45e(+/-) but no number"
-
+                                        print_lexical_error(bp, fp);
+                                        bp = fp;
                                     }
                                 }
                                 else {
@@ -792,6 +835,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                             else {
                                 //TODO : throw error "1234.rubbish"
+                                print_lexical_error(bp, fp);
+                                bp = fp;
                             }
                         }
                         break;
@@ -823,7 +868,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 else
                 {
                     print_lexical_error(bp, (fp+1)%TWIN_BUFFER_SIZE);
-                    // if fp is incremented, make sure, buffers ARE READ
+
                     fp = (fp + 1) % TWIN_BUFFER_SIZE; 
                     if(fp == 0 || fp == BUFFER_SIZE)
                             getStream(file_ptr);
