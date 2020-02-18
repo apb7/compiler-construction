@@ -46,8 +46,9 @@ int main() {
 
     //removeComments("abc.txt", "abc1.txt");
 
-    fp = fopen("test_cases.txt", "r");
-
+    fp = fopen("test_cases_1000.txt", "r");
+    //fp = fopen("abc2.txt", "r");
+    
     tokenInfo *tk = getNextToken(fp);
 
     while(tk!=NULL){

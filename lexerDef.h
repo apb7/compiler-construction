@@ -14,6 +14,7 @@ typedef enum {
 struct tokenInfo {
     tokenType type;
     unsigned int lno;
+    // TODO: lexeme
     union {
         int num;
         float rnum;
