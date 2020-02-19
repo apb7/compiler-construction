@@ -1,0 +1,3630 @@
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
+declare module mod1;
+<<driver Program>>
+start
+declare v, w, r :integer;
+get_value(v);
+w:=5;
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<driver program>>
+start
+declare a,b:integer;
+declare c:boolean;
+a:=21;
+b:=23:
+c:=(b-a>3);
+switch(c)
+start
+case TRUE: b:=100;
+break;
+case FALSE: b:= -100;
+break;
+end
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+<<driver Program>>
+start
+declare a,b, dummy:integer;
+a:=48;
+b:=10;
+dummy:=100;
+declare flag: boolean;
+flag:=(a>=30)AND(b<30);
+switch(flag)
+start
+case FALSE :print(100);
+break;
+case TRUE :use mod1 with parameters a, b;
+break;
+end
+end
+
+<<driver Program>>
+start
+declare num, a, k:integer;
+num:=9;
+for( k in 2..8)
+start
+a:=(num – k)*(num-k);
+print(a);
+end
+end
+
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [1..10] of integer;
+num:=5;
+for( k in 1..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+end
+
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+<<driver Program>>
+start
+declare num, k:integer;
+declare A:array [4..10] of integer;
+for( k in 6..10)
+start
+A[k]:=(num – k)*(num-k);
+print(A[k]);
+end
+[num]:=use module arraysum with parameters A;
+print(num);
+end
