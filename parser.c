@@ -6,14 +6,14 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "set.h"
-#include "parserHash.h"
+#include "hash.h"
 
 #define MAX_LINE_LEN 150
 //ntx can be used to map NonTerminal Enums to 0 based indexing
 #define ntx(y) y - g_EOS - 1
 
 extern grammarNode *G;
-extern struct mappingTable *mt;
+extern struct hashTable *mt;
 int numRules;
 ruleRange rule_range[nt_numNonTerminals];
 extern intSet* firstSet;
@@ -110,7 +110,7 @@ char **strSplit(char *str, char tk){
 
 rhsNode *createRhsNode(char *rhsTk){
     rhsNode *rhs = (rhsNode *) malloc(sizeof(rhsNode));
-    rhs->s = getEnumValue(rhsTk);
+    rhs->s = getEnumValue(rhsTk,mt);
     rhs->next = NULL;
     return rhs;
 }
@@ -122,7 +122,7 @@ grammarNode createRuleNode(char *rule){
     //rule has the format "A,B,c,D,a" for a rule of type A -> BcDa
     char **ruleArr = strSplit(rule,',');
     grammarNode gnode;
-    gnode.lhs = getEnumValue(ruleArr[0]);
+    gnode.lhs = getEnumValue(ruleArr[0],mt);
     gnode.head = createRhsNode(ruleArr[1]);
     int i = 2;
     rhsNode *tmp = gnode.head;

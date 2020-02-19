@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "../hash.h"
+
+//#include "../oldHash.h"
 #include "lexerDef.h"
 
 #define BUFFER_SIZE 512
@@ -17,6 +18,7 @@ uint bp = 0; // begin ptr
 uint fp = 0; // forward ptr
 char buffer_for_tokenization[2 * BUFFER_SIZE]; // a global buffer of size 2 * BUFFER_SIZE
 
+extern hashTable *keyword_ht;
 
 void getStream(FILE *file_ptr) {
     static int status = 1;
@@ -539,7 +541,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
-                    int keywordType = searchKeyword(tkin->lexeme);
+                    int keywordType = getEnumValue(tkin->lexeme, keyword_ht);
                     if(keywordType == -1)
                         tkin->type = ID;
                     else

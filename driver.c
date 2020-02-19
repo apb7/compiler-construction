@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "hash.h"
-#include "lexer/lexer.h"
 
-struct hashTable *ht;
+#include "lexer/lexer.h"
+#include "hash.h"
+
+#define KEYWORD_HT_SIZE 31
+
+hashTable *keyword_ht;
 
 int main(int argc, char *argv[]) {
 
     // Create and poplate hash table for keywords
-    ht = createHashTable(31);
+    keyword_ht = createHashTable(KEYWORD_HT_SIZE);
 
     FILE *fp = fopen("data/keywords.txt", "r");
 
@@ -22,7 +25,7 @@ int main(int argc, char *argv[]) {
     int i = 0;
     while(!feof(fp)) {
         fscanf(fp, " %s", keyword);
-        addKeyword(keyword, i++);
+        addSymbol(keyword, i++, keyword_ht);
     }
     fclose(fp);
 
@@ -42,7 +45,7 @@ int main(int argc, char *argv[]) {
     }
     fclose(fp);
 
-    //printHashTable();
+    //printHashTable(keyword_ht);
 
     //removeComments("abc.txt", "abc1.txt");
 
