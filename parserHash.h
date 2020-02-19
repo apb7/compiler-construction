@@ -8,7 +8,7 @@
 #include "parserDef.h"
 
 // struct definitions
-
+// Mapping Table (Symbol -> Enum)
 struct mappingTableNode{
     gSymbol symEnum; // to store the Enum index value
     char *symbol; // stores the symbol string
@@ -35,5 +35,18 @@ struct mappingTable* createMappingTable(int size); // creates an empty mapping t
 void printMappingTable(); // prints the mapping table
 void fillMappingTable(char *tokenPath, char *nonTerminalsPath); // fills the mapping table with the symbols read from tokenPath and nonTerminalsPath
 char *ripOffX(char *symbol); // takes string "X(...)", returns a string "..."
+
+
+// Inverse Mapping Table (Enum -> Symbol)
+// Inverse Mapping Table is an array of pointers to linked lists of mappingTableNode(s)
+// We only need to change the functions since now hash is on Enum value rather than string
+// All the structs can be reused
+void addEnum(gSymbol enum_val, char *symbol); // adds the key value pair ('enum_val', 'symbol') to the inverse mapping table 'imt'
+bool searchEnum(gSymbol enum_val); // check if 'enum_val' is present in the inverse mapping table or not
+char* getSymbol(gSymbol enum_val); // get the 'symbol' corresponding to Enum value 'enum_val' [NOTE: the returned string is malloced in the function so it can be used without harming the string already in the linked list node]
+int enumHashFunction(gSymbol enum_val); // returns the slot value in the inverse mapping table where 'enum_val' is to be hashed [NOTE: identity function is used as hash, collision free guaranteed]
+struct mappingTable* createInverseMappingTable(int size); // creates an empty inverse mapping table and returns a pointer to the structure
+void printInverseMappingTable(); // prints the inverse mapping table
+void fillInverseMappingTable(char *tokenPath, char *nonTerminalsPath); // fills the inverse mapping table with the (enum value, symbol) pairs read from tokenPath and nonTerminalsPath
 
 #endif
