@@ -68,8 +68,8 @@ arithmeticOrBooleanExpr,anyTerm,n7
 n7,logicalOp,anyTerm,n7
 n7,EPS
 anyTerm,arithmeticExpr,n8
-anyTerm,boolConstt,n8
-n8,relationalOp,arithmeticExpr,n8
+anyTerm,boolConstt
+n8,relationalOp,arithmeticExpr
 n8,EPS
 arithmeticExpr,term,n4
 arithmeticExpr,term
@@ -78,7 +78,7 @@ n4,EPS
 term,factor,n5
 n5,op2,factor,n5
 n5,EPS
-factor,BO,arithmeticExpr,BC
+factor,BO,arithmeticOrBooleanExpr,BC
 factor,var_id_num
 op1,PLUS
 op1,MINUS
