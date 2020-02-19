@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     // Create and poplate hash table for keywords
     ht = createHashTable(31);
 
-    FILE *fp = fopen("keywords.txt", "r");
+    FILE *fp = fopen("data/keywords.txt", "r");
 
     if(fp == NULL) {
         printf("Can't open file");
@@ -27,9 +27,9 @@ int main(int argc, char *argv[]) {
     fclose(fp);
 
     // Populate token name
-    char tokenName[57][21]; // Sync with terminals.txt
+    char tokenName[57][21]; // Sync with data/terminals.txt
 
-    fp = fopen("terminals.txt", "r");
+    fp = fopen("data/terminals.txt", "r");
 
     if(fp == NULL) {
         printf("Can't open file");
