@@ -15,6 +15,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 bool checkPos(uint pos);
-char* getStream(FILE *fp);
+void getStream(FILE *fp);
 tokenInfo* getNextToken(FILE *fp);
+char* getBlock(FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);

@@ -1,23 +1,23 @@
 #ifndef lexerDef
 #define lexerDef
 
-typedef unsigned int uint;
+// Sync with terminals.txt
 typedef enum {
     INTEGER, REAL, BOOLEAN, OF, ARRAY, START, END, DECLARE, MODULE, DRIVER,
-    PROGRAM, DRIVERDEF, DRIVERENDDEF, GET_VALUE, PRINT, USE, WITH, PARAMETERS,
-    TRUE, FALSE, TAKES, INPUT, RETURNS, AND, OR, FOR, IN, SWITCH, CASE, BREAK,
-    DEFAULT, WHILE, PLUS, MINUS, MUL, DIV, LT, LE, GE, GT, EQ, NE, DEF, ENDDEF,
-    COLON, RANGEOP, SEMICOL, COMMA, ASSIGNOP, SQBO, SQBC, BO, BC, COMMENTMARK,
-    ID, NUM, RNUM
+    PROGRAM, GET_VALUE, PRINT, USE, WITH, PARAMETERS, TRUE, FALSE, TAKES,
+    INPUT, RETURNS, AND, OR, FOR, IN, SWITCH, CASE, BREAK, DEFAULT, WHILE,
+    PLUS, MINUS, MUL, DIV, LT, LE, GE, GT, EQ, NE, DEF, ENDDEF, DRIVERDEF,
+    DRIVERENDDEF, COLON, RANGEOP, SEMICOL, COMMA, ASSIGNOP, SQBO, SQBC, BO,
+    BC, COMMENTMARK, ID, NUM, RNUM
 } tokenType;
 
 struct tokenInfo {
     tokenType type;
-    int lno;
+    unsigned int lno;
+    char lexeme[101];
     union {
         int num;
         float rnum;
-        char lexeme[21];
     } value;
 };
 
