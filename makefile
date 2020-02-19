@@ -1,2 +1,2 @@
-all:    driver.c lexer_alt.c hash.c
-	gcc driver.c lexer_alt.c hash.c -o alt
+all:    driver.c lexer/lexer.c hash.c
+	gcc driver.c lexer/lexer.c hash.c -o lexer/lexer.out

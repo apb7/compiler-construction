@@ -2,25 +2,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "hash.h"
-#include "lexer.h"
+#include "lexer/lexer.h"
 
 struct hashTable *ht;
 
 int main(int argc, char *argv[]) {
 
-    //  Create and poplate hash table for keywords
-    ht= createHashTable(31);
+    // Create and poplate hash table for keywords
+    ht = createHashTable(31);
 
     FILE *fp = fopen("keywords.txt", "r");
 
-    if(fp == NULL){
+    if(fp == NULL) {
         printf("Can't open file");
         exit(1);
     }
 
     char keyword[21];
     int i = 0;
-    while(!feof(fp)){
+    while(!feof(fp)) {
         fscanf(fp, " %s", keyword);
         addKeyword(keyword, i++);
     }
@@ -31,13 +31,13 @@ int main(int argc, char *argv[]) {
 
     fp = fopen("terminals.txt", "r");
 
-    if(fp == NULL){
+    if(fp == NULL) {
         printf("Can't open file");
         exit(1);
     }
 
     i = 0;
-    while(!feof(fp)){
+    while(!feof(fp)) {
         fscanf(fp, " %s", tokenName[i++]);
     }
     fclose(fp);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     
     // Print all tokens.
     tokenInfo *tk = getNextToken(fp);
-    while(tk!=NULL){
+    while(tk!=NULL) {
 
         printf("LNo %6d ", tk->lno);
         printf("%20s ", tokenName[tk->type]);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
         tk = getNextToken(fp);
         i++;
 
-        if(i== 125000){
+        if(i == 125000){
             printf("Interrupted");
             break;
         }

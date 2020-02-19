@@ -1,22 +1,21 @@
 #include <stdbool.h>
 #include <ctype.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
-#include "hash.h"
+#include "../hash.h"
 #include "lexerDef.h"
+
+#define BUFFER_SIZE 512
 
 typedef unsigned int uint;
 
-uint BUFFER_SIZE = 512;
-uint TWIN_BUFFER_SIZE = 1024;
+uint TWIN_BUFFER_SIZE = 2 * BUFFER_SIZE;
 uint line_number = 1;
 uint bp = 0; // begin ptr
 uint fp = 0; // forward ptr
-char buffer_for_tokenization[1024]; // a global buffer of size 2 * BUFFER_SIZE
+char buffer_for_tokenization[2 * BUFFER_SIZE]; // a global buffer of size 2 * BUFFER_SIZE
 
 
 void getStream(FILE *file_ptr) {
