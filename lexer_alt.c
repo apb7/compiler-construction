@@ -162,8 +162,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 17;
                         tkin->type = PLUS;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = '+';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = '+';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -174,8 +174,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 18;
                         tkin->type = MINUS;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = '-';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = '-';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -186,8 +186,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 19;
                         tkin->type = DIV;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = '/';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = '/';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -198,8 +198,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 28;
                         tkin->type = SQBO;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = '[';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = '[';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -210,8 +210,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 29;
                         tkin->type = SQBC;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = ']';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = ']';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -222,8 +222,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 30;
                         tkin->type = BO;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = '(';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = '(';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -234,8 +234,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 31;
                         tkin->type = BC;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = ')';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = ')';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -246,8 +246,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 32;
                         tkin->type = COMMA;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = ',';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = ',';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -258,8 +258,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         state = 33;
                         tkin->type = SEMICOL;
                         tkin->lno = line_number;
-                        tkin->value.lexeme[0] = ';';
-                        tkin->value.lexeme[1] = '\0';
+                        tkin->lexeme[0] = ';';
+                        tkin->lexeme[1] = '\0';
                         bp = fp;
                         return tkin;
                     }
@@ -304,10 +304,10 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     default: 
                     {
                         // Check for ID/Keywords.
-                        if(isalpha(lookahead)) 
+                        if((lookahead >= 'a' && lookahead <= 'z') || (lookahead >= 'A' && lookahead <= 'Z'))
                             state = 10;
 
-                        else if(isdigit(lookahead)) 
+                        else if(lookahead >= '0' && lookahead <= '9') 
                             state = 1;
 
                         else if(lookahead == '\0')
@@ -317,6 +317,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                             state = 0;
                             print_lexical_error(bp, fp);
                             bp = fp;
+                            continue;
                         }
                     }
                 }
@@ -325,7 +326,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
             case 1:
             {
-                if (isdigit(lookahead)){
+                if (lookahead >= '0' && lookahead <= '9'){
                     // Do nothing. State remains 1
                 }
                 
@@ -337,21 +338,25 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     state = 2;
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
 
-                    char *str_num = malloc(sizeof(char) * ((fp - bp + TWIN_BUFFER_SIZE + 1) % TWIN_BUFFER_SIZE));
-                                
-                    if(fp > bp)
-                        strncpy(str_num, buffer_for_tokenization + bp, fp - bp);
-                    else {
-                        strncpy(str_num, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
-                        strncpy(str_num + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 100) {
+                        print_lexical_error(bp, fp);
+                        bp = fp;
+                        state = 0;
+                        continue;
                     }
 
-                    str_num[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+                    if(fp > bp)
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, fp - bp);
+                    else {
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                        strncpy(tkin->lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    }
+
+                    tkin->lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
                     tkin->type = NUM;
                     tkin->lno = line_number;
-                    tkin->value.num = atoi(str_num);
-                    free(str_num);
+                    tkin->value.num = atoi(tkin->lexeme);
                     bp = fp;
                     return tkin;
                 }
@@ -364,21 +369,25 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     state = 4;
                     fp = (fp + TWIN_BUFFER_SIZE - 2) % TWIN_BUFFER_SIZE; // Retract 2
 
-                    char *str_num = malloc(sizeof(char) * ((fp - bp + TWIN_BUFFER_SIZE + 1) % TWIN_BUFFER_SIZE));
-
-                    if(fp > bp)
-                            strncpy(str_num, buffer_for_tokenization + bp, fp - bp);
-                    else {
-                        strncpy(str_num, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
-                        strncpy(str_num + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 100) {
+                        print_lexical_error(bp, fp);
+                        bp = fp;
+                        state = 0;
+                        continue;
                     }
 
-                    str_num[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+                    if(fp > bp)
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, fp - bp);
+                    else {
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                        strncpy(tkin->lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    }
+
+                    tkin->lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
                     tkin->type = NUM;
                     tkin->lno = line_number;
-                    tkin->value.num = atoi(str_num);
-                    free(str_num);
+                    tkin->value.num = atoi(tkin->lexeme);
                     bp = fp;
                     return tkin;
                 }
@@ -390,6 +399,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
                     print_lexical_error(bp, fp);
                     bp = fp;
+                    continue;
                 }
             }
             break;
@@ -407,21 +417,25 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     state = 9;
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; //Retract 1
 
-                    char *str_rnum = malloc(sizeof(char) * ((fp - bp + 1 + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE));
-                                        
-                    if(fp > bp)
-                        strncpy(str_rnum, buffer_for_tokenization + bp, fp - bp);
-                    else {
-                        strncpy(str_rnum, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
-                        strncpy(str_rnum + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 100) {
+                        print_lexical_error(bp, fp);
+                        bp = fp;
+                        state = 0;
+                        continue;
                     }
 
-                    str_rnum[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+                    if(fp > bp)
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, fp - bp);
+                    else {
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                        strncpy(tkin->lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    }
+
+                    tkin->lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
                     tkin->type = RNUM;
                     tkin->lno = line_number;
-                    tkin->value.rnum = atof(str_rnum);
-                    free(str_rnum);
+                    tkin->value.rnum = atof(tkin->lexeme);
                     bp = fp;
                     return tkin;
                 }
@@ -443,6 +457,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
                     print_lexical_error(bp, fp);
                     bp = fp;
+                    continue;
                 }
             }
             break;
@@ -458,6 +473,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
                     print_lexical_error(bp, fp);
                     bp = fp;
+                    continue;
                 }
             }
             break;
@@ -472,21 +488,25 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     state = 9;
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
 
-                    char *str_rnum = malloc(sizeof(char) * ((fp - bp + 1 + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE));
-                                        
-                    if(fp > bp)
-                        strncpy(str_rnum, buffer_for_tokenization + bp, fp - bp);
-                    else {
-                        strncpy(str_rnum, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
-                        strncpy(str_rnum + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 100) {
+                        print_lexical_error(bp, fp);
+                        bp = fp;
+                        state = 0;
+                        continue;
                     }
 
-                    str_rnum[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+                    if(fp > bp)
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, fp - bp);
+                    else {
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                        strncpy(tkin->lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    }
+
+                    tkin->lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
 
                     tkin->type = RNUM;
                     tkin->lno = line_number;
-                    tkin->value.rnum = atof(str_rnum);
-                    free(str_rnum);
+                    tkin->value.rnum = atof(tkin->lexeme);
                     bp = fp;
 
                     return tkin;
@@ -504,16 +524,23 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     state = 11;
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; //Retract 1
 
-                    if(fp > bp)
-                        strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, fp - bp);
-                    else {
-                        strncpy(tkin->value.lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
-                        strncpy(tkin->value.lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    if((fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE > 20) {
+                        print_lexical_error(bp, fp);
+                        bp = fp;
+                        state = 0;
+                        continue;
                     }
 
-                    tkin->value.lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+                    if(fp > bp)
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, fp - bp);
+                    else {
+                        strncpy(tkin->lexeme, buffer_for_tokenization + bp, TWIN_BUFFER_SIZE - bp);
+                        strncpy(tkin->lexeme + TWIN_BUFFER_SIZE - bp, buffer_for_tokenization, fp);
+                    }
 
-                    int keywordType = searchKeyword(tkin->value.lexeme);
+                    tkin->lexeme[(fp - bp + TWIN_BUFFER_SIZE) % TWIN_BUFFER_SIZE] = '\0';
+
+                    int keywordType = searchKeyword(tkin->lexeme);
                     if(keywordType == -1)
                         tkin->type = ID;
                     else
@@ -538,8 +565,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = MUL;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '*';
-                    tkin->value.lexeme[1] = '\0';
+                    tkin->lexeme[0] = '*';
+                    tkin->lexeme[1] = '\0';
                     return tkin;
                 }
             }
@@ -565,6 +592,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 if(lookahead == '*') {
                     state = 0;
                     bp = fp;
+                    continue;
                 }  
                 
                 else if(lookahead == '\n') {
@@ -585,9 +613,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = LE;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '<';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '<';
+                    tkin->lexeme[1] = '=';
+                    tkin->lexeme[2] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -603,8 +631,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = LT;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '<';
-                    tkin->value.lexeme[1] = '\0';
+                    tkin->lexeme[0] = '<';
+                    tkin->lexeme[1] = '\0';
                     return tkin;
                 }
             }
@@ -617,9 +645,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = GE;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '>';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '>';
+                    tkin->lexeme[1] = '=';
+                    tkin->lexeme[2] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -635,8 +663,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = GT;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '>';
-                    tkin->value.lexeme[1] = '\0';
+                    tkin->lexeme[0] = '>';
+                    tkin->lexeme[1] = '\0';
                     return tkin;
                 }
             }
@@ -649,9 +677,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = NE;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '!';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '!';
+                    tkin->lexeme[1] = '=';
+                    tkin->lexeme[2] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -661,6 +689,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
                     print_lexical_error(bp, fp);
                     bp = fp;
+                    continue;
                 }
             }
             break;
@@ -672,9 +701,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = EQ;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '=';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '=';
+                    tkin->lexeme[1] = '=';
+                    tkin->lexeme[2] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -694,9 +723,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = ASSIGNOP;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = ':';
-                    tkin->value.lexeme[1] = '=';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = ':';
+                    tkin->lexeme[1] = '=';
+                    tkin->lexeme[2] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -707,8 +736,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     
                     tkin->type = COLON;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = ':';
-                    tkin->value.lexeme[1] = '\0';
+                    tkin->lexeme[0] = ':';
+                    tkin->lexeme[1] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -722,9 +751,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = RANGEOP;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '.';
-                    tkin->value.lexeme[1] = '.';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '.';
+                    tkin->lexeme[1] = '.';
+                    tkin->lexeme[2] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -733,6 +762,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     fp = (fp + TWIN_BUFFER_SIZE - 1) % TWIN_BUFFER_SIZE; // Retract 1
                     print_lexical_error(bp, fp);
                     bp = fp;
+                    continue;
                 }    
             }
             break;
@@ -744,10 +774,10 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = DRIVERDEF;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '<';
-                    tkin->value.lexeme[1] = '<';
-                    tkin->value.lexeme[2] = '<';
-                    tkin->value.lexeme[3] = '\0';
+                    tkin->lexeme[0] = '<';
+                    tkin->lexeme[1] = '<';
+                    tkin->lexeme[2] = '<';
+                    tkin->lexeme[3] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -759,9 +789,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     
                     tkin->type = DEF;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '<';
-                    tkin->value.lexeme[1] = '<';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '<';
+                    tkin->lexeme[1] = '<';
+                    tkin->lexeme[2] = '\0';
                     return tkin;
                 }
             }
@@ -774,10 +804,10 @@ tokenInfo* getNextToken(FILE *file_ptr) {
 
                     tkin->type = DRIVERENDDEF;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '>';
-                    tkin->value.lexeme[1] = '>';
-                    tkin->value.lexeme[2] = '>';
-                    tkin->value.lexeme[3] = '\0';
+                    tkin->lexeme[0] = '>';
+                    tkin->lexeme[1] = '>';
+                    tkin->lexeme[2] = '>';
+                    tkin->lexeme[3] = '\0';
                     bp = fp;
                     return tkin;
                 }
@@ -789,9 +819,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     
                     tkin->type = ENDDEF;
                     tkin->lno = line_number;
-                    tkin->value.lexeme[0] = '>';
-                    tkin->value.lexeme[1] = '>';
-                    tkin->value.lexeme[2] = '\0';
+                    tkin->lexeme[0] = '>';
+                    tkin->lexeme[1] = '>';
+                    tkin->lexeme[2] = '\0';
                     return tkin;
                 }
             }

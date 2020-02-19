@@ -14,11 +14,10 @@ typedef enum {
 struct tokenInfo {
     tokenType type;
     unsigned int lno;
-    // TODO: lexeme
+    char lexeme[101];
     union {
         int num;
         float rnum;
-        char lexeme[21];
     } value;
 };
 
