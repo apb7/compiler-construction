@@ -1,57 +1,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "hash.h"
+#include <string.h>
 #include "lexer/lexer.h"
+#include "hash.h"
+#include "set.h"
+#include "utils.h"
 
-struct hashTable *ht;
+#define KEYWORD_HT_SIZE 31
+
+hashTable *keyword_ht;
+grammarNode *G;
+struct hashTable *mt;
+intSet* firstSet;
+intSet* followSet;
+hashTable *keyword_ht;
+
 
 int main(int argc, char *argv[]) {
 
     // Create and poplate hash table for keywords
-    ht = createHashTable(31);
+    keyword_ht = createHashTable(KEYWORD_HT_SIZE);
 
-    FILE *fp = fopen("data/keywords.txt", "r");
+    char* keywords[] = {
+        #define K(a,b,c) b,
+        #include "data/keywords.txt"
+        #undef K
+        "#"
+    };
+    //# indicates end of string array
 
-    if(fp == NULL) {
-        printf("Can't open file");
-        exit(1);
-    }
-
-    char keyword[21];
-    int i = 0;
-    while(!feof(fp)) {
-        fscanf(fp, " %s", keyword);
-        addKeyword(keyword, i++);
-    }
-    fclose(fp);
+    fillHashTable(keywords,keyword_ht);
 
     // Populate token name
-    char tokenName[57][21]; // Sync with data/terminals.txt
+    char *tokenName[] = {
+        #define K(a,b,c) c,
+        #define X(a,b) b,
+        #include "data/keywords.txt"
+        #include "data/tokens.txt"
+        "#"
+        #undef X
+        #undef K
+    };
 
-    fp = fopen("data/terminals.txt", "r");
 
-    if(fp == NULL) {
-        printf("Can't open file");
-        exit(1);
-    }
-
-    i = 0;
-    while(!feof(fp)) {
-        fscanf(fp, " %s", tokenName[i++]);
-    }
-    fclose(fp);
-
-    //printHashTable();
+    //printHashTable(keyword_ht);
 
     //removeComments("abc.txt", "abc1.txt");
-
+    FILE *fp;
     if (argc == 2)
         fp = fopen(argv[1], "r");
     else
-        fp = fopen("test_cases_1000.txt", "r");
+        fp = fopen("../test_cases.txt", "r");
     //fp = fopen("abc2.txt", "r");
-    
+    int i;
     // Print all tokens.
     tokenInfo *tk = getNextToken(fp);
     while(tk!=NULL) {

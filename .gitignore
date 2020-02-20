@@ -51,6 +51,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+CMakeLists.txt
 
 ### C++ ###
 # Prerequisites
@@ -70,3 +71,8 @@ dkms.conf
 *.lai
 
 # Executables
+/cmake-build-debug/
+/cmake-build-debug-wsl/
+CMakeLists.txt~
+.idea
+*.iml
