@@ -16,5 +16,5 @@ void printParseTable();
 void printFirst();
 void printFollow();
 void printPredictSets();
-
+grammarNode createRuleNode(char *rule);
 #endif //CCGIT_PARSER_H

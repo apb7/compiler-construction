@@ -48,8 +48,12 @@ int isNonTerminal(gSymbol symbol) {
 }
 
 rhsNode *createRhsNode(char *rhsTk){
+    if(!rhsTk)
+        return NULL;
     rhsNode *rhs = (rhsNode *) malloc(sizeof(rhsNode));
     rhs->s = getEnumValue(rhsTk,mt);
+    if(rhs->s == -1)
+        return NULL;
     rhs->next = NULL;
     return rhs;
 }
@@ -70,6 +74,9 @@ grammarNode createRuleNode(char *rule){
         tmp = tmp->next;
         i++;
     }
+    //free up memory
+    free(ruleArr[0]);   //frees up all the strings in ruleArr
+    free(ruleArr);  //frees up all char pointers in ruleArr
     return gnode;
 }
 
@@ -103,7 +110,6 @@ void populateGrammarStruct(char *grFile){
         else if(i == 0){
             rule_range[ntx(G[i].lhs)].start = i;
         }
-        free(tRule);
     }
     rule_range[ntx(G[numRules-1].lhs)].end = numRules - 1;
 
