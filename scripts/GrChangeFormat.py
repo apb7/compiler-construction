@@ -16,6 +16,18 @@ def modifyNT(nt):
 	return nt
 
 fp = input("Enter file path:")
+fpk = input("Enter Keywords file path:")
+
+fk = open(fpk,"r")
+
+keywords_db = set()
+
+for line in fk:
+	line = ((line.split(','))[0])[2:]
+	keywords_db.add(line)
+
+fk.close()
+
 f = open(fp,"r")
 
 db = OrderedDict()
@@ -37,20 +49,23 @@ cnt = 0
 for nt in db:
 	rhs = db[nt]
 	nt = modifyNT(nt)
-	nonTerminals += 'X('+nt+')\n'
+	nonTerminals += 'X('+nt+ ', "' + nt +'")\n'
 	for subrule in rhs:
 		cnt += 1
 		tRule = subrule.split(' ')
 		for i in range(len(tRule)):
-			if tRule[i] == 'ε':
+			if tRule[i] == 'ε' or tRule[i] == 'EPSILON':
 				tRule[i] = 'EPS'
+				continue
+			if tRule[i] in keywords_db:
+				continue
 			tRule[i] = modifyNT(tRule[i])
 		modified_grammar += (','.join([nt]+tRule)) + '\n'
 modified_grammar = str(cnt) + '\n' + modified_grammar
 nonTerminals = nonTerminals[:-1]
 terminals = ""
 for t in tDb:
-	terminals += 'X(' + t + ')\n'
+	terminals += 'X(' + t + ', "' + t +'")\n'
 terminals = terminals[:-1]
 
 op = input("Enter output file folder:")
