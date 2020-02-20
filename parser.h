@@ -5,6 +5,6 @@
 void populateGrammarStruct(char *grFile);
 void printGrammar();
 void populateFirstSet();
-populateFollowSet();
+void populateFollowSet();
 
 #endif //CCGIT_PARSER_H
