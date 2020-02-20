@@ -6,8 +6,7 @@
 #include "hash.h"
 #include "set.h"
 #include "utils.h"
-
-#define KEYWORD_HT_SIZE 31
+#include "config.h"
 
 hashTable *keyword_ht;
 grammarNode *G;
