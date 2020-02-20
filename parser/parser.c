@@ -255,19 +255,10 @@ int populateParseTable() {
     int br=0;
     for(int i = 0; i < numRules; i++) {
         intSet mask=predictSet(&G[i]);
-
-        /*FOR PRINTING PREDICT SET*/
-        // for(unsigned int bit=0; bit<64; ++bit) {
-        //  if(isPresent(mask,bit))
-        //      printf("%s ", inverseMappingTable[bit]);
-        // }
-        // printf("\n");
-        /*FOR PRINTING PREDICT SET*/
-        
         for(unsigned int bit = 0; bit < 64; ++bit) {
             if(isPresent(mask,bit)) {
                 if(pTb[ntx(G[i].lhs)][bit]!=-1) {
-                    // for debugging
+                    // debug
                     // printf("%s %d\n", inverseMappingTable[G[i].lhs],bit);
                     // Prints the line numbers causing the problem.
                     printf("Grammar is not LL(1). See line %d, %d of Grammar\n", i+1, pTb[ntx(G[i].lhs)][bit]+1);
@@ -328,6 +319,16 @@ void printFollow() {
                 printf("%s ", inverseMappingTable[j]);
         }
         printf("}\n");
+    }
+}
+void printPredictSets() {
+    for(int i = 0; i < numRules; i++) {
+        intSet mask=predictSet(&G[i]);
+        for(unsigned int bit=0; bit<64; ++bit) {
+         if(isPresent(mask,bit))
+             printf("%s ", inverseMappingTable[bit]);
+        }
+        printf("\n");
     }
 }
 /*------------PRINTING ENDS-------------*/
