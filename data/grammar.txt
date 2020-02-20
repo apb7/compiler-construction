@@ -72,7 +72,6 @@ anyTerm,boolConstt
 n8,relationalOp,arithmeticExpr
 n8,EPS
 arithmeticExpr,term,n4
-arithmeticExpr,term
 n4,op1,term,n4
 n4,EPS
 term,factor,n5

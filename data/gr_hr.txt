@@ -40,7 +40,6 @@
 <N8> -> <relationalOp> <arithmeticExpr> | ε
 <arithmeticExpr> -> <term> <N4>
 <N4> -> <op1> <term> <N4> | ε
-<arithmeticExpr> -> <term>
 <term> -> <factor> <N5>
 <N5> -> <op2> <factor> <N5> | ε
 <factor> -> BO <arithmeticOrBooleanExpr> BC | <var_id_num>
