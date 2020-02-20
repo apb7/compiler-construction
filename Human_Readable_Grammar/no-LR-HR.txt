@@ -64,7 +64,7 @@
 <AnyTerm>-> <arithmeticExpr> <N8> | <boolConstt>
 <N8> -> <relationalOp> <arithmeticExpr> | ε
 
-<arithmeticExpr> -><term> <N4>
+<arithmeticExpr> -> <term> <N4>
 <N4> -> <op1> <term> <N4> | ε
 
 <term> -> <factor> <N5>
