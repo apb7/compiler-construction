@@ -18,7 +18,7 @@ typedef enum{
     g_numSymbols
 } gSymbol;
 //g_EPS is for Epsilon
-//g_EOS is end of string
+//g_EOS is end of string (it marks the end of input stream)
 
 
 typedef struct{
