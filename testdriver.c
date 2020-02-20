@@ -1,52 +1,44 @@
-#include "parserHash.h"
-#include "parserDef.h"
-#include "parser.h"
+#include "hash.h"
+#include "parser/parserDef.h"
+#include "parser/parser.h"
 #include <stdio.h>
 #include "set.h"
+#include "config.h"
 
-struct mappingTable *mt, *imt;
 grammarNode *G;
-struct hashTable *ht;
+struct hashTable *mt;
 intSet* firstSet;
 intSet* followSet;
+hashTable *keyword_ht;
+extern char *inverseMappingTable[];
+extern int **pTb;
+
+
 
 int main(void){
-    // TESTING MAPPING TABLE
-    // test createMappingTable, fillMappingTable, printMappingTable, addSymbol, mappingHashFunction, ripOffX
-    mt = createMappingTable(131); // 131 is the nearest prime > 114 (# of symbols (NT + T))
-    fillMappingTable("../data/tokens.txt","../data/nonTerminals.txt");
-//    printMappingTable();
+
+    // TESTING Hash TABLE
+    // test createHashTable, fillHashTable, printHashTable, addSymbol, HashHashFunction, ripOffX
+    mt = createHashTable(SYMBOL_HT_SIZE); // 131 is the nearest prime > 114 (# of symbols (NT + T))
+    fillHashTable(inverseMappingTable,mt);
+//    printHashTable(mt);
 //    printf("\n\n Total values hashed : %d\n",mt->hashed);
 //
-//    // test searchSymbol()
-//    printf("\nIs 'DECLARE' present in mt : %d",searchSymbol("DECLARE")); //should be 1
-//    printf("\nIs 'condionalStmt' present in mt : %d\n",searchSymbol("condionalStmt")); //should be 1
+//    // test searchSymbol(mt)
+//    printf("\nIs 'DECLARE' present in mt : %d",searchSymbol("DECLARE",mt)); //should be 1
+//    printf("\nIs 'condionalStmt' present in mt : %d\n",searchSymbol("condionalStmt",mt)); //should be 1
 //
 //    // test getEnumValue()
-//    printf("\nThe Enum index of 'SQBC' is : %d",getEnumValue("SQBC")); //should be 14
-//    printf("\nThe Enum index of 'range_arrays' is : %d\n",getEnumValue("range_arrays")); //should be 69
+//    printf("\nThe Enum index of 'SQBC' is : %d",getEnumValue("$",mt)); //should be 14
+//    printf("\nThe Enum index of 'range_arrays' is : %d\n",getEnumValue("program",mt)); //should be 69
 
-    // TESTING INVERSE MAPPING TABLE
-    imt = createInverseMappingTable(131); // 131 is the nearest prime > 114 (# of symbols (NT + T))
-    fillInverseMappingTable("../data/tokens.txt","../data/nonTerminals.txt");
-    printInverseMappingTable();
-    printf("\n\n Total values hashed : %d\n",imt->hashed);
-
-    // test searchEnum()
-    printf("\nIs DECLARE present in imt : %d",searchEnum(g_DECLARE)); // should be 1
-    printf("\nIs condionalStmt present in imt : %d\n",searchEnum(g_condionalStmt)); //should be 1
-    printf("\nIs -4 present in imt : %d\n",searchEnum(-4)); //should print "Hash slot index out of bounds" and 0
-    printf("\nIs 150 present in imt : %d\n",searchEnum(150)); //should print "Hash slot index out of bounds" and 0
-    printf("\nIs 130 present in imt : %d\n",searchEnum(130)); // should be 0
-
-    // test getSymbol()
-    printf("\nThe Symbol corresponding to SQBC is : %s",getSymbol(g_SQBC)); //should be "SQBC"
-    printf("\nThe Symbol corresponding to range_arrays is : %s\n",getSymbol(g_range_arrays)); //should be "range_arrays"
+//    printf("%s\n",ripOffX("X(tg)"));
+//    printf("%s\n",ripOffX("gt"));
 
     // TESTING FIRST AND FOLLOW
     populateGrammarStruct("../data/grammar.txt");
 
-    // printGrammar();
+//     printGrammar();
 
     populateFirstSet();
         populateFollowSet();
@@ -61,5 +53,9 @@ int main(void){
         }
         printf("\n");
     }
+
+    populateParseTable();
+
+    printParseTable();
     
 }

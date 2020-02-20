@@ -19,3 +19,20 @@ New nonterminal symbols used to modify the grammar are as follows:
 at least one case
 
 
+a. Add any new rule (given during online test) in `./data/gr_hr.txt` after removing left recursion (and left factoring).
+b. Then run the script to get comma delimited grammar as in `./data/grammar.txt`.
+
+Here (in a.), you need to make sure that no two rules collide (in terms of having the same first sets), e.g.,
+I. [Before removing left recursion]
+1. <arithmeticExpr> -> <arithmeticExpr> <op1> <term>
+2. <arithmeticExpr> -> <term>
+
+II. [After removing left recursion]
+1. <arithmeticExpr> -> <term> <N4>
+2. <N4> -> <op1> <term> <N4> | ε
+
+
+I made this mistake to also include `<arithmeticExpr> -> <term>` in the II. and that led to this rule and II. 1. having same first which makes the grammar non-LL(1). 
+
+If you do everything carefully, there's nothing to worry. I am just saying that this is an important step which we do manually. So, just take care.
+

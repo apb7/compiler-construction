@@ -5,19 +5,34 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#include "set.h"
-#include "parserHash.h"
+#include "../set.h"
+#include "../hash.h"
+#include "../utils.h"
+#include "../config.h"
 
-#define MAX_LINE_LEN 150
-//ntx can be used to map NonTerminal Enums to 0 based indexing
-#define ntx(y) y - g_EOS - 1
 
 extern grammarNode *G;
-extern struct mappingTable *mt;
+extern struct hashTable *mt;
 int numRules;
 ruleRange rule_range[nt_numNonTerminals];
 extern intSet* firstSet;
 extern intSet* followSet;
+int pTb[nt_numNonTerminals][t_numTerminals+1];
+
+char *inverseMappingTable[] = {
+#define X(a,b) b,
+#define K(a,b,c) c,
+#include "../data/keywords.txt"
+#include "../data/tokens.txt"
+
+        "EPS",
+        "$",
+#include "../data/nonTerminals.txt"
+
+        "#"
+#undef K
+#undef X
+};
 
 
 int isEpsilon(gSymbol symbol) {
@@ -32,85 +47,9 @@ int isNonTerminal(gSymbol symbol) {
     return ((symbol>g_EOS && symbol<g_numSymbols)?1:0);
 }
 
-/*
- * Some helper functions
- * TODO: Later, we can move them to a separate file
- */
-
-char *allocString(int size){
-    char *cstr = (char *)(calloc(size+1,sizeof(char)));
-    return cstr;
-}
-
-/*
- * Tests whether strings s1 and s2 are equal
- */
-int equals(char *s1, char *s2){
-    if(s1 == NULL && s2 == NULL)
-        return true;
-    else if(s1 == NULL || s2 == NULL)
-        return false;
-    else
-        return (strcmp(s1,s2) == 0);
-}
-
-char * trim (char *str) { // remove leading and trailing spaces
-    str = strdup(str);
-    if(str == NULL)
-        return NULL;
-    int begin = 0, end = strlen(str) -1, i;
-    while (isspace (str[begin])){
-        begin++;
-    }
-
-    if (str[begin] != '\0'){
-        while (isspace (str[end]) || str[end] == '\n'){
-            end--;
-        }
-    }
-    str[end + 1] = '\0';
-
-    return str+begin;
-}
-
-/*
-Count the number of occurrences of tk in str
-*/
-int numTk(char *str,char tk){
-    int i;
-    int len = strlen(str);
-    int cnt = 0;
-    for(i=0;i<len;i++)
-        if(str[i] == tk)
-            cnt++;
-    return cnt;
-}
-
-/*
- * Split a string and put into an array based on the given delimiter
- */
-char **strSplit(char *str, char tk){
-    if(equals(str,"") || equals(str,NULL))
-        return NULL;
-    char tkn[] = {tk};
-    int sz = numTk(str,tk) + 2;
-    char **arr = (char **)(calloc(sz,sizeof(char *)));
-    char *tmpstr = strdup(str);
-    int i = 0;
-    char *token;
-    while((token = strsep(&tmpstr,tkn)))
-        arr[i++] = token;
-    arr[i] = NULL;
-    return arr;
-}
-
-/*
- * End of Helper functions
- */
-
 rhsNode *createRhsNode(char *rhsTk){
     rhsNode *rhs = (rhsNode *) malloc(sizeof(rhsNode));
-    rhs->s = getEnumValue(rhsTk);
+    rhs->s = getEnumValue(rhsTk,mt);
     rhs->next = NULL;
     return rhs;
 }
@@ -122,7 +61,7 @@ grammarNode createRuleNode(char *rule){
     //rule has the format "A,B,c,D,a" for a rule of type A -> BcDa
     char **ruleArr = strSplit(rule,',');
     grammarNode gnode;
-    gnode.lhs = getEnumValue(ruleArr[0]);
+    gnode.lhs = getEnumValue(ruleArr[0],mt);
     gnode.head = createRhsNode(ruleArr[1]);
     int i = 2;
     rhsNode *tmp = gnode.head;
@@ -171,11 +110,13 @@ void populateGrammarStruct(char *grFile){
 }
 
 
+/*------------FIRST AND FOLLOW STARTS-------------*/
 void populateFirstSet() {
     int n=numRules;
     int isChanged=1;
     int nonTerminal_count=g_numSymbols-g_EOS-1;
     firstSet = (intSet*)calloc(nonTerminal_count,sizeof(intSet));
+    memset(firstSet,0,sizeof(firstSet));
     while(isChanged) {
         isChanged=0;
         for(int i = 0; i < n; i++) {
@@ -218,6 +159,7 @@ void populateFollowSet() {
     int isChanged=1;
     int nonTerminal_count=g_numSymbols-g_EOS-1;
     followSet = (intSet*)calloc(nonTerminal_count,sizeof(intSet));
+    memset(followSet,0,sizeof(followSet));
     //follow of topmost NT is $;
     followSet[0]=add_elt(followSet[0],g_EOS);
     while(isChanged) {
@@ -244,7 +186,6 @@ void populateFollowSet() {
                         break;
                     }
                     gSymbol ss_val=second->s;
-                    //this case should not occur
                     if(isEpsilon(ss_val)) {
                         second=second->next;
                     } else if(isTerminal(ss_val)) {
@@ -272,19 +213,123 @@ void populateFollowSet() {
             followSet[i] = remove_elt(followSet[i],g_EPS);
     }
 }
+/*------------FIRST AND FOLLOW ENDS-------------*/
 
+
+
+/*------------PARSE TABLE STARTS-------------*/
+void initParseTable() {
+    for(int i = 0; i < nt_numNonTerminals; i++) {
+        for(int j = 0; j <= t_numTerminals; j++)
+            pTb[i][j]=-1;
+    }
+}
+intSet predictSet(grammarNode* g) {
+    intSet mask=0;
+    gSymbol lval=g->lhs;
+    rhsNode* current=g->head;
+    while(current != NULL) {
+        int rval=current->s;
+        if(isEpsilon(rval)) {
+            current=current->next;
+        } else if(isTerminal(rval)) {
+            mask=add_elt(mask,rval);
+            break;
+        } else {
+            mask=union_set(mask,remove_elt(firstSet[ntx(rval)],g_EPS));
+            if(isPresent(firstSet[ntx(rval)],g_EPS))
+                current=current->next;
+            else break;
+        }
+    }
+    if(current==NULL) {
+        mask=union_set(mask,followSet[ntx(lval)]);
+    }
+    return mask;
+}
+// returns 0 if grammar is not LL(1);
+int populateParseTable() {
+    initParseTable();
+    int br=0;
+    for(int i = 0; i < numRules; i++) {
+        intSet mask=predictSet(&G[i]);
+        for(unsigned int bit = 0; bit < 64; ++bit) {
+            if(isPresent(mask,bit)) {
+                if(pTb[ntx(G[i].lhs)][bit]!=-1) {
+                    // debug
+                    // printf("%s %d\n", inverseMappingTable[G[i].lhs],bit);
+                    // Prints the line numbers causing the problem.
+                    printf("Grammar is not LL(1). See line %d, %d of Grammar\n", i+1, pTb[ntx(G[i].lhs)][bit]+1);
+                    br=1;
+                    break;
+                }
+                else
+                    pTb[ntx(G[i].lhs)][bit]=i;
+            }
+        }
+        if(br) break;
+    }
+    if(br) return 0;
+    return 1;
+}
+/*------------PARSE TABLE ENDS-------------*/
+
+
+
+/*------------PRINTING STARTS-------------*/
+void printParseTable() {
+    for(int i = 0; i < nt_numNonTerminals; i++) {
+        for(int j = 0; j <= t_numTerminals; j++)
+            printf("%d ",pTb[i][j]);
+        printf("\n");
+    }
+}
 void printGrammar() {
     int n=numRules;
-    printf("%d\n",n);
+    printf("Number of rules = %d\n",n);
     for(int i = 0; i < n; i++) {
-        printf("%d -> { ",G[i].lhs);
+        printf("%s -> ",inverseMappingTable[G[i].lhs]);
         rhsNode* start=G[i].head;
         while(start!=NULL) {
-            printf("%d,", start->s);
+            printf("%s ", inverseMappingTable[start->s]);
             start=start->next;
+        }
+        printf("\n");
+    }
+}
+void printFirst() {
+    for(int i = 0; i < nt_numNonTerminals; i++) {
+        unsigned long long num=firstSet[i];
+        printf("%s -> {", inverseMappingTable[i+g_EOS+1]);
+        for(int j =0; j < 64; j++) {
+            if(isPresent(num,j))
+                printf("%s ", inverseMappingTable[j]);
         }
         printf("}\n");
     }
 }
+void printFollow() {
+    for(int i = 0; i < nt_numNonTerminals; i++) {
+        unsigned long long num=followSet[i];
+        printf("%s -> {", inverseMappingTable[i+g_EOS+1]);
+        for(int j =0; j < 64; j++) {
+            if(isPresent(num,j))
+                printf("%s ", inverseMappingTable[j]);
+        }
+        printf("}\n");
+    }
+}
+void printPredictSets() {
+    for(int i = 0; i < numRules; i++) {
+        intSet mask=predictSet(&G[i]);
+        for(unsigned int bit=0; bit<64; ++bit) {
+         if(isPresent(mask,bit))
+             printf("%s ", inverseMappingTable[bit]);
+        }
+        printf("\n");
+    }
+}
+/*------------PRINTING ENDS-------------*/
+
 
 

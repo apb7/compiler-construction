@@ -36,14 +36,13 @@
 <unary_op> -> PLUS | MINUS
 <arithmeticOrBooleanExpr> -> <AnyTerm> <N7>
 <N7> -> <logicalOp> <AnyTerm> <N7> | ε
-<AnyTerm> -> <arithmeticExpr> <N8> | <boolConstt> <N8>
-<N8> -> <relationalOp> <arithmeticExpr> <N8> | ε
+<AnyTerm> -> <arithmeticExpr> <N8> | <boolConstt>
+<N8> -> <relationalOp> <arithmeticExpr> | ε
 <arithmeticExpr> -> <term> <N4>
 <N4> -> <op1> <term> <N4> | ε
-<arithmeticExpr> -> <term>
 <term> -> <factor> <N5>
 <N5> -> <op2> <factor> <N5> | ε
-<factor> -> BO <arithmeticExpr> BC | <var_id_num>
+<factor> -> BO <arithmeticOrBooleanExpr> BC | <var_id_num>
 <op1> -> PLUS | MINUS
 <op2> -> MUL | DIV
 <logicalOp> -> AND | OR
