@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#include "set.h"
-#include "hash.h"
-#include "utils.h"
+#include "../set.h"
+#include "../hash.h"
+#include "../utils.h"
 #define MAX_LINE_LEN 150
 //ntx can be used to map NonTerminal Enums to 0 based indexing
 #define ntx(y) y - g_EOS - 1
@@ -22,11 +22,13 @@ extern intSet* followSet;
 char *inverseMappingTable[] = {
 #define X(a,b) b,
 #define K(a,b,c) c,
-#include "data/keywords.txt"
-#include "data/tokens.txt"
+#include "../data/keywords.txt"
+#include "../data/tokens.txt"
+
         "EPS",
         "$",
-#include "data/nonTerminals.txt"
+#include "../data/nonTerminals.txt"
+
         "#"
 #undef K
 #undef X

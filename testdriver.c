@@ -1,6 +1,6 @@
 #include "hash.h"
-#include "parserDef.h"
-#include "parser.h"
+#include "parser/parserDef.h"
+#include "parser/parser.h"
 #include <stdio.h>
 #include "set.h"
 
