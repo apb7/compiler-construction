@@ -224,6 +224,7 @@ void initParseTable() {
             pTb[i][j]=-1;
     }
 }
+
 intSet predictSet(grammarNode* g) {
     intSet mask=0;
     gSymbol lval=g->lhs;
@@ -247,6 +248,7 @@ intSet predictSet(grammarNode* g) {
     }
     return mask;
 }
+
 // returns 0 if grammar is not LL(1);
 int populateParseTable() {
     initParseTable();
@@ -256,9 +258,6 @@ int populateParseTable() {
         for(unsigned int bit = 0; bit < 64; ++bit) {
             if(isPresent(mask,bit)) {
                 if(pTb[ntx(G[i].lhs)][bit]!=-1) {
-                    // debug
-                    // printf("%s %d\n", inverseMappingTable[G[i].lhs],bit);
-                    // Prints the line numbers causing the problem.
                     printf("Grammar is not LL(1). See line %d, %d of Grammar\n", i+1, pTb[ntx(G[i].lhs)][bit]+1);
                     br=1;
                     break;
@@ -280,7 +279,7 @@ int populateParseTable() {
 void printParseTable() {
     for(int i = 0; i < nt_numNonTerminals; i++) {
         for(int j = 0; j <= t_numTerminals; j++)
-            printf("%d ",pTb[i][j]);
+            printf("%d\t",pTb[i][j]);
         printf("\n");
     }
 }
