@@ -10,6 +10,7 @@ intSet* firstSet;
 intSet* followSet;
 hashTable *keyword_ht;
 extern char *inverseMappingTable[];
+extern int **pTb;
 
 #define SYMBOL_HT_SIZE 131
 
@@ -51,5 +52,9 @@ int main(void){
         }
         printf("\n");
     }
+
+    populateParseTable();
+
+    printParseTable();
     
 }
