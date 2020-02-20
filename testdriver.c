@@ -3,6 +3,7 @@
 #include "parser/parser.h"
 #include <stdio.h>
 #include "set.h"
+#include "config.h"
 
 grammarNode *G;
 struct hashTable *mt;
@@ -12,7 +13,7 @@ hashTable *keyword_ht;
 extern char *inverseMappingTable[];
 extern int **pTb;
 
-#define SYMBOL_HT_SIZE 131
+
 
 int main(void){
 

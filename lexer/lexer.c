@@ -7,8 +7,8 @@
 
 //#include "../oldHash.h"
 #include "lexerDef.h"
+#include "../config.h"
 
-#define BUFFER_SIZE 512
 
 typedef unsigned int uint;
 

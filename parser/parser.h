@@ -3,6 +3,7 @@
 #define CCGIT_PARSER_H
 
 #include "../set.h"
+#include "parserDef.h"
 
 void populateGrammarStruct(char *grFile);
 void printGrammar();

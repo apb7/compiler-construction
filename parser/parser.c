@@ -8,11 +8,9 @@
 #include "../set.h"
 #include "../hash.h"
 #include "../utils.h"
-#define MAX_LINE_LEN 150
-//ntx can be used to map NonTerminal Enums to 0 based indexing
-#define ntx(y) y - g_EOS - 1
-#define nt_numNonTerminals g_numSymbols - g_EOS - 1
-#define t_numTerminals g_EOS //excluding $ (g_EOS)
+#include "../config.h"
+
+
 extern grammarNode *G;
 extern struct hashTable *mt;
 int numRules;
