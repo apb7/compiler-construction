@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     if (argc == 2)
         fp = fopen(argv[1], "r");
     else
-        fp = fopen("../test_cases.txt", "r");
+        fp = fopen("./test_cases.txt", "r");
     //fp = fopen("abc2.txt", "r");
     int i;
     // Print all tokens.
