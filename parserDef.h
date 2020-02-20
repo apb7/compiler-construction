@@ -2,22 +2,21 @@
 #define CCGIT_PARSERDEF_H
 
 typedef enum{
-    #define X(a) g_ ## a,
+    #define X(a,b) g_ ## a,
+    #define K(a,b,c) g_ ## a,
+    #include "data/keywords.txt"
     #include "data/tokens.txt"
+    g_EPS,
     g_EOS,
     #include "data/nonTerminals.txt"
+    #undef K
     #undef X
     g_numSymbols
 } gSymbol;
 //g_EPS is for Epsilon
 //g_EOS is end of string
 
-typedef enum {
-#define X(a) nt_ ## a,
-#include "data/nonTerminals.txt"
-#undef X
-    nt_numNonTerminals
-} nonTerminalType;
+
 
 typedef struct{
     int start;

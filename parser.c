@@ -7,17 +7,30 @@
 #include <stdio.h>
 #include "set.h"
 #include "hash.h"
-
+#include "utils.h"
 #define MAX_LINE_LEN 150
 //ntx can be used to map NonTerminal Enums to 0 based indexing
 #define ntx(y) y - g_EOS - 1
-
+#define nt_numNonTerminals g_numSymbols - g_EOS - 1
 extern grammarNode *G;
 extern struct hashTable *mt;
 int numRules;
 ruleRange rule_range[nt_numNonTerminals];
 extern intSet* firstSet;
 extern intSet* followSet;
+
+char *inverseMappingTable[] = {
+#define X(a,b) b,
+#define K(a,b,c) c,
+#include "data/keywords.txt"
+#include "data/tokens.txt"
+        "EPS",
+        "$",
+#include "data/nonTerminals.txt"
+        "#"
+#undef K
+#undef X
+};
 
 
 int isEpsilon(gSymbol symbol) {
@@ -31,82 +44,6 @@ int isTerminal(gSymbol symbol) {
 int isNonTerminal(gSymbol symbol) {
     return ((symbol>g_EOS && symbol<g_numSymbols)?1:0);
 }
-
-/*
- * Some helper functions
- * TODO: Later, we can move them to a separate file
- */
-
-char *allocString(int size){
-    char *cstr = (char *)(calloc(size+1,sizeof(char)));
-    return cstr;
-}
-
-/*
- * Tests whether strings s1 and s2 are equal
- */
-int equals(char *s1, char *s2){
-    if(s1 == NULL && s2 == NULL)
-        return true;
-    else if(s1 == NULL || s2 == NULL)
-        return false;
-    else
-        return (strcmp(s1,s2) == 0);
-}
-
-char * trim (char *str) { // remove leading and trailing spaces
-    str = strdup(str);
-    if(str == NULL)
-        return NULL;
-    int begin = 0, end = strlen(str) -1, i;
-    while (isspace (str[begin])){
-        begin++;
-    }
-
-    if (str[begin] != '\0'){
-        while (isspace (str[end]) || str[end] == '\n'){
-            end--;
-        }
-    }
-    str[end + 1] = '\0';
-
-    return str+begin;
-}
-
-/*
-Count the number of occurrences of tk in str
-*/
-int numTk(char *str,char tk){
-    int i;
-    int len = strlen(str);
-    int cnt = 0;
-    for(i=0;i<len;i++)
-        if(str[i] == tk)
-            cnt++;
-    return cnt;
-}
-
-/*
- * Split a string and put into an array based on the given delimiter
- */
-char **strSplit(char *str, char tk){
-    if(equals(str,"") || equals(str,NULL))
-        return NULL;
-    char tkn[] = {tk};
-    int sz = numTk(str,tk) + 2;
-    char **arr = (char **)(calloc(sz,sizeof(char *)));
-    char *tmpstr = strdup(str);
-    int i = 0;
-    char *token;
-    while((token = strsep(&tmpstr,tkn)))
-        arr[i++] = token;
-    arr[i] = NULL;
-    return arr;
-}
-
-/*
- * End of Helper functions
- */
 
 rhsNode *createRhsNode(char *rhsTk){
     rhsNode *rhs = (rhsNode *) malloc(sizeof(rhsNode));

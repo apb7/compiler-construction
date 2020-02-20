@@ -3,12 +3,13 @@
 
 // Sync with terminals.txt
 typedef enum {
-    INTEGER, REAL, BOOLEAN, OF, ARRAY, START, END, DECLARE, MODULE, DRIVER,
-    PROGRAM, GET_VALUE, PRINT, USE, WITH, PARAMETERS, TRUE, FALSE, TAKES,
-    INPUT, RETURNS, AND, OR, FOR, IN, SWITCH, CASE, BREAK, DEFAULT, WHILE,
-    PLUS, MINUS, MUL, DIV, LT, LE, GE, GT, EQ, NE, DEF, ENDDEF, DRIVERDEF,
-    DRIVERENDDEF, COLON, RANGEOP, SEMICOL, COMMA, ASSIGNOP, SQBO, SQBC, BO,
-    BC, COMMENTMARK, ID, NUM, RNUM
+    #define X(a,b) a,
+    #define K(a,b,c) a,
+    #include "../data/keywords.txt"
+    #include "../data/tokens.txt"
+    COMMENTMARK
+    #undef K
+    #undef X
 } tokenType;
 
 struct tokenInfo {
