@@ -17,4 +17,8 @@ void printFirst();
 void printFollow();
 void printPredictSets();
 grammarNode createRuleNode(char *rule);
+
+
+treeNode *newTreeNode(gSymbol sym, treeNode *parent);
+
 #endif //CCGIT_PARSER_H

@@ -38,24 +38,27 @@ int main(void){
     // TESTING FIRST AND FOLLOW
     populateGrammarStruct("../data/grammar.txt");
 
-//     printGrammar();
+     printGrammar();
 
-    populateFirstSet();
-        populateFollowSet();
-    int nonTerminal_count=g_numSymbols-g_EOS-1;
+//    populateFirstSet();
+//        populateFollowSet();
+//    int nonTerminal_count=g_numSymbols-g_EOS-1;
+//
+//    for(int i = 0; i  <nonTerminal_count; i++) {
+//        intSet num = followSet[i];
+//        printf("%d -> ", i+g_EOS+1);
+//        for(intSet j = 0; j < 64; j++) {
+//            if(isPresent(num,j))
+//                printf("%llu ", j);
+//        }
+//        printf("\n");
+//    }
 
-    for(int i = 0; i  <nonTerminal_count; i++) {
-        intSet num = followSet[i];
-        printf("%d -> ", i+g_EOS+1);
-        for(intSet j = 0; j < 64; j++) {
-            if(isPresent(num,j))
-                printf("%llu ", j);
-        }
-        printf("\n");
-    }
+//    populateParseTable();
 
-    populateParseTable();
+//    printParseTable();
 
-    printParseTable();
-    
+//    grammarNode gn = createRuleNode("lvalueARRStmt,SQBO,index,SQBC,ASSIGNOP,expression,SEMICOL");
+//    printf("%d\n",gn.lhs);
+
 }

@@ -9,6 +9,8 @@
 #include "../hash.h"
 #include "../utils.h"
 #include "../config.h"
+#include "../lexer/lexer.h"
+#include "../treeNode_stack.h"
 
 
 extern grammarNode *G;
@@ -280,6 +282,109 @@ int populateParseTable() {
 /*------------PARSE TABLE ENDS-------------*/
 
 
+
+treeNode *newTreeNode(gSymbol sym, treeNode *parent){
+    treeNode *tmp = (treeNode *) malloc(sizeof(treeNode));
+    tmp->next = NULL;
+    tmp->child = NULL;
+    tmp->tkinfo = NULL;
+    tmp->tk = sym;
+    tmp->parent = parent;
+    return tmp;
+}
+
+/*------------PARSE I/P SOURCECODE STARTS-------------*/
+treeNode *parseInputSourceCode(char *src){
+    bool errorFree = true;
+    if(!src) {
+        //TODO: Error Reporting
+        return NULL;
+    }
+    //open the source file
+    FILE *srcFilePtr = fopen(src,"r");
+    if(!srcFilePtr){
+        //TODO: Error Reporting
+        return NULL;
+    }
+
+    //Init two stacks
+    treeNode_stack *parseStack = treeNode_stack_create();
+    treeNode_stack *tmpStack = treeNode_stack_create();
+
+    //Push $ symbol to stack
+    treeNode *dummyNode = newTreeNode(g_EOS,NULL);
+    treeNode_stack_push(parseStack,dummyNode);
+
+    //Push Start Symbol (program) to stack
+    treeNode *parseTreeRoot = newTreeNode(g_program,NULL);
+    treeNode_stack_push(parseStack,parseTreeRoot);
+
+    tokenInfo *tkinfo = getNextToken(srcFilePtr);
+    //loop until there are no more tokens
+    bool eosEncountered = false;
+    while(1){
+        gSymbol sym = eosEncountered ? g_EOS : (tkinfo->type);
+        treeNode *topNode = treeNode_stack_top(parseStack);
+        if(topNode->tk == sym){
+            if(eosEncountered)
+                break;
+            topNode->tkinfo = tkinfo;
+            topNode->child = NULL;
+            treeNode_stack_pop(parseStack);
+            tkinfo = getNextToken(srcFilePtr);
+            if(tkinfo == NULL){
+                eosEncountered = true;
+            }
+        }
+        else if(topNode->tk <= g_EOS){
+            //topNode is not a non Terminal
+            errorFree = false;
+            //TODO: Error Reporting
+        }
+        else{
+            //topNode is a non Terminal
+            int ruleId = pTb[topNode->tk][sym];
+            if(ruleId == -1){
+                //Invalid Combination
+                errorFree = false;
+                //TODO: Error Reporting
+            }
+            else{
+                grammarNode gNode = G[ruleId];
+                if(gNode.lhs != topNode->tk){
+                    //Report Unexpected Error
+                }
+                treeNode_stack_pop(parseStack);
+                rhsNode *rhsPtr = gNode.head;
+                treeNode *currChild = NULL;
+                while(rhsPtr != NULL){
+                    treeNode *tmpChild = newTreeNode(rhsPtr->s,topNode);
+                    treeNode_stack_push(tmpStack, tmpChild);
+                    if(currChild == NULL){
+                        topNode->child = tmpChild;
+                        currChild = tmpChild;
+                    }
+                    else{
+                        currChild->next = tmpChild;
+                        currChild = tmpChild;
+                    }
+                    rhsPtr = rhsPtr->next;
+                }
+                while(!treeNode_stack_isEmpty(tmpStack)){
+                    treeNode *tmpTop = treeNode_stack_top(tmpStack);
+                    treeNode_stack_push(parseStack,tmpTop);
+                    treeNode_stack_pop(tmpStack);
+                }
+            }
+        }
+    }
+    if(errorFree){
+        printf("Input source code is syntactically correct...........\n");
+    }
+    return parseTreeRoot;
+}
+
+/*------------PARSE I/P SOURCECODE ENDS-------------*/
 
 /*------------PRINTING STARTS-------------*/
 void printParseTable() {
