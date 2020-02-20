@@ -19,7 +19,7 @@ int numRules;
 ruleRange rule_range[nt_numNonTerminals];
 extern intSet* firstSet;
 extern intSet* followSet;
-extern int pTb[nt_numNonTerminals][t_numTerminals+1];
+int pTb[nt_numNonTerminals][t_numTerminals+1];
 
 char *inverseMappingTable[] = {
 #define X(a,b) b,
