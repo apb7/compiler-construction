@@ -1,0 +1,12 @@
+#ifndef COMPILER_CONSTRUCTION_INTEGER_STACK_H
+#define COMPILER_CONSTRUCTION_INTEGER_STACK_H
+
+#define TYPE int
+#define NAME_TYPE(a) int_##a
+
+#include "generic_stack.h"
+
+#undef TYPE
+#undef NAME_TYPE
+
+#endif //COMPILER_CONSTRUCTION_INTEGER_STACK_H
