@@ -1,6 +1,6 @@
 #include "treeNodePtr_stack.h"
 #include "treeNodePtr_stack_config.h"
-#include "parser/parserDef.h"
+#include "../parser/parserDef.h"
 
 
 #define TYPE treeNode*

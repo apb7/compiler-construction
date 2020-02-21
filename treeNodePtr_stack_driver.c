@@ -1,6 +1,6 @@
 #include <stdio.h> // for i/o operations
-#include "treeNodePtr_stack.h" // TYPE_stack.h
-#include "treeNodePtr_stack_config.h" // TYPE_stack_config.h
+#include "utils/treeNodePtr_stack.h" // TYPE_stack.h
+#include "utils/treeNodePtr_stack_config.h" // TYPE_stack_config.h
 #include "parser/parserDef.h"
 
 int main(void){

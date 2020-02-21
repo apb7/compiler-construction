@@ -5,13 +5,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#include "../set.h"
-#include "../hash.h"
-#include "../utils.h"
+#include "../utils/set.h"
+#include "../utils/hash.h"
+#include "../utils/util.h"
 #include "../config.h"
 #include "../lexer/lexer.h"
-#include "../treeNodePtr_stack.h" // TYPE_stack.h
-#include "../treeNodePtr_stack_config.h" // TYPE_stack_config.h
+#include "../utils/treeNodePtr_stack.h" // TYPE_stack.h
+#include "../utils/treeNodePtr_stack_config.h" // TYPE_stack_config.h
 
 
 extern grammarNode *G;

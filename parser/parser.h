@@ -2,7 +2,7 @@
 #ifndef CCGIT_PARSER_H
 #define CCGIT_PARSER_H
 
-#include "../set.h"
+#include "../utils/set.h"
 #include "parserDef.h"
 
 void populateGrammarStruct(char *grFile);

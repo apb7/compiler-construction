@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../hash.h"
+#include "../utils/hash.h"
 
 //#include "../oldHash.h"
 #include "lexerDef.h"

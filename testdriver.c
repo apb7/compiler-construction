@@ -1,8 +1,8 @@
-#include "hash.h"
+#include "utils/hash.h"
 #include "parser/parserDef.h"
 #include "parser/parser.h"
 #include <stdio.h>
-#include "set.h"
+#include "utils/set.h"
 #include "config.h"
 
 grammarNode *G;
