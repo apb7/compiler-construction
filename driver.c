@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include "lexer/lexer.h"
-#include "hash.h"
-#include "set.h"
-#include "utils.h"
+#include "utils/hash.h"
+#include "utils/set.h"
+#include "utils/util.h"
 #include "config.h"
 
 hashTable *keyword_ht;
@@ -18,7 +18,7 @@ hashTable *keyword_ht;
 
 int main(int argc, char *argv[]) {
 
-    // Create and poplate hash table for keywords
+    // Create and populate hash table for keywords
     keyword_ht = createHashTable(KEYWORD_HT_SIZE);
 
     char* keywords[] = {
