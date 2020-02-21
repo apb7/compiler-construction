@@ -70,7 +70,7 @@ int main(void){
     populateParseTable();
 
 //    printParseTable();
-    treeNode *root = parseInputSourceCode("../test1.erp");
+    treeNode *root = parseInputSourceCode("../t4.txt");
 
     printTree(root);
 
