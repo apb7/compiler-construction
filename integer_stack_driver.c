@@ -7,8 +7,8 @@
 
 // since integer is supported by C by default, we don't need to include any file where type definition of integer exists
 #include <stdio.h> // for i/o operations
-#include "integer_stack.h" // TYPE_stack.h
-#include "integer_stack_config.h" // TYPE_stack_config.h
+#include "utils/integer_stack.h" // TYPE_stack.h
+#include "utils/integer_stack_config.h" // TYPE_stack_config.h
 
 // need to check the following:
 // response to pushing beyond int_STACK_MAX

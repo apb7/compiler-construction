@@ -18,25 +18,36 @@
 extern grammarNode *G;
 extern struct hashTable *mt;
 int numRules;
-ruleRange rule_range[nt_numNonTerminals];
+ruleRange rule_range[numNonTerminals];
 extern intSet* firstSet;
 extern intSet* followSet;
-int pTb[nt_numNonTerminals][t_numTerminals+1];
+int pTb[numNonTerminals][numTerminals + 1];
 
 char *inverseMappingTable[] = {
 #define X(a,b) b,
 #define K(a,b,c) c,
 #include "../data/keywords.txt"
 #include "../data/tokens.txt"
-
         "EPS",
         "$",
 #include "../data/nonTerminals.txt"
-
         "#"
 #undef K
 #undef X
 };
+
+//ntx can be used to map NonTerminal Enums to 0 based indexing
+int ntx(int nonTerminalId){
+    int adjustedValue = nonTerminalId - g_EOS - 1;
+    if(adjustedValue < 0){
+        fprintf(stderr,"ntx: Invalid nonTerminal, %d\n",nonTerminalId);
+        return 0;
+    }
+    return adjustedValue;
+}
+
+//rntx is the inverse of ntx
+int rntx(int nonTerminalIdx){ return nonTerminalIdx + g_EOS + 1; }
 
 /*------- BOOLEAN CHECK FUNCTIONS -------*/
 int isEpsilon(gSymbol symbol) {
@@ -60,7 +71,7 @@ bool isLeafNode(treeNode *ptr){
         return false;
 }
 
-/*------- /BOOLEAN CHECK FUNCTIONS -------*/
+/*------- \BOOLEAN CHECK FUNCTIONS -------*/
 
 
 /* ------------------ GRAMMAR REPRESENTATION STARTS ------------------*/
@@ -69,12 +80,16 @@ bool isLeafNode(treeNode *ptr){
  * This function is used to create and return a RhsNode for a rule of the grammar
  */
 rhsNode *createRhsNode(char *rhsTk){
-    if(!rhsTk)
+    if(!rhsTk){
+        fprintf(stderr,"createRhsNode: NULL Token\n");
         return NULL;
+    }
     rhsNode *rhs = (rhsNode *) malloc(sizeof(rhsNode));
     rhs->s = getEnumValue(rhsTk,mt);
-    if(rhs->s == -1)
+    if(rhs->s == -1){
+        fprintf(stderr,"createRhsNode: Invalid token %s\n",rhsTk);
         return NULL;
+    }
     rhs->next = NULL;
     return rhs;
 }
@@ -113,8 +128,10 @@ void populateGrammarStruct(char *grFile){
     if(!grFile)
         return;
     FILE *fp = fopen(grFile,"r");
-    if(!fp)
+    if(!fp){
+        fprintf(stderr,"populateGrammarStruct: ERROR, Unable to open file %s\n",grFile);
         return;
+    }
     int i;
     char buf[MAX_LINE_LEN] = {0};
     fgets(buf,MAX_LINE_LEN,fp);
@@ -147,9 +164,8 @@ void populateGrammarStruct(char *grFile){
 void populateFirstSet() {
     int n=numRules;
     int isChanged=1;
-    int nonTerminal_count=g_numSymbols-g_EOS-1;
-    firstSet = (intSet*)calloc(nonTerminal_count,sizeof(intSet));
-    memset(firstSet,0,sizeof(firstSet));
+    firstSet = (intSet*)calloc(numNonTerminals, sizeof(intSet));
+    memset(firstSet,0,sizeof(intSet));
     while(isChanged) {
         isChanged=0;
         for(int i = 0; i < n; i++) {
@@ -193,9 +209,8 @@ void populateFirstSet() {
 void populateFollowSet() {
     int n=numRules;
     int isChanged=1;
-    int nonTerminal_count=g_numSymbols-g_EOS-1;
-    followSet = (intSet*)calloc(nonTerminal_count,sizeof(intSet));
-    memset(followSet,0,sizeof(followSet));
+    followSet = (intSet*)calloc(numNonTerminals, sizeof(intSet));
+    memset(followSet,0,sizeof(intSet));
     //follow of topmost NT is $;
     followSet[0]=add_elt(followSet[0],g_EOS);
     while(isChanged) {
@@ -244,7 +259,7 @@ void populateFollowSet() {
             }
         }
     }
-    for(int i = 0; i < nonTerminal_count; i++) {
+    for(int i = 0; i < numNonTerminals; i++) {
         if(isPresent(followSet[i],g_EPS))
             followSet[i] = remove_elt(followSet[i],g_EPS);
     }
@@ -257,8 +272,8 @@ void populateFollowSet() {
 
 //To initialize the parse Table
 void initParseTable() {
-    for(int i = 0; i < nt_numNonTerminals; i++) {
-        for(int j = 0; j <= t_numTerminals; j++)
+    for(int i = 0; i < numNonTerminals; i++) {
+        for(int j = 0; j <= numTerminals; j++)
             pTb[i][j]=-1;
     }
 }
@@ -297,7 +312,7 @@ int populateParseTable() {
         for(unsigned int bit = 0; bit < 64; ++bit) {
             if(isPresent(mask,bit)) {
                 if(pTb[ntx(G[i].lhs)][bit]!=-1) {
-                    printf("Grammar is not LL(1). See line %d, %d of Grammar\n", i+1, pTb[ntx(G[i].lhs)][bit]+1);
+                    fprintf(stderr,"populateParseTable: ERROR, Grammar is not LL(1). See line %d, %d of Grammar\n", i+1, pTb[ntx(G[i].lhs)][bit]+1);
                     br=1;
                     break;
                 }
@@ -333,13 +348,13 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent){
 treeNode *parseInputSourceCode(char *src){
     bool errorFree = true;
     if(!src) {
-        //TODO: Error Reporting
+        fprintf(stderr,"parseInputSourceCode: ERROR, Invalid source file\n");
         return NULL;
     }
     //open the source file
     FILE *srcFilePtr = fopen(src,"r");
     if(!srcFilePtr){
-        //TODO: Error Reporting
+        fprintf(stderr,"parseInputSourceCode: ERROR, Cannot open file, %s\n",src);
         return NULL;
     }
 
@@ -356,6 +371,10 @@ treeNode *parseInputSourceCode(char *src){
     treeNodePtr_stack_push(parseStack,parseTreeRoot);
 
     tokenInfo *tkinfo = getNextToken(srcFilePtr);
+    if(tkinfo == NULL){
+        fprintf(stderr,"parseInputSourceCode: ERROR, Source file empty.\n");
+        return NULL;
+    }
     //loop until there are no more tokens
     bool eosEncountered = false;
     while(1){
@@ -380,8 +399,7 @@ treeNode *parseInputSourceCode(char *src){
         else if(topNode->tk <= g_EOS){
             //topNode is not a non Terminal
             errorFree = false;
-            printf("Error due to topNode not a non Terminal\n");
-            //TODO: Error Reporting
+            fprintf(stderr,"parseInputSourceCode: ERROR, Stack Top & Lexer token mismatch. Found %s and %s respectively.\n",inverseMappingTable[topNode->tk],sym);
             return NULL;
         }
         else{
@@ -434,8 +452,8 @@ treeNode *parseInputSourceCode(char *src){
 /*------------PRINTING STARTS-------------*/
 
 void printParseTable() {
-    for(int i = 0; i < nt_numNonTerminals; i++) {
-        for(int j = 0; j <= t_numTerminals; j++)
+    for(int i = 0; i < numNonTerminals; i++) {
+        for(int j = 0; j <= numTerminals; j++)
             printf("%d\t",pTb[i][j]);
         printf("\n");
     }
@@ -454,9 +472,9 @@ void printGrammar() {
     }
 }
 void printFirst() {
-    for(int i = 0; i < nt_numNonTerminals; i++) {
+    for(int i = 0; i < numNonTerminals; i++) {
         unsigned long long num=firstSet[i];
-        printf("%s -> {", inverseMappingTable[i+g_EOS+1]);
+        printf("%s -> {", inverseMappingTable[rntx(i)]);
         for(int j =0; j < 64; j++) {
             if(isPresent(num,j))
                 printf("%s ", inverseMappingTable[j]);
@@ -465,9 +483,9 @@ void printFirst() {
     }
 }
 void printFollow() {
-    for(int i = 0; i < nt_numNonTerminals; i++) {
+    for(int i = 0; i < numNonTerminals; i++) {
         unsigned long long num=followSet[i];
-        printf("%s -> {", inverseMappingTable[i+g_EOS+1]);
+        printf("%s -> {", inverseMappingTable[rntx(i)]);
         for(int j =0; j < 64; j++) {
             if(isPresent(num,j))
                 printf("%s ", inverseMappingTable[j]);
@@ -493,9 +511,11 @@ void printTreeNode(treeNode *ptr, FILE *fp){
     const char blank[] = "----";
     bool isLeaf = isLeafNode(ptr);
     if(fp == NULL){
-        //TODO: Error Handling
+        fprintf(stderr,"printTreeNode: Invalid file pointer.\n");
         return;
     }
+    if(!ptr)
+        return;
     if(isLeaf && ptr->tk != g_EPS){
         fprintf(fp,"%-21s",ptr->tkinfo->lexeme);
         fprintf(fp,"%-15u",ptr->tkinfo->lno);
@@ -528,8 +548,6 @@ void printTreeNode(treeNode *ptr, FILE *fp){
         fprintf(fp,"%-10s","no");
         fprintf(fp,"%s\n",inverseMappingTable[ptr->tk]);
     }
-
-
 
 
 }

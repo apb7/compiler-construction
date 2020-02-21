@@ -66,14 +66,14 @@ void removeComments(char *testcaseFile, char *cleanFile) {
     FILE *fp_testcaseFile = fopen(testcaseFile, "r");
 
     if(fp_testcaseFile == NULL) {
-        printf("ERROR: Failed to open %s", testcaseFile);
+        fprintf(stderr,"ERROR: Failed to open %s", testcaseFile);
         return;
     }
 
     FILE *fp_cleanFile = fopen(cleanFile, "w");
 
     if(fp_cleanFile == NULL) {
-        printf("ERROR: Failed to open %s", cleanFile);
+        fprintf(stderr,"ERROR: Failed to open %s", cleanFile);
         return;
     }
 
@@ -113,6 +113,8 @@ void removeComments(char *testcaseFile, char *cleanFile) {
     }
 
     free(buffer_to_write);
+    fclose(fp_cleanFile);
+    fclose(fp_testcaseFile);
 }
 
 // Prints the string in global buffer from start to end, not including end.
