@@ -1,2 +1,2 @@
-all:    driver.c lexer/lexer.c hash.c utils.c
-	gcc driver.c lexer/lexer.c hash.c utils.c -o lexer/lexer.out
+all:    driver.c lexer/lexer.c utils/hash.c utils/util.c
+	gcc driver.c lexer/lexer.c utils/hash.c utils/util.c -o lexer/lexer.out
