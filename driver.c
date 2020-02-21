@@ -18,7 +18,7 @@ hashTable *keyword_ht;
 
 int main(int argc, char *argv[]) {
 
-    // Create and poplate hash table for keywords
+    // Create and populate hash table for keywords
     keyword_ht = createHashTable(KEYWORD_HT_SIZE);
 
     char* keywords[] = {
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     if (argc == 2)
         fp = fopen(argv[1], "r");
     else
-        fp = fopen("../test_cases.txt", "r");
+        fp = fopen("../test1.erp", "r");
     //fp = fopen("abc2.txt", "r");
     int i;
     // Print all tokens.

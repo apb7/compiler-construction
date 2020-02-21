@@ -16,8 +16,9 @@ void printParseTable();
 void printFirst();
 void printFollow();
 void printPredictSets();
+treeNode *parseInputSourceCode(char *src);
 grammarNode createRuleNode(char *rule);
-
+void printTree(treeNode *root);
 
 treeNode *newTreeNode(gSymbol sym, treeNode *parent);
 

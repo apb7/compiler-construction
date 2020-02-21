@@ -10,7 +10,8 @@
 #include "../utils.h"
 #include "../config.h"
 #include "../lexer/lexer.h"
-#include "../treeNode_stack.h"
+#include "../treeNodePtr_stack.h" // TYPE_stack.h
+#include "../treeNodePtr_stack_config.h" // TYPE_stack_config.h
 
 
 extern grammarNode *G;
@@ -308,29 +309,34 @@ treeNode *parseInputSourceCode(char *src){
     }
 
     //Init two stacks
-    treeNode_stack *parseStack = treeNode_stack_create();
-    treeNode_stack *tmpStack = treeNode_stack_create();
+    treeNodePtr_stack *parseStack = treeNodePtr_stack_create();
+    treeNodePtr_stack *tmpStack = treeNodePtr_stack_create();
 
     //Push $ symbol to stack
     treeNode *dummyNode = newTreeNode(g_EOS,NULL);
-    treeNode_stack_push(parseStack,dummyNode);
+    treeNodePtr_stack_push(parseStack,dummyNode);
 
     //Push Start Symbol (program) to stack
     treeNode *parseTreeRoot = newTreeNode(g_program,NULL);
-    treeNode_stack_push(parseStack,parseTreeRoot);
+    treeNodePtr_stack_push(parseStack,parseTreeRoot);
 
     tokenInfo *tkinfo = getNextToken(srcFilePtr);
     //loop until there are no more tokens
     bool eosEncountered = false;
     while(1){
         gSymbol sym = eosEncountered ? g_EOS : (tkinfo->type);
-        treeNode *topNode = treeNode_stack_top(parseStack);
-        if(topNode->tk == sym){
+        treeNode *topNode = treeNodePtr_stack_top(parseStack);
+        if(topNode->tk == g_EPS){
+            topNode->tkinfo = NULL;
+            topNode->child = NULL;
+            treeNodePtr_stack_pop(parseStack);
+        }
+        else if(topNode->tk == sym){
             if(eosEncountered)
                 break;
             topNode->tkinfo = tkinfo;
             topNode->child = NULL;
-            treeNode_stack_pop(parseStack);
+            treeNodePtr_stack_pop(parseStack);
             tkinfo = getNextToken(srcFilePtr);
             if(tkinfo == NULL){
                 eosEncountered = true;
@@ -339,27 +345,31 @@ treeNode *parseInputSourceCode(char *src){
         else if(topNode->tk <= g_EOS){
             //topNode is not a non Terminal
             errorFree = false;
+            printf("Error due to topNode not a non Terminal\n");
             //TODO: Error Reporting
+            return NULL;
         }
         else{
             //topNode is a non Terminal
-            int ruleId = pTb[topNode->tk][sym];
+            int ruleId = pTb[ntx(topNode->tk)][sym];
             if(ruleId == -1){
                 //Invalid Combination
                 errorFree = false;
                 //TODO: Error Reporting
+                printf("Error due to no grammar rule for %d , %d\n",ntx(topNode->tk),sym);
+                return NULL;
             }
             else{
                 grammarNode gNode = G[ruleId];
                 if(gNode.lhs != topNode->tk){
                     //Report Unexpected Error
                 }
-                treeNode_stack_pop(parseStack);
+                treeNodePtr_stack_pop(parseStack);
                 rhsNode *rhsPtr = gNode.head;
                 treeNode *currChild = NULL;
                 while(rhsPtr != NULL){
                     treeNode *tmpChild = newTreeNode(rhsPtr->s,topNode);
-                    treeNode_stack_push(tmpStack, tmpChild);
+                    treeNodePtr_stack_push(tmpStack, tmpChild);
                     if(currChild == NULL){
                         topNode->child = tmpChild;
                         currChild = tmpChild;
@@ -370,10 +380,10 @@ treeNode *parseInputSourceCode(char *src){
                     }
                     rhsPtr = rhsPtr->next;
                 }
-                while(!treeNode_stack_isEmpty(tmpStack)){
-                    treeNode *tmpTop = treeNode_stack_top(tmpStack);
-                    treeNode_stack_push(parseStack,tmpTop);
-                    treeNode_stack_pop(tmpStack);
+                while(!treeNodePtr_stack_isEmpty(tmpStack)){
+                    treeNode *tmpTop = treeNodePtr_stack_top(tmpStack);
+                    treeNodePtr_stack_push(parseStack,tmpTop);
+                    treeNodePtr_stack_pop(tmpStack);
                 }
             }
         }
@@ -387,6 +397,51 @@ treeNode *parseInputSourceCode(char *src){
 /*------------PARSE I/P SOURCECODE ENDS-------------*/
 
 /*------------PRINTING STARTS-------------*/
+
+/*----------- INFORMAL TREE PRINTING STARTS -----------*/
+void putAllChildrenInSt(treeNode *child, treeNodePtr_stack *s1){
+    while(child != NULL){
+        treeNodePtr_stack_push(s1,child);
+        child = child->next;
+    }
+}
+
+void printInfoTreeNode(treeNode *ptr){
+    if(ptr->parent == NULL){
+        printf("(NULL->%s)\t",inverseMappingTable[ptr->tk]);
+    }
+    else
+        printf("(%s->%s)\t",inverseMappingTable[ptr->parent->tk],inverseMappingTable[ptr->tk]);
+}
+
+void printTree(treeNode *root){
+    treeNodePtr_stack *s1 = treeNodePtr_stack_create();
+    treeNodePtr_stack *s2 = treeNodePtr_stack_create();
+
+    treeNode *child = root->child;
+
+    printInfoTreeNode(root);
+
+    putAllChildrenInSt(child,s1);
+
+    while(!treeNodePtr_stack_isEmpty(s1)){
+        while(!treeNodePtr_stack_isEmpty(s1)){
+            treeNodePtr_stack_push(s2,treeNodePtr_stack_pop(s1));
+        }
+
+        while(!treeNodePtr_stack_isEmpty(s2)){
+            treeNode *curr = treeNodePtr_stack_top(s2);
+            putAllChildrenInSt(curr->child,s1);
+            printInfoTreeNode(curr);
+//            printf("%d\t",curr->tk);
+            treeNodePtr_stack_pop(s2);
+        }
+        printf("\n\n");
+    }
+}
+
+/*----------- INFORMAL TREE PRINTING ENDS -----------*/
+
 void printParseTable() {
     for(int i = 0; i < nt_numNonTerminals; i++) {
         for(int j = 0; j <= t_numTerminals; j++)

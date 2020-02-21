@@ -1,7 +1,7 @@
 #ifndef COMPILER_CONSTRUCTION_TREENODEPTR_STACK_H
 #define COMPILER_CONSTRUCTION_TREENODEPTR_STACK_H
 
-#include "treeNodePtr_Def.h"
+#include "parser/parserDef.h"
 
 #define TYPE treeNode*
 #define NAME_TYPE(a) treeNodePtr_##a

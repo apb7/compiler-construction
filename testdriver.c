@@ -21,6 +21,19 @@ int main(void){
     // test createHashTable, fillHashTable, printHashTable, addSymbol, HashHashFunction, ripOffX
     mt = createHashTable(SYMBOL_HT_SIZE); // 131 is the nearest prime > 114 (# of symbols (NT + T))
     fillHashTable(inverseMappingTable,mt);
+
+    // Create and populate hash table for keywords
+    keyword_ht = createHashTable(KEYWORD_HT_SIZE);
+
+    char* keywords[] = {
+        #define K(a,b,c) b,
+        #include "data/keywords.txt"
+        #undef K
+        "#"
+    };
+
+    fillHashTable(keywords,keyword_ht);
+
 //    printHashTable(mt);
 //    printf("\n\n Total values hashed : %d\n",mt->hashed);
 //
@@ -38,10 +51,10 @@ int main(void){
     // TESTING FIRST AND FOLLOW
     populateGrammarStruct("../data/grammar.txt");
 
-     printGrammar();
+//     printGrammar();
 
-//    populateFirstSet();
-//        populateFollowSet();
+    populateFirstSet();
+        populateFollowSet();
 //    int nonTerminal_count=g_numSymbols-g_EOS-1;
 //
 //    for(int i = 0; i  <nonTerminal_count; i++) {
@@ -54,9 +67,12 @@ int main(void){
 //        printf("\n");
 //    }
 
-//    populateParseTable();
+    populateParseTable();
 
 //    printParseTable();
+    treeNode *root = parseInputSourceCode("../test1.erp");
+
+    printTree(root);
 
 //    grammarNode gn = createRuleNode("lvalueARRStmt,SQBO,index,SQBC,ASSIGNOP,expression,SEMICOL");
 //    printf("%d\n",gn.lhs);
