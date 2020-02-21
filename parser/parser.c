@@ -12,6 +12,7 @@
 #include "../lexer/lexer.h"
 #include "../utils/treeNodePtr_stack.h" // TYPE_stack.h
 #include "../utils/treeNodePtr_stack_config.h" // TYPE_stack_config.h
+#include "../lexer/lexerDef.h"
 
 
 extern grammarNode *G;
@@ -37,7 +38,7 @@ char *inverseMappingTable[] = {
 #undef X
 };
 
-
+/*------- BOOLEAN CHECK FUNCTIONS -------*/
 int isEpsilon(gSymbol symbol) {
     return (symbol==g_EPS?1:0);
 }
@@ -50,6 +51,23 @@ int isNonTerminal(gSymbol symbol) {
     return ((symbol>g_EOS && symbol<g_numSymbols)?1:0);
 }
 
+bool isLeafNode(treeNode *ptr){
+    if(ptr == NULL)
+        return false;
+    if(ptr->child == NULL)
+        return true;
+    else
+        return false;
+}
+
+/*------- /BOOLEAN CHECK FUNCTIONS -------*/
+
+
+/* ------------------ GRAMMAR REPRESENTATION STARTS ------------------*/
+
+/*
+ * This function is used to create and return a RhsNode for a rule of the grammar
+ */
 rhsNode *createRhsNode(char *rhsTk){
     if(!rhsTk)
         return NULL;
@@ -118,8 +136,14 @@ void populateGrammarStruct(char *grFile){
 
 }
 
+/* ------------------ GRAMMAR REPRESENTATION ENDS ------------------*/
+
+
 
 /*------------FIRST AND FOLLOW STARTS-------------*/
+/*
+ * This function fills the entries of the global First array
+ */
 void populateFirstSet() {
     int n=numRules;
     int isChanged=1;
@@ -163,6 +187,9 @@ void populateFirstSet() {
 }
 
 
+/*
+ * This function fills the entries of the global Follow array
+ */
 void populateFollowSet() {
     int n=numRules;
     int isChanged=1;
@@ -227,6 +254,8 @@ void populateFollowSet() {
 
 
 /*------------PARSE TABLE STARTS-------------*/
+
+//To initialize the parse Table
 void initParseTable() {
     for(int i = 0; i < nt_numNonTerminals; i++) {
         for(int j = 0; j <= t_numTerminals; j++)
@@ -234,6 +263,7 @@ void initParseTable() {
     }
 }
 
+//To compute the predictSet used for populating the parse table
 intSet predictSet(grammarNode* g) {
     intSet mask=0;
     gSymbol lval=g->lhs;
@@ -280,9 +310,11 @@ int populateParseTable() {
     if(br) return 0;
     return 1;
 }
+
 /*------------PARSE TABLE ENDS-------------*/
 
 
+/* ------------------ PARSE TREE HELPER FUNCTIONS START ------------------*/
 
 treeNode *newTreeNode(gSymbol sym, treeNode *parent){
     treeNode *tmp = (treeNode *) malloc(sizeof(treeNode));
@@ -293,6 +325,9 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent){
     tmp->parent = parent;
     return tmp;
 }
+
+/* ------------------ PARSE TREE HELPER FUNCTIONS END ------------------*/
+
 
 /*------------PARSE I/P SOURCECODE STARTS-------------*/
 treeNode *parseInputSourceCode(char *src){
@@ -398,50 +433,6 @@ treeNode *parseInputSourceCode(char *src){
 
 /*------------PRINTING STARTS-------------*/
 
-/*----------- INFORMAL TREE PRINTING STARTS -----------*/
-void putAllChildrenInSt(treeNode *child, treeNodePtr_stack *s1){
-    while(child != NULL){
-        treeNodePtr_stack_push(s1,child);
-        child = child->next;
-    }
-}
-
-void printInfoTreeNode(treeNode *ptr){
-    if(ptr->parent == NULL){
-        printf("(NULL->%s)\t",inverseMappingTable[ptr->tk]);
-    }
-    else
-        printf("(%s->%s)\t",inverseMappingTable[ptr->parent->tk],inverseMappingTable[ptr->tk]);
-}
-
-void printTree(treeNode *root){
-    treeNodePtr_stack *s1 = treeNodePtr_stack_create();
-    treeNodePtr_stack *s2 = treeNodePtr_stack_create();
-
-    treeNode *child = root->child;
-
-    printInfoTreeNode(root);
-
-    putAllChildrenInSt(child,s1);
-
-    while(!treeNodePtr_stack_isEmpty(s1)){
-        while(!treeNodePtr_stack_isEmpty(s1)){
-            treeNodePtr_stack_push(s2,treeNodePtr_stack_pop(s1));
-        }
-
-        while(!treeNodePtr_stack_isEmpty(s2)){
-            treeNode *curr = treeNodePtr_stack_top(s2);
-            putAllChildrenInSt(curr->child,s1);
-            printInfoTreeNode(curr);
-//            printf("%d\t",curr->tk);
-            treeNodePtr_stack_pop(s2);
-        }
-        printf("\n\n");
-    }
-}
-
-/*----------- INFORMAL TREE PRINTING ENDS -----------*/
-
 void printParseTable() {
     for(int i = 0; i < nt_numNonTerminals; i++) {
         for(int j = 0; j <= t_numTerminals; j++)
@@ -494,7 +485,107 @@ void printPredictSets() {
         printf("\n");
     }
 }
+
+/*
+*   Prints the node information to the file pointed by fp
+ */
+void printTreeNode(treeNode *ptr, FILE *fp){
+    const char blank[] = "----";
+    bool isLeaf = isLeafNode(ptr);
+    if(fp == NULL){
+        //TODO: Error Handling
+        return;
+    }
+    if(isLeaf && ptr->tk != g_EPS){
+        fprintf(fp,"%-21s",ptr->tkinfo->lexeme);
+        fprintf(fp,"%-15u",ptr->tkinfo->lno);
+    }
+    else
+        fprintf(fp,"%-21s%-15s",blank,blank);
+
+    fprintf(fp,"%-25s",inverseMappingTable[ptr->tk]);
+
+    if(ptr->tk == g_NUM){
+        fprintf(fp,"%-15d",(ptr->tkinfo->value).num);
+    }
+    else if(ptr->tk == g_RNUM){
+        fprintf(fp,"%-15f",(ptr->tkinfo->value).rnum);
+    }
+    else{
+        fprintf(fp,"%-15s",blank);
+    }
+
+    if(ptr->parent == NULL)
+        fprintf(fp,"%-25s","ROOT");
+    else
+        fprintf(fp,"%-25s",inverseMappingTable[ptr->parent->tk]);
+
+    if(isLeaf){
+        fprintf(fp,"%-10s","yes");
+        fprintf(fp,"%s\n",blank);
+    }
+    else{
+        fprintf(fp,"%-10s","no");
+        fprintf(fp,"%s\n",inverseMappingTable[ptr->tk]);
+    }
+
+
+
+
+}
+
 /*------------PRINTING ENDS-------------*/
 
 
+/*----------- INFORMAL TREE PRINTING STARTS -----------*/
+void putAllChildrenInSt(treeNode *child, treeNodePtr_stack *s1){
+    while(child != NULL){
+        treeNodePtr_stack_push(s1,child);
+        child = child->next;
+    }
+}
+
+void printInfoTreeNode(treeNode *ptr){
+    if(ptr->parent == NULL){
+        printf("(NULL->%s)\t",inverseMappingTable[ptr->tk]);
+    }
+    else
+        printf("(%s->%s)\t",inverseMappingTable[ptr->parent->tk],inverseMappingTable[ptr->tk]);
+}
+
+void printTree(treeNode *root){
+    if(!root)
+        return;
+    treeNodePtr_stack *s1 = treeNodePtr_stack_create();
+    treeNodePtr_stack *s2 = treeNodePtr_stack_create();
+
+    treeNode *child = root->child;
+
+    FILE *fpt = fopen("outputPrint.txt","w");
+
+    fprintf(fpt,"%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
+
+    printInfoTreeNode(root);
+    printTreeNode(root,fpt);
+
+    putAllChildrenInSt(child,s1);
+
+    while(!treeNodePtr_stack_isEmpty(s1)){
+        while(!treeNodePtr_stack_isEmpty(s1)){
+            treeNodePtr_stack_push(s2,treeNodePtr_stack_pop(s1));
+        }
+
+        while(!treeNodePtr_stack_isEmpty(s2)){
+            treeNode *curr = treeNodePtr_stack_top(s2);
+            putAllChildrenInSt(curr->child,s1);
+            printTreeNode(curr,fpt);
+            printInfoTreeNode(curr);
+//            printf("%d\t",curr->tk);
+            treeNodePtr_stack_pop(s2);
+        }
+        printf("\n\n");
+    }
+}
+
+/*----------- INFORMAL TREE PRINTING ENDS -----------*/
 
