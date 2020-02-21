@@ -25,7 +25,7 @@ int equals(char *s1, char *s2){
 }
 
 char * trim (char *str) { // remove leading and trailing spaces
-    str = strdup(str);
+//    str = strdup(str);
     if(str == NULL)
         return NULL;
     int begin = 0, end = strlen(str) -1, i;

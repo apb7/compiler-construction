@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../hash.h"
+#include "../utils/hash.h"
 
 //#include "../oldHash.h"
 #include "lexerDef.h"
@@ -42,7 +42,7 @@ void getStream(FILE *file_ptr) {
         buffer_for_tokenization[(status * BUFFER_SIZE) + i] = 0;
 
     if(feof(file_ptr))
-        fprintf(stderr, "EOF REACHED : %d buffer reads\n", count-1);
+        return;
 
     fread(buffer_for_tokenization + (status * BUFFER_SIZE), BUFFER_SIZE, sizeof(char), file_ptr);
 
@@ -580,6 +580,9 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 
                 else if(lookahead == '\n')
                     line_number++;
+
+                else if(lookahead == '\0')
+                    return NULL;
 
                 else {
                     // Do nothing

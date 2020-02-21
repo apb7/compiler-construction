@@ -2,7 +2,7 @@
 #ifndef CCGIT_PARSER_H
 #define CCGIT_PARSER_H
 
-#include "../set.h"
+#include "../utils/set.h"
 #include "parserDef.h"
 
 void populateGrammarStruct(char *grFile);
@@ -16,5 +16,10 @@ void printParseTable();
 void printFirst();
 void printFollow();
 void printPredictSets();
+treeNode *parseInputSourceCode(char *src);
+grammarNode createRuleNode(char *rule);
+void printTree(treeNode *root);
+
+treeNode *newTreeNode(gSymbol sym, treeNode *parent);
 
 #endif //CCGIT_PARSER_H

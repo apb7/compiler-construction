@@ -1,6 +1,8 @@
 #ifndef CCGIT_PARSERDEF_H
 #define CCGIT_PARSERDEF_H
 
+#include "../lexer/lexerDef.h"
+
 typedef enum{
     #define X(a,b) g_ ## a,
     #define K(a,b,c) g_ ## a,
@@ -19,7 +21,6 @@ typedef enum{
 //g_EOS is end of string (it marks the end of input stream)
 
 
-
 typedef struct{
     int start;
     int end;
@@ -35,5 +36,14 @@ typedef struct{
     gSymbol lhs;    //non terminal symbol
     rhsNode *head;
 } grammarNode;
+
+struct treeNode{
+    gSymbol tk;                     //ENUM Value
+    tokenInfo *tkinfo;              // Info for Terminals
+    struct treeNode *next;     //My Sibling on right
+    struct treeNode *child;    //My first child
+    struct treeNode *parent;   //My Parent
+};
+typedef struct treeNode treeNode;
 
 #endif //CCGIT_PARSERDEF_H

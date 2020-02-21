@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "hash.h"
-#include "utils.h"
+#include "util.h"
 
 
 #define MAX_SYMBOL_LENGTH 30
