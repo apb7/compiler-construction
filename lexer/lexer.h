@@ -1,3 +1,6 @@
+#ifndef LEXER_H
+#define LEXER_H
+
 // struct tokenNode* pop_front();
 
 // void push_back(struct token *tk);
@@ -14,8 +17,11 @@
 #include "lexerDef.h"
 #include <stdbool.h>
 #include <stdio.h>
-bool checkPos(uint pos);
+bool checkPos(unsigned int pos);
 void getStream(FILE *fp);
 tokenInfo* getNextToken(FILE *fp);
 char* getBlock(FILE *fp);
 void removeComments(char *testcaseFile, char *cleanFile);
+
+
+#endif

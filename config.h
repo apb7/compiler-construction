@@ -1,9 +1,11 @@
-#ifndef CCGIT_CONFIG_H
-#define CCGIT_CONFIG_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 //This file will contain all the defined constant values, so that it is easy to change them from here whenever required
 
 #include "parser/parserDef.h"
+
+#define TREE_PRINT_FILE_PATH "parse-tree.txt"
 
 /*
  * This defines the maximum length of a line in grammar.txt file
@@ -13,10 +15,8 @@
 /*
  * These define the number of non-terminals and number of terminals
  */
-#define nt_numNonTerminals g_numSymbols - g_EOS - 1
-#define t_numTerminals g_EOS //excluding $ (g_EOS)
-//ntx can be used to map NonTerminal Enums to 0 based indexing
-#define ntx(y) y - g_EOS - 1
+#define NUM_NON_TERMINALS g_numSymbols - g_EOS - 1
+#define NUM_TERMINALS g_EOS //excluding $ (g_EOS)
 
 /*
  * This defines the size of the hash table for storing all symbols (tokens, NTs, EPS, $)
@@ -33,4 +33,6 @@
  */
 #define BUFFER_SIZE 512
 
-#endif //CCGIT_CONFIG_H
+#define TMP_SRC_FILE_PATH "source.tmp"
+
+#endif //CONFIG_H

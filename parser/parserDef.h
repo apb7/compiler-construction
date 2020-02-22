@@ -1,5 +1,5 @@
-#ifndef CCGIT_PARSERDEF_H
-#define CCGIT_PARSERDEF_H
+#ifndef PARSERDEF_H
+#define PARSERDEF_H
 
 #include "../lexer/lexerDef.h"
 
@@ -46,4 +46,4 @@ struct treeNode{
 };
 typedef struct treeNode treeNode;
 
-#endif //CCGIT_PARSERDEF_H
+#endif //PARSERDEF_H
