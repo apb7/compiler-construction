@@ -554,6 +554,32 @@ void printTreeNode(treeNode *ptr, FILE *fp){
 
 /*------------PRINTING ENDS-------------*/
 
+void printTreeUtil(treeNode* cur, FILE* fpt) {
+    if(cur==NULL) return;
+    treeNode* lchild=cur->child;
+    if(lchild==NULL) {
+        printTreeNode(cur, fpt);
+        return ;
+    }
+    printTreeUtil(lchild, fpt);
+    printTreeNode(cur, fpt);
+    treeNode* rchild=lchild->next;
+    while(rchild != NULL) {
+        printTreeUtil(rchild, fpt);
+        rchild=rchild->next;
+    }
+}
+
+void printTree(treeNode* root,  char* fname) {
+    if(!root)
+        return;
+    FILE *fpt = fopen(fname,"w");
+    fprintf(fpt,"%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
+    printTreeUtil(root, fpt);
+    fclose(fpt);
+}
+
+
 
 /*----------- INFORMAL TREE PRINTING STARTS -----------*/
 void putAllChildrenInSt(treeNode *child, treeNodePtr_stack *s1){
@@ -571,7 +597,7 @@ void printInfoTreeNode(treeNode *ptr){
         printf("(%s->%s)\t",inverseMappingTable[ptr->parent->tk],inverseMappingTable[ptr->tk]);
 }
 
-void printTree(treeNode *root){
+void printTreeOld(treeNode *root){
     if(!root)
         return;
     treeNodePtr_stack *s1 = treeNodePtr_stack_create();

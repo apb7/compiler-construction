@@ -51,8 +51,8 @@ int main(int argc, char *argv[]){
 
     treeNode *root = parseInputSourceCode(TMP_SRC_FILE_NAME);
 
-    printTree(root);
-
+    printTreeOld(root);
+    printTree(root, "tree.txt");
 
 
 }
