@@ -18,7 +18,8 @@ void printFollow();
 void printPredictSets();
 treeNode *parseInputSourceCode(char *src);
 grammarNode createRuleNode(char *rule);
-void printTree(treeNode *root);
+void printTreeOld(treeNode *root);
+void printTree(treeNode* root,  char* fname);
 
 treeNode *newTreeNode(gSymbol sym, treeNode *parent);
 
