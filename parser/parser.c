@@ -399,7 +399,7 @@ treeNode *parseInputSourceCode(char *src){
         else if(topNode->tk <= g_EOS){
             //topNode is not a non Terminal
             errorFree = false;
-            fprintf(stderr,"parseInputSourceCode: ERROR, Stack Top & Lexer token mismatch. Found %s and %s respectively.\n",inverseMappingTable[topNode->tk],sym);
+            fprintf(stderr,"parseInputSourceCode: ERROR, Stack Top & Lexer token mismatch. Found %s and %s respectively.\n",inverseMappingTable[topNode->tk],inverseMappingTable[sym]);
             return NULL;
         }
         else{

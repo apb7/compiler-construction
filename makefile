@@ -1,2 +1,2 @@
-all:    driver.c lexer/lexer.c hash.c utils.c
-	gcc driver.c lexer/lexer.c hash.c utils.c -o lexer/lexer.out
+all:    testdriver.c lexer/lexer.c utils/hash.c utils/util.c parser/parser.c utils/treeNodePtr_stack.c utils/treeNodePtr_stack_config.c utils/set.c
+	gcc testdriver.c lexer/lexer.c utils/hash.c utils/util.c parser/parser.c utils/treeNodePtr_stack.c utils/treeNodePtr_stack_config.c utils/set.c -o cmake/parser.out

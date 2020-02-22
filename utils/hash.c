@@ -79,7 +79,7 @@ gSymbol getEnumValue(char *symbol, hashTable *mt){
             return ptr->symEnum;
         ptr = ptr->next;
     }
-    fprintf(stderr,"getEnumValue: Key not found in HashTable.\n");
+    fprintf(stderr,"getEnumValue: Key %s not found in HashTable.\n",symbol);
     return -1;
 }
 
