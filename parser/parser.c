@@ -529,9 +529,6 @@ void printTreeNode(treeNode *ptr, FILE *fp){
         fprintf(fp,"%s\n",inverseMappingTable[ptr->tk]);
     }
 
-
-
-
 }
 
 /*------------PRINTING ENDS-------------*/
