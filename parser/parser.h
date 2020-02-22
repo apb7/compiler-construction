@@ -1,6 +1,6 @@
 
-#ifndef CCGIT_PARSER_H
-#define CCGIT_PARSER_H
+#ifndef PARSER_H
+#define PARSER_H
 
 #include "../utils/set.h"
 #include "parserDef.h"
@@ -23,4 +23,4 @@ void printTree(treeNode* root,  char* fname);
 
 treeNode *newTreeNode(gSymbol sym, treeNode *parent);
 
-#endif //CCGIT_PARSER_H
+#endif //PARSER_H

@@ -6,13 +6,14 @@
 #include "config.h"
 #include "lexer/lexer.h"
 
-grammarNode *G;
-struct hashTable *mt;
-intSet* firstSet;
-intSet* followSet;
+
+extern grammarNode *grammarArr;
+extern struct hashTable *mt;
+extern intSet* firstSet;
+extern intSet* followSet;
 hashTable *keyword_ht;
 extern char *inverseMappingTable[];
-extern int **pTb;
+extern int **parseTable;
 
 
 
@@ -44,15 +45,15 @@ int main(int argc, char *argv[]){
 //    printParseTable();
 
     if(argc == 2){
-        removeComments(argv[1],"source.tmp");
+        removeComments(argv[1],TMP_SRC_FILE_PATH);
     }
     else
-        removeComments("../test1.erp",TMP_SRC_FILE_NAME);
+        removeComments("../test1.erp", TMP_SRC_FILE_PATH);
 
-    treeNode *root = parseInputSourceCode(TMP_SRC_FILE_NAME);
+    treeNode *root = parseInputSourceCode(TMP_SRC_FILE_PATH);
 
-    printTreeOld(root);
-    printTree(root, "tree.txt");
+//    printTreeOld(root);
+    printTree(root, TREE_PRINT_FILE_PATH);
 
 
 }
