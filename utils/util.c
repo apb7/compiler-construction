@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -62,12 +69,16 @@ int numTk(char *str,char tk){
 char **strSplit(char *str, char tk){
     if(equals(str,"") || equals(str,NULL))
         return NULL;
-    char tkn[] = {tk};
+
+    char tkn[] = {tk, '\0'};
+
     int sz = numTk(str,tk) + 2;
     char **arr = (char **)(calloc(sz,sizeof(char *)));
+
     char *tmpstr = strdup(str);
     int i = 0;
     char *token;
+
     while((token = strsep(&tmpstr,tkn)))
         arr[i++] = token;
     arr[i] = NULL;

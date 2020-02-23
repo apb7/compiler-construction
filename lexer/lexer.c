@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -133,8 +140,8 @@ void removeComments(char *testcaseFile, char *cleanFile) {
 // Prints the string in global buffer from start to end, not including end.
 // [start, end)
 void print_lexical_error(uint start, uint end) {
-//    fprintf(stderr, "LEXICAL ERROR: invalid token on line number %u.\n \t", line_number);
-    fprintf(stderr, "Line %u: LEXICAL ERROR: Invalid token '", line_number);
+    fprintf(stderr, "Line %u: Lexical error, invalid token found\t", line_number);
+
     start = start % TWIN_BUFFER_SIZE;
     end = end % TWIN_BUFFER_SIZE;
 
@@ -145,7 +152,7 @@ void print_lexical_error(uint start, uint end) {
     }
     while(start != end);
 
-    fprintf(stderr, "' found.\n");
+    fprintf(stderr, "\n");
 }
 
 tokenInfo* getNextToken(FILE *file_ptr) {

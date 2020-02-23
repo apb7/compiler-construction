@@ -1,22 +1,18 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #ifndef LEXER_H
 #define LEXER_H
 
-// struct tokenNode* pop_front();
-
-// void push_back(struct token *tk);
-
-// void add_num(int n);
-// void add_rnum(float f);
-// void add_lexeme(char *lex);
-
-// char* get_block(FILE *fp);
-
-// void DFA(char *buffer); //static line no
-
-// void fill_keywords();
 #include "lexerDef.h"
 #include <stdbool.h>
 #include <stdio.h>
+
+
 bool checkPos(unsigned int pos);
 void getStream(FILE *fp);
 tokenInfo* getNextToken(FILE *fp);
