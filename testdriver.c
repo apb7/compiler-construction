@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
     keyword_ht = createHashTable(KEYWORD_HT_SIZE);
 
     char* keywords[] = {
-        #define K(a,b,c) b,
+        #define K(a,b,c) c,
         #include "data/keywords.txt"
         #undef K
         "#"
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
     treeNode *root = parseInputSourceCode("../t6err.txt");
 
 //    printTreeOld(root);
-//    printTree(root, TREE_PRINT_FILE_PATH);
+    printTree(root, TREE_PRINT_FILE_PATH);
 
 //    int arr[] = {2, 3, 5, 7, 11};
 //    int a = sizeArr(arr);

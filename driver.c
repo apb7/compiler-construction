@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     keyword_ht = createHashTable(KEYWORD_HT_SIZE);
 
     char* keywords[] = {
-        #define K(a,b,c) b,
+        #define K(a,b,c) c,
         #include "data/keywords.txt"
         #undef K
         "#"
