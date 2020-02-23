@@ -26,7 +26,7 @@ int parseTable[NUM_NON_TERMINALS][NUM_TERMINALS + 1];   //This table is used for
 //This table is used to convert Enums to their corresponding strings
 char *inverseMappingTable[] = {
 #define X(a,b) b,
-#define K(a,b,c) c,
+#define K(a,b,c) b,
 #include "../data/keywords.txt"
 #include "../data/tokens.txt"
         "EPS",
@@ -35,6 +35,16 @@ char *inverseMappingTable[] = {
         "#"
 #undef K
 #undef X
+};
+
+//used mainly for error printing
+char *enum2LexemeTable[] = {
+#define K(a,b,c) c,
+#include "../data/keywords.txt"
+#include "../data/tokens.txt"
+"EPS", "$",
+"#"
+#undef K
 };
 
 #define len(arr) (sizeof(arr) ? (sizeof(arr)/sizeof((arr)[0])) : 0);
@@ -405,7 +415,8 @@ void modifyParseTable_Err_Recovery(){
     int isNull = 0;
     for(gSymbol i = g_EOS + 1 ; i < g_numSymbols; i++){
         isNull = to_null(i);
-        if(0){
+//        if(0){
+        if(isNull != -1){
             for(int j = 0; j < NUM_TERMINALS + 1; j++){
                 if(parseTable[ntx(i)][j] == -1)
                     parseTable[ntx(i)][j] = isNull;
@@ -465,7 +476,8 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
          * if pTb[M,a] is -1, skip 'a' from input (i.e. getNextToken)
          * if pTb[M,a] is -2, popSafe from the stack (don't get next token)
          */
-        if(parseTable[ntx(topNode->tk)][ruleId] == -1){
+//        if(parseTable[ntx(topNode->tk)][ruleId] == -1){
+        if(parseTable[ntx(topNode->tk)][(*tkinfo)->type] == -1){
             // the following wrapping if might be unnecessary since whenever we are here this if would always result in 'true'
             if(!(*eosEncountered)) {
                 *tkinfo = getNextToken(*srcFilePtr);

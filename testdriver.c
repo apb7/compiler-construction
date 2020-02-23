@@ -41,20 +41,20 @@ int main(int argc, char *argv[]){
     populateFirstSet();
     populateFollowSet();
     populateParseTable();
-    printRuleRange();
-    printParseTable();
-    printf("\n");
+//    printRuleRange();
+//    printParseTable();
+//    printf("\n");
     modifyParseTable_Err_Recovery();
 
-    printParseTable();
+//    printParseTable();
 
-    if(argc == 2){
-        removeComments(argv[1],TMP_SRC_FILE_PATH);
-    }
-    else
-        removeComments("../t6(with_syntax_errors).txt", TMP_SRC_FILE_PATH);
+//    if(argc == 2){
+//        removeComments(argv[1],TMP_SRC_FILE_PATH);
+//    }
+//    else
+//        removeComments("../t6(with_syntax_errors).txt", TMP_SRC_FILE_PATH);
 
-    treeNode *root = parseInputSourceCode(TMP_SRC_FILE_PATH);
+    treeNode *root = parseInputSourceCode("../t6err.txt");
 
 //    printTreeOld(root);
 //    printTree(root, TREE_PRINT_FILE_PATH);
