@@ -133,7 +133,7 @@ void removeComments(char *testcaseFile, char *cleanFile) {
 // Prints the string in global buffer from start to end, not including end.
 // [start, end)
 void print_lexical_error(uint start, uint end) {
-    fprintf(stderr, "LEXICAL ERROR: invalid token on line number %u.\n \t", line_number);
+    fprintf(stderr, "Line %u: Lexical error, invalid token found\t", line_number);
 
     start = start % TWIN_BUFFER_SIZE;
     end = end % TWIN_BUFFER_SIZE;

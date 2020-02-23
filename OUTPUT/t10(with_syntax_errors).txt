@@ -1,0 +1,2381 @@
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+**Program to calculate the nth fibonacci number**
+<<module fibonacciN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fib: array[1..n] of integer;
+	index = 3; **error 1**
+	fib[1] = 0; **error 2**
+	fib[2] := 1; 
+	while(index <= n)
+	start
+		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		index:= index++; **error 3**
+	end
+	res := fib[n];
+end
+
+**Program to calculate the factorial of n**
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	declare index:integer;
+	declare t:boolean;
+	declare fact: array[1...n] of integer; **lexical error 1**
+	index := 2;
+	fact[1] := 1;
+	while(index <= n)
+	begin **syntax error 2**
+		fact[index] := index * fact[index - 1]; **syntax error?**
+		index := ++index; **syntax error 3**
+	end
+	res := fib[n] **syntax error 4**
+end
+
+<<<driver program>>>
+start
+	declare k:integer;
+	declare s:integer;
+	get_value(k);
+	[s]:= use module fibonacciN with parameters k;
+	print(s) **error 4**
+end
+
+** List all errors with line numbers in the following format
+Line 53: Error in the input as expected token is an identifier 
+
+or so on.**

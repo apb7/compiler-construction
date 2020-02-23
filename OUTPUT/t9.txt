@@ -1,0 +1,41 @@
+<<module arraysum>>
+takes input[list:array[4..20] of real];
+returns [sum:real];
+start
+declare s: real;
+s := 0.0;
+declare index : integer;
+for (index in 4..20)
+start
+s := s + list[index];
+end
+sum := s;
+end
+
+<<module mod1>>
+takes input [index: integer, val_: integer];
+** this function does not return any value**
+start
+declare i_1: integer;
+i_1:= val_+ index - 4;
+print(i_1);
+end
+
+<<module mod2>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+
+<<<driver program>>>
+start
+	declare k:integer;
+	declare s:integer;
+	get_value(k);
+	[s]:= use module fibonacciN with parameters k;
+	print(s);
+end
