@@ -12,17 +12,21 @@
 
 typedef unsigned int uint;
 
+hashTable *keyword_ht;
+
+
 uint TWIN_BUFFER_SIZE = 2 * BUFFER_SIZE;
 uint line_number = 1;
 uint bp = 0; // begin ptr
 uint fp = 0; // forward ptr
 char buffer_for_tokenization[2 * BUFFER_SIZE]; // a global buffer of size 2 * BUFFER_SIZE
 
-extern hashTable *keyword_ht;
+// Used only in function getStream().
+int status = 1;
+int count = 0;
+
 
 void getStream(FILE *file_ptr) {
-    static int status = 1;
-    static int count = 0;
 
     count++;
 
@@ -46,8 +50,8 @@ void getStream(FILE *file_ptr) {
 
     fread(buffer_for_tokenization + (status * BUFFER_SIZE), BUFFER_SIZE, sizeof(char), file_ptr);
 
-    if(feof(file_ptr))
-        fprintf(stderr, "EOF REACHED : %d buffer reads\n", count);
+    // if(feof(file_ptr))
+    //     fprintf(stderr, "EOF REACHED : %d buffer reads\n", count);
 
     return;
 }
@@ -70,7 +74,13 @@ void removeComments(char *testcaseFile, char *cleanFile) {
         return;
     }
 
-    FILE *fp_cleanFile = fopen(cleanFile, "w");
+    FILE *fp_cleanFile;
+
+    // Defaults to printing to stdout if no output file specified.
+    if(cleanFile == NULL)
+        fp_cleanFile = stdout;
+    else
+        fp_cleanFile = fopen(cleanFile, "w");
 
     if(fp_cleanFile == NULL) {
         fprintf(stderr,"ERROR: Failed to open %s", cleanFile);
@@ -113,7 +123,10 @@ void removeComments(char *testcaseFile, char *cleanFile) {
     }
 
     free(buffer_to_write);
-    fclose(fp_cleanFile);
+
+    if(cleanFile != NULL)
+        fclose(fp_cleanFile);
+
     fclose(fp_testcaseFile);
 }
 
@@ -299,7 +312,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     // Run these cases together. No change in state.
                     case '\n': line_number += 1;
                     case '\t':
-                    case ' ':  
+                    case '\r': // Ignore \r when running on Windows.
+                    case ' ':
                         bp = fp;
                     break;
 
@@ -831,6 +845,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 }
             }
             break;
-        }       
+        }
     }
 }
