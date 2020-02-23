@@ -7,13 +7,13 @@ typedef enum{
     #define X(a,b) g_ ## a,
     #define K(a,b,c) g_ ## a,
     #include "../data/keywords.txt"
-#include "../data/tokens.txt"
+    #include "../data/tokens.txt"
 
     g_EPS,
     g_EOS,
     #include "../data/nonTerminals.txt"
 
-#undef K
+    #undef K
     #undef X
     g_numSymbols
 } gSymbol;

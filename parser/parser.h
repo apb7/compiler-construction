@@ -5,6 +5,7 @@
 #include "../utils/set.h"
 #include "parserDef.h"
 
+void printRuleRange();
 void populateGrammarStruct(char *grFile);
 void printGrammar();
 void populateFirstSet();
@@ -12,6 +13,7 @@ void populateFollowSet();
 void initParseTable();
 intSet predictSet(grammarNode* g);
 int populateParseTable();
+void modifyParseTable_Err_Recovery();
 void printParseTable();
 void printFirst();
 void printFollow();
