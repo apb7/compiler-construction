@@ -312,7 +312,8 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     // Run these cases together. No change in state.
                     case '\n': line_number += 1;
                     case '\t':
-                    case ' ':  
+                    case '\r': // Ignore \r when running on Windows.
+                    case ' ':
                         bp = fp;
                     break;
 
@@ -844,6 +845,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 }
             }
             break;
-        }       
+        }
     }
 }
