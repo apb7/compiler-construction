@@ -13,6 +13,9 @@
 #include "../utils/treeNodePtr_stack.h" // TYPE_stack.h
 #include "../utils/treeNodePtr_stack_config.h" // TYPE_stack_config.h
 #include "../lexer/lexerDef.h"
+#include "../error.h"
+#include "../utils/errorPtr_stack.h"
+#include "../utils/errorPtr_stack_config.h"
 
 
 grammarNode *grammarArr;    //This array stores all the grammar rules each in a grammarNode
@@ -24,6 +27,7 @@ intSet* followSet;  //This array stores follow sets of all the non terminals
 int parseTable[NUM_NON_TERMINALS][NUM_TERMINALS + 1];   //This table is used for predictive parsing
 syntaxError last_encountered_error;
 intSet defaultSyn;
+
 
 //This table is used to convert Enums to their corresponding strings
 char *inverseMappingTable[] = {
@@ -365,39 +369,7 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent){
 /*------------ERROR RECOVERY STARTS-----------------*/
 
 
-void print_syntax_error(syntaxError *e){
-    if(e == NULL){
-        //input is over
-        fprintf(stderr,"SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
-        return;
-    }
-    switch(e->errType){
-        case TT:
-            fprintf(stderr, "Line %u: SYNTAX ERROR in input: Expected '%s' but Found '%s'\n",(e->tkinfo)->lno, enum2LexemeTable[e->stackTopSymbol],(e->tkinfo)->lexeme);
-            break;
-        case NTT:
-            fprintf(stderr, "Line %u: SYNTAX ERROR: Stack top, '%s' cannot generate the token '%s' ('%s')\n",(e->tkinfo)->lno, inverseMappingTable[e->stackTopSymbol],inverseMappingTable[(e->tkinfo)->type],(e->tkinfo)->lexeme);
-            break;
-    }
-}
 
-void foundNewError(syntaxError *e){
-    if(last_encountered_error.errType == NO_ERROR){
-        last_encountered_error = *e;
-    }
-    else if((*e).tkinfo->lno != last_encountered_error.tkinfo->lno){
-        //print the last error and update
-        print_syntax_error(&last_encountered_error);
-        last_encountered_error = *e;
-    }
-    else{
-        if(last_encountered_error.errType == NTT){
-            if(e->errType == TT){
-                last_encountered_error = *e;
-            }
-        }
-    }
-}
 //intSet first_terminal_strategy() {
 //    intSet ret=0;
 //    for(int i = 0; i < numRules; i++) {
@@ -502,8 +474,9 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
          * termination and printing of parse tree and set 'eosEncountered' to 'true'
          */
 
-        print_syntax_error(NULL);
-        last_encountered_error.errType = NO_ERROR;
+        error tmp;
+        tmp.errType = STACK_NON_EMPTY;
+        foundNewError(tmp);
         while(topNode->tk != g_EOS){
             popSafe(parseStack);
             topNode = treeNodePtr_stack_top(*parseStack);
@@ -511,8 +484,10 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
         *eosEncountered = true;
     }
     else {
-        syntaxError e = {NTT,*tkinfo,topNode->tk};
-        foundNewError(&e);
+        error e = {SYNTAX_NTT,(*tkinfo)->lno};
+        e.edata.se.tkinfo = *tkinfo;
+        e.edata.se.stackTopSymbol = topNode->tk;
+        foundNewError(e);
         // can skip tokens in the input
         // skipping tokens code goes here
         /*
@@ -554,8 +529,9 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
     treeNode *topNode = treeNodePtr_stack_top(*parseStack);
     if(*tkinfo == NULL){
         //input is over
-        print_syntax_error(NULL);
-        last_encountered_error.errType = NO_ERROR;
+        error tmp;
+        tmp.errType = STACK_NON_EMPTY;
+        foundNewError(tmp);
         while(topNode->tk != g_EOS){
             popSafe(parseStack);
             topNode = treeNodePtr_stack_top(*parseStack);
@@ -563,8 +539,11 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
         *eosEncountered = true;
         return;
     }
-    syntaxError e = {TT,*tkinfo,topNode->tk};
-    foundNewError(&e);
+
+    error e = {SYNTAX_TT,(*tkinfo)->lno};
+    e.edata.se.tkinfo = *tkinfo;
+    e.edata.se.stackTopSymbol = topNode->tk;
+    foundNewError(e);
     if(topNode->tk == g_EOS){
         /* If the terminal on top of stck is $, we must end parsing
          * Making 'eosEncountered' as 'true' and returning takes care of terminating the parsing
@@ -628,7 +607,7 @@ treeNode *parseInputSourceCode(char *src){
     }
     //loop until there are no more tokens
     bool eosEncountered = false;
-    last_encountered_error.errType = NO_ERROR;
+    initErrorStack();
 
     while(1){
         /* ensure that whenever you land here, tkinfo is never NULL
@@ -723,9 +702,7 @@ treeNode *parseInputSourceCode(char *src){
         printf("Input source code is syntactically correct...........\n");
     }
     else{
-        if(last_encountered_error.errType != NO_ERROR){
-            print_syntax_error(&last_encountered_error);
-        }
+        printAllErrors();
     }
     return parseTreeRoot;
 }

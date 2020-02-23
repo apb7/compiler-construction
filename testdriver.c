@@ -5,6 +5,7 @@
 #include "utils/set.h"
 #include "config.h"
 #include "lexer/lexer.h"
+#include "utils/errorPtr_stack.h"
 
 
 extern grammarNode *grammarArr;
@@ -14,7 +15,7 @@ extern intSet* followSet;
 hashTable *keyword_ht;
 extern char *inverseMappingTable[];
 extern int **parseTable;
-
+errorPtr_stack *errorStack;
 
 
 int main(int argc, char *argv[]){
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]){
 //    else
 //        removeComments("../t6(with_syntax_errors).txt", TMP_SRC_FILE_PATH);
 
-    treeNode *root = parseInputSourceCode("../OUTPUT/t2.txt");
+    treeNode *root = parseInputSourceCode("../OUTPUT/t3.txt");
 
 //    printTreeOld(root);
     printTree(root, TREE_PRINT_FILE_PATH);
