@@ -62,16 +62,16 @@ int main(int argc, char *argv[]) {
 
 //    printParseTable();
 
-    int userInput = 1; // Non zero initial value, will be overwritten
+    int userInput; // Non zero initial value, will be overwritten
 
-    while(userInput != 0) {
+    while(1) {
         printf("\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n");
         scanf(" %d", &userInput);
 
         switch(userInput) {
 
             case 0:
-                break;
+                return 0;
 
             case 1:
                 removeComments(argv[1], NULL);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
                     free(tk);
                     tk = getNextToken(fp_arg);
                 }
-                free(fp_arg);
+                fclose(fp_arg);
             } break;
 
             case 3:
