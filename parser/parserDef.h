@@ -46,4 +46,13 @@ struct treeNode{
 };
 typedef struct treeNode treeNode;
 
+typedef enum {
+    TT, NTT, NO_ERROR
+} syntaxErrorType;
+typedef struct{
+    syntaxErrorType errType;
+    tokenInfo *tkinfo;
+    gSymbol stackTopSymbol;
+} syntaxError;
+
 #endif //PARSERDEF_H

@@ -22,6 +22,8 @@ ruleRange ruleRangeArr[NUM_NON_TERMINALS];  //Number of rules for each non termi
 intSet* firstSet;   //This array stores first sets of all the non terminals
 intSet* followSet;  //This array stores follow sets of all the non terminals
 int parseTable[NUM_NON_TERMINALS][NUM_TERMINALS + 1];   //This table is used for predictive parsing
+syntaxError last_encountered_error;
+intSet defaultSyn;
 
 //This table is used to convert Enums to their corresponding strings
 char *inverseMappingTable[] = {
@@ -361,45 +363,54 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent){
 
 
 /*------------ERROR RECOVERY STARTS-----------------*/
-void print_invalid_gen_error(tokenInfo *tkinfo, gSymbol sym, treeNode *topNode, unsigned int *last_error_line, bool update_line){
-    if(tkinfo){
-        if(*last_error_line != tkinfo->lno){
-            fprintf(stderr, "Line %u: ERROR, Invalid generation: The current non-terminal on stack top, '%s' cannot generate the token '%s' ('%s')\n",tkinfo->lno, inverseMappingTable[topNode->tk],inverseMappingTable[sym],tkinfo->lexeme);
-            if(update_line)
-                *last_error_line = tkinfo->lno;
-        }
+
+
+void print_syntax_error(syntaxError *e){
+    if(e == NULL){
+        //input is over
+        fprintf(stderr,"SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
+        return;
     }
-    else{
-        fprintf(stderr,"ERROR, Stack Non-empty: End of input source file reached.\n");
+    switch(e->errType){
+        case TT:
+            fprintf(stderr, "Line %u: SYNTAX ERROR in input: Expected '%s' but Found '%s'\n",(e->tkinfo)->lno, enum2LexemeTable[e->stackTopSymbol],(e->tkinfo)->lexeme);
+            break;
+        case NTT:
+            fprintf(stderr, "Line %u: SYNTAX ERROR: Stack top, '%s' cannot generate the token '%s' ('%s')\n",(e->tkinfo)->lno, inverseMappingTable[e->stackTopSymbol],inverseMappingTable[(e->tkinfo)->type],(e->tkinfo)->lexeme);
+            break;
     }
 }
 
-void print_input_error(tokenInfo *tkinfo, treeNode *topNode, unsigned int *last_error_line){
-    if(tkinfo){
-        if(*last_error_line != tkinfo->lno){
-            fprintf(stderr, "Line %u: ERROR in input: Expected '%s' but Found '%s'\n",tkinfo->lno, enum2LexemeTable[topNode->tk],tkinfo->lexeme);
-            *last_error_line = tkinfo->lno;
-        }
+void foundNewError(syntaxError *e){
+    if(last_encountered_error.errType == NO_ERROR){
+        last_encountered_error = *e;
+    }
+    else if((*e).tkinfo->lno != last_encountered_error.tkinfo->lno){
+        //print the last error and update
+        print_syntax_error(&last_encountered_error);
+        last_encountered_error = *e;
     }
     else{
-        //input ended but stack non empty
-        fprintf(stderr,"ERROR, Stack Non-empty: End of input source file reached.\n");
+        if(last_encountered_error.errType == NTT){
+            if(e->errType == TT){
+                last_encountered_error = *e;
+            }
+        }
     }
 }
-
-intSet first_terminal_strategy() {
-    intSet ret=0;
-    for(int i = 0; i < numRules; i++) {
-        if(isTerminal(grammarArr[i].head->s))
-            ret=add_elt(ret,grammarArr[i].head->s);
-    }
-    return ret;
-}
+//intSet first_terminal_strategy() {
+//    intSet ret=0;
+//    for(int i = 0; i < numRules; i++) {
+//        if(isTerminal(grammarArr[i].head->s))
+//            ret=add_elt(ret,grammarArr[i].head->s);
+//    }
+//    return ret;
+//}
 
 intSet makeDefaultSynSet(){
     intSet defaultSyn = 0;
     //    intSet defaultSyn = first_terminal_strategy();
-    gSymbol default_terminal[] = {g_DECLARE, g_START,/*g_DRIVERDEF, g_DEF, g_RETURNS, g_ID, g_INTEGER, g_REAL, g_BOOLEAN, g_ARRAY,
+    gSymbol default_terminal[] = {g_DECLARE, g_START,/* g_MODULE, g_ID, g_PROGRAM, g_FOR, g_DRIVERDEF, g_DEF, g_RETURNS, g_ID, g_INTEGER, g_REAL, g_BOOLEAN, g_ARRAY,
                                   g_START, g_GET_VALUE, g_PRINT, g_TRUE, g_FALSE, g_NUM, g_RNUM, g_SQBO, g_ASSIGNOP,
                                   g_COMMA*/};
     int length = len(default_terminal);
@@ -410,19 +421,19 @@ intSet makeDefaultSynSet(){
     return defaultSyn;
 }
 
-int to_null(gSymbol nt){
-    /*
-     * returns the ruleId of rule nt -> EPSILON
-     * or -1 if such rule does not exist
-     */
-    ruleRange rr = ruleRangeArr[ntx(nt)];
-    for(int i = rr.start; i <= rr.end; i++){
-        if(grammarArr[i].head->s == g_EPS){
-            return i;
-        }
-    }
-    return -1;
-}
+//int to_null(gSymbol nt){
+//    /*
+//     * returns the ruleId of rule nt -> EPSILON
+//     * or -1 if such rule does not exist
+//     */
+//    ruleRange rr = ruleRangeArr[ntx(nt)];
+//    for(int i = rr.start; i <= rr.end; i++){
+//        if(grammarArr[i].head->s == g_EPS){
+//            return i;
+//        }
+//    }
+//    return -1;
+//}
 
 void modifyParseTable_Err_Recovery(){
 /*
@@ -436,26 +447,27 @@ void modifyParseTable_Err_Recovery(){
  * and follow(M)
  */
 
-    intSet defaultSyn = 0, currSyn = 0;
+    defaultSyn = 0;
+    intSet currSyn = 0;
     defaultSyn = makeDefaultSynSet();
     int isNull = 0;
     for(gSymbol i = g_EOS + 1 ; i < g_numSymbols; i++){
-        isNull = to_null(i);
+//        isNull = to_null(i);
 //        if(0){
-        if(0){
-            for(int j = 0; j < NUM_TERMINALS + 1; j++){
-                if(parseTable[ntx(i)][j] == ERROR_RECOVERY_SKIP)
-                    parseTable[ntx(i)][j] = (-1)*isNull;
-            }
-        }
-        else{
+//        if(0){
+//            for(int j = 0; j < NUM_TERMINALS + 1; j++){
+//                if(parseTable[ntx(i)][j] == ERROR_RECOVERY_SKIP)
+//                    parseTable[ntx(i)][j] = (-1)*isNull;
+//            }
+//        }
+//        else{
             currSyn = union_set(defaultSyn, followSet[ntx(i)]);
             for(int j = 0; j < NUM_TERMINALS + 1; j++) {
                 if(isPresent(currSyn, j) && parseTable[ntx(i)][j] == ERROR_RECOVERY_SKIP){
                     parseTable[ntx(i)][j] = ERROR_RECOVERY_POP;
                 }
             }
-        }
+//        }
     }
 }
 
@@ -476,7 +488,7 @@ void popSafe(treeNodePtr_stack **parseStack){
         fprintf(stderr,"Safely popping '%s'\n",inverseMappingTable[topNode->tk]);
     treeNodePtr_stack_pop(*parseStack);
 }
-void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr, tokenInfo **tkinfo, bool *eosEncountered, unsigned int* last_error_line){
+void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr, tokenInfo **tkinfo, bool *eosEncountered){
 /*Precondition: All symbols in FOLLOW(A = treeNodePtr_stack_top(parseStack) go into syn(A)
  *
  *
@@ -489,12 +501,18 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
          * then we simply pop the stack after setting the values in the topNode struct for correct
          * termination and printing of parse tree and set 'eosEncountered' to 'true'
          */
-        print_invalid_gen_error(*tkinfo,-1,topNode,last_error_line,false);
-        popSafe(parseStack);
+
+        print_syntax_error(NULL);
+        last_encountered_error.errType = NO_ERROR;
+        while(topNode->tk != g_EOS){
+            popSafe(parseStack);
+            topNode = treeNodePtr_stack_top(*parseStack);
+        }
         *eosEncountered = true;
     }
     else {
-        print_invalid_gen_error(*tkinfo,((*tkinfo)->type),topNode,last_error_line,false);
+        syntaxError e = {NTT,*tkinfo,topNode->tk};
+        foundNewError(&e);
         // can skip tokens in the input
         // skipping tokens code goes here
         /*
@@ -527,14 +545,26 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
 
     }
 }
-void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr, tokenInfo **tkinfo, bool *eosEncountered, unsigned int *last_error_line){
+void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr, tokenInfo **tkinfo, bool *eosEncountered){
 /* Assumption: The syn set of terminals is taken as all the other tokens.
  * So we simply pop this terminal from stack and continue parsing from that point.
  * This makes sense since there's nothing we can do if a terminal on top of stack doesn't match the one in the input.
  * All we can do is pop it and hope that we can resume parsing normally henceforth.
  */
     treeNode *topNode = treeNodePtr_stack_top(*parseStack);
-    print_input_error(*tkinfo,topNode,last_error_line);
+    if(*tkinfo == NULL){
+        //input is over
+        print_syntax_error(NULL);
+        last_encountered_error.errType = NO_ERROR;
+        while(topNode->tk != g_EOS){
+            popSafe(parseStack);
+            topNode = treeNodePtr_stack_top(*parseStack);
+        }
+        *eosEncountered = true;
+        return;
+    }
+    syntaxError e = {TT,*tkinfo,topNode->tk};
+    foundNewError(&e);
     if(topNode->tk == g_EOS){
         /* If the terminal on top of stck is $, we must end parsing
          * Making 'eosEncountered' as 'true' and returning takes care of terminating the parsing
@@ -549,29 +579,14 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
      * i.e. when input string has been read till end
      */
     else { // top of stack is not '$'
-        popSafe(parseStack);
-        if (*tkinfo == NULL)
-        { // topNode is not '$' and input has ended
-            // keep popping terminals
-//            topNode->tkinfo = NULL;
-//            topNode->child = NULL;
-//            treeNodePtr_stack_pop(parseStack);
-            return;
-        }
-        else {
-            // topNode is not '$' and input has not ended
-            // pop this topNode and continue parsing if input strings have tokens left
-//            topNode->tkinfo = NULL;
-//            topNode->child = NULL;
-//            treeNodePtr_stack_pop(parseStack);
-//            if(!(*eosEncountered)) {
-//                *tkinfo = getNextToken(*srcFilePtr);
-//                if (*tkinfo == NULL) {
-//                    *eosEncountered = true;
-//                }
+//        if(isPresent(defaultSyn,topNode->tk)){
+//            *tkinfo = getNextToken(*srcFilePtr);
+//            if (*tkinfo == NULL) {
+//                *eosEncountered = true;
 //            }
-            return;
-        }
+//        }
+//        else
+            popSafe(parseStack);
     }
 }
 
@@ -613,7 +628,8 @@ treeNode *parseInputSourceCode(char *src){
     }
     //loop until there are no more tokens
     bool eosEncountered = false;
-    unsigned int last_error_line = 0;
+    last_encountered_error.errType = NO_ERROR;
+
     while(1){
         /* ensure that whenever you land here, tkinfo is never NULL
          * This is ensured by checking if tkinfo = getNextToken is NULL whenever we call it
@@ -641,7 +657,7 @@ treeNode *parseInputSourceCode(char *src){
             //topNode is not a non Terminal
             errorFree = false;
 //            fprintf(stderr,"parseInputSourceCode: ERROR in %s, line no. %u, Stack and token mismatch: The current terminal on stack top, %s does not match the token read, %s.\n",inverseMappingTable[topNode->tk],inverseMappingTable[sym]);
-            recoverTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered,&last_error_line);
+            recoverTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
 //            return NULL;
         }
         else{
@@ -655,17 +671,17 @@ treeNode *parseInputSourceCode(char *src){
                 //TODO: Error Reporting
                 /* cooking my dish here*/
                 // top of the parseStack and the current gotten token have a mismatch as per parseTable
-                recoverNonTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered,&last_error_line);
+                recoverNonTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
                 //continue;
                 /*done cooking*/
 //                printf("Error due to no grammar rule for %d , %d\n",ntx(topNode->tk),sym);
 //                return NULL;
             }
             else{
-                if(ruleId < 0){
-                    ruleId *= -1;
-                    print_invalid_gen_error(tkinfo,sym,topNode,&last_error_line,true);
-                }
+//                if(ruleId < 0){
+//                    ruleId *= -1;
+//                    print_invalid_gen_error(tkinfo,sym,topNode,&last_error_line,true);
+//                }
                 grammarNode gNode = grammarArr[ruleId];
                 if(gNode.lhs != topNode->tk){
                     //Report Unexpected Error
@@ -705,6 +721,11 @@ treeNode *parseInputSourceCode(char *src){
     }
     if(errorFree){
         printf("Input source code is syntactically correct...........\n");
+    }
+    else{
+        if(last_encountered_error.errType != NO_ERROR){
+            print_syntax_error(&last_encountered_error);
+        }
     }
     return parseTreeRoot;
 }
