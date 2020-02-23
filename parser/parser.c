@@ -369,22 +369,9 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent){
 /*------------ERROR RECOVERY STARTS-----------------*/
 
 
-
-//intSet first_terminal_strategy() {
-//    intSet ret=0;
-//    for(int i = 0; i < numRules; i++) {
-//        if(isTerminal(grammarArr[i].head->s))
-//            ret=add_elt(ret,grammarArr[i].head->s);
-//    }
-//    return ret;
-//}
-
 intSet makeDefaultSynSet(){
     intSet defaultSyn = 0;
-    //    intSet defaultSyn = first_terminal_strategy();
-    gSymbol default_terminal[] = {g_DECLARE, g_START,/* g_MODULE, g_ID, g_PROGRAM, g_FOR, g_DRIVERDEF, g_DEF, g_RETURNS, g_ID, g_INTEGER, g_REAL, g_BOOLEAN, g_ARRAY,
-                                  g_START, g_GET_VALUE, g_PRINT, g_TRUE, g_FALSE, g_NUM, g_RNUM, g_SQBO, g_ASSIGNOP,
-                                  g_COMMA*/};
+    gSymbol default_terminal[] = {g_DECLARE, g_START};
     int length = len(default_terminal);
     for(int i = 0; i < length; i++) {
         defaultSyn = add_elt(defaultSyn, default_terminal[i]);
@@ -393,19 +380,6 @@ intSet makeDefaultSynSet(){
     return defaultSyn;
 }
 
-//int to_null(gSymbol nt){
-//    /*
-//     * returns the ruleId of rule nt -> EPSILON
-//     * or -1 if such rule does not exist
-//     */
-//    ruleRange rr = ruleRangeArr[ntx(nt)];
-//    for(int i = rr.start; i <= rr.end; i++){
-//        if(grammarArr[i].head->s == g_EPS){
-//            return i;
-//        }
-//    }
-//    return -1;
-//}
 
 void modifyParseTable_Err_Recovery(){
 /*
@@ -422,24 +396,13 @@ void modifyParseTable_Err_Recovery(){
     defaultSyn = 0;
     intSet currSyn = 0;
     defaultSyn = makeDefaultSynSet();
-    int isNull = 0;
     for(gSymbol i = g_EOS + 1 ; i < g_numSymbols; i++){
-//        isNull = to_null(i);
-//        if(0){
-//        if(0){
-//            for(int j = 0; j < NUM_TERMINALS + 1; j++){
-//                if(parseTable[ntx(i)][j] == ERROR_RECOVERY_SKIP)
-//                    parseTable[ntx(i)][j] = (-1)*isNull;
-//            }
-//        }
-//        else{
-            currSyn = union_set(defaultSyn, followSet[ntx(i)]);
-            for(int j = 0; j < NUM_TERMINALS + 1; j++) {
-                if(isPresent(currSyn, j) && parseTable[ntx(i)][j] == ERROR_RECOVERY_SKIP){
-                    parseTable[ntx(i)][j] = ERROR_RECOVERY_POP;
-                }
+        currSyn = union_set(defaultSyn, followSet[ntx(i)]);
+        for(int j = 0; j < NUM_TERMINALS + 1; j++) {
+            if(isPresent(currSyn, j) && parseTable[ntx(i)][j] == ERROR_RECOVERY_SKIP){
+                parseTable[ntx(i)][j] = ERROR_RECOVERY_POP;
             }
-//        }
+        }
     }
 }
 
@@ -461,11 +424,6 @@ void popSafe(treeNodePtr_stack **parseStack){
     treeNodePtr_stack_pop(*parseStack);
 }
 void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr, tokenInfo **tkinfo, bool *eosEncountered){
-/*Precondition: All symbols in FOLLOW(A = treeNodePtr_stack_top(parseStack) go into syn(A)
- *
- *
- */
-    // can I skip tokens in input
     treeNode *topNode = treeNodePtr_stack_top(*parseStack);
 
     if (*tkinfo == NULL){// can't skip tokens in the input -- need to keep popping the parseStack
@@ -502,7 +460,6 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
          * if pTb[M,a] is -1, skip 'a' from input (i.e. getNextToken)
          * if pTb[M,a] is -2, popSafe from the stack (don't get next token)
          */
-//        if(parseTable[ntx(topNode->tk)][ruleId] == -1){
         if(parseTable[ntx(topNode->tk)][(*tkinfo)->type] == ERROR_RECOVERY_SKIP){
             // the following wrapping if might be unnecessary since whenever we are here this if would always result in 'true'
             if(ERROR_RECOVERY_VERBOSE)
@@ -558,14 +515,7 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
      * i.e. when input string has been read till end
      */
     else { // top of stack is not '$'
-//        if(isPresent(defaultSyn,topNode->tk)){
-//            *tkinfo = getNextToken(*srcFilePtr);
-//            if (*tkinfo == NULL) {
-//                *eosEncountered = true;
-//            }
-//        }
-//        else
-            popSafe(parseStack);
+        popSafe(parseStack);
     }
 }
 
@@ -635,36 +585,21 @@ treeNode *parseInputSourceCode(char *src){
         else if(topNode->tk <= g_EOS){
             //topNode is not a non Terminal
             errorFree = false;
-//            fprintf(stderr,"parseInputSourceCode: ERROR in %s, line no. %u, Stack and token mismatch: The current terminal on stack top, %s does not match the token read, %s.\n",inverseMappingTable[topNode->tk],inverseMappingTable[sym]);
             recoverTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
-//            return NULL;
         }
         else{
             //topNode is a non Terminal
             int ruleId = parseTable[ntx(topNode->tk)][sym];
             if(ruleId == ERROR_RECOVERY_SKIP || ruleId == ERROR_RECOVERY_POP){
                 //Invalid Combination
-//                fprintf(stderr, "Line %u: ERROR in the input as expected token is %s.\n",tkinfo->lno, inverseMappingTable[topNode->tk]);
-
                 errorFree = false;
-                //TODO: Error Reporting
-                /* cooking my dish here*/
-                // top of the parseStack and the current gotten token have a mismatch as per parseTable
                 recoverNonTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
-                //continue;
-                /*done cooking*/
-//                printf("Error due to no grammar rule for %d , %d\n",ntx(topNode->tk),sym);
-//                return NULL;
             }
             else{
-//                if(ruleId < 0){
-//                    ruleId *= -1;
-//                    print_invalid_gen_error(tkinfo,sym,topNode,&last_error_line,true);
-//                }
                 grammarNode gNode = grammarArr[ruleId];
                 if(gNode.lhs != topNode->tk){
                     //Report Unexpected Error
-                    fprintf(stderr,"Unexpected error in Syntax Analyser: Either the grammar was incorrectly built or the parse table was wrongly computed.\n");
+                    fprintf(stderr,"SYNTAX ANALYSER, Unexpected Error: Either the grammar was incorrectly built or the parse table was wrongly computed.\n");
                 }
                 treeNodePtr_stack_pop(parseStack);
                 rhsNode *rhsPtr = gNode.head;
@@ -704,7 +639,19 @@ treeNode *parseInputSourceCode(char *src){
     else{
         printAllErrors();
     }
+    destroyErrorStack();
     return parseTreeRoot;
+}
+
+void destroyTree(treeNode *root){
+    if(root == NULL)
+        return;
+    treeNode* child=root->child;
+    while(child != NULL) {
+        destroyTree(child);
+        child=child->next;
+    }
+    free(root);
 }
 
 /*------------PARSE I/P SOURCECODE ENDS-------------*/
@@ -787,7 +734,10 @@ void printTreeNode(treeNode *ptr, FILE *fp){
     else
         fprintf(fp,"%-21s%-15s",blank,blank);
 
-    fprintf(fp,"%-25s",inverseMappingTable[ptr->tk]);
+    if(isTerminal(ptr->tk))
+        fprintf(fp,"%-25s",inverseMappingTable[ptr->tk]);
+    else
+        fprintf(fp,"%-25s",blank);
 
     if(ptr->tk == g_NUM){
         fprintf(fp,"%-15d",(ptr->tkinfo->value).num);
@@ -840,6 +790,8 @@ void printTree(treeNode* root,  char* fname) {
     printTreeUtil(root, fpt);
     fclose(fpt);
 }
+
+
 
 /*------------TREE PRINTING ENDS-------------*/
 

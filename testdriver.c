@@ -55,10 +55,14 @@ int main(int argc, char *argv[]){
 //    else
 //        removeComments("../t6(with_syntax_errors).txt", TMP_SRC_FILE_PATH);
 
-    treeNode *root = parseInputSourceCode("../OUTPUT/t3.txt");
+    treeNode *root = parseInputSourceCode("../test1.erp");
 
-//    printTreeOld(root);
+    printTreeOld(root);
     printTree(root, TREE_PRINT_FILE_PATH);
+
+    destroyTree(root);
+
+
 
 //    int arr[] = {2, 3, 5, 7, 11};
 //    int a = sizeArr(arr);

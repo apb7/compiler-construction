@@ -11,6 +11,10 @@ void initErrorStack(){
     errorStack = errorPtr_stack_create();
 }
 
+void destroyErrorStack(){
+    errorPtr_stack_del_head(errorStack);
+}
+
 void foundNewError(error e){
     error *newError = (error *)(malloc(sizeof(error)));
     *newError = e;

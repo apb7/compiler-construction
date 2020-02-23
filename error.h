@@ -31,5 +31,6 @@ typedef struct{
 void foundNewError(error e);
 void initErrorStack();
 void printAllErrors();
+void destroyErrorStack();
 
 #endif //ERROR_H
