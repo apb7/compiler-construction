@@ -86,6 +86,9 @@ void foundNewError(error e){
     }
     else{
            printError(e);
+           if(e.errType == LEXICAL){
+               free(e.edata.le.errTk);
+           }
     }
 }
 

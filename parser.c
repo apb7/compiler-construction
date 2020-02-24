@@ -468,7 +468,9 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
     }
     else {
         error e = {SYNTAX_NTT,(*tkinfo)->lno};
-        e.edata.se.tkinfo = *tkinfo;
+        tokenInfo *tmpe = (tokenInfo *) (malloc(sizeof(tokenInfo)));
+        *tmpe = *(*tkinfo);
+        e.edata.se.tkinfo = tmpe;
         e.edata.se.stackTopSymbol = topNode->tk;
         foundNewError(e);
         // can skip tokens in the input
@@ -524,7 +526,9 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
     }
 
     error e = {SYNTAX_TT,(*tkinfo)->lno};
-    e.edata.se.tkinfo = *tkinfo;
+    tokenInfo *tmpe = (tokenInfo *) (malloc(sizeof(tokenInfo)));
+    *tmpe = *(*tkinfo);
+    e.edata.se.tkinfo = tmpe;
     e.edata.se.stackTopSymbol = topNode->tk;
     foundNewError(e);
     if(topNode->tk == g_EOS){

@@ -149,9 +149,9 @@ void print_lexical_error(uint start, uint end) {
     char *errTk = allocString(end-start);
 
     for(uint i = start; i<end; i = (i + 1) % TWIN_BUFFER_SIZE){
-        errTk[i-start] = buffer_for_tokenization[i];
+        errTk[(i+TWIN_BUFFER_SIZE-start)%TWIN_BUFFER_SIZE] = buffer_for_tokenization[i];
     }
-    errTk[end-start] = '\0';
+    errTk[(end+TWIN_BUFFER_SIZE-start)%TWIN_BUFFER_SIZE] = '\0';
 
     error e = {LEXICAL,line_number};
     e.edata.le.errTk = errTk;
