@@ -651,6 +651,8 @@ void destroyTree(treeNode *root){
         destroyTree(child);
         child=child->next;
     }
+//    if(root->tkinfo)
+//        free(root->tkinfo);
     free(root);
 }
 
@@ -789,6 +791,7 @@ void printTree(treeNode* root,  char* fname) {
     fprintf(fpt,"%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
     printTreeUtil(root, fpt);
     fclose(fpt);
+    destroyTree(root);
 }
 
 

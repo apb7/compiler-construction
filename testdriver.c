@@ -55,9 +55,9 @@ int main(int argc, char *argv[]){
 //    else
 //        removeComments("../t6(with_syntax_errors).txt", TMP_SRC_FILE_PATH);
 
-    treeNode *root = parseInputSourceCode("../test1.erp");
+    treeNode *root = parseInputSourceCode("../t6err.txt");
 
-    printTreeOld(root);
+//    printTreeOld(root);
     printTree(root, TREE_PRINT_FILE_PATH);
 
     destroyTree(root);

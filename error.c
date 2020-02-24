@@ -6,53 +6,84 @@
 extern errorPtr_stack *errorStack;
 extern char *inverseMappingTable[];
 extern char *enum2LexemeTable[];
+int STACK_ENABLED = 0;
 
 void initErrorStack(){
     errorStack = errorPtr_stack_create();
+    STACK_ENABLED = 1;
 }
 
 void destroyErrorStack(){
     errorPtr_stack_del_head(errorStack);
+    STACK_ENABLED = 0;
+}
+
+void printError(error e){
+    switch (e.errType) {
+        case LEXICAL:
+            fprintf(stderr, "Line %u: LEXICAL ERROR: Invalid token '%s' found.\n", e.lno,
+                    e.edata.le.errTk);
+            break;
+        case SYNTAX_TT:
+            fprintf(stderr, "Line %u: SYNTAX ERROR in input: Expected '%s' but Found '%s'\n", e.lno,
+                    enum2LexemeTable[e.edata.se.stackTopSymbol], ((e.edata).se.tkinfo)->lexeme);
+            break;
+        case SYNTAX_NTT:
+            fprintf(stderr, "Line %u: SYNTAX ERROR: Stack top, '%s' cannot generate the token '%s' ('%s')\n",
+                    e.lno, inverseMappingTable[e.edata.se.stackTopSymbol],
+                    inverseMappingTable[((e.edata).se.tkinfo)->type], ((e.edata).se.tkinfo)->lexeme);
+            break;
+        case STACK_NON_EMPTY:
+            fprintf(stderr, "SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
+            break;
+    }
 }
 
 void foundNewError(error e){
-    error *newError = (error *)(malloc(sizeof(error)));
-    *newError = e;
-    if(errorPtr_stack_isEmpty(errorStack)){
-        errorPtr_stack_push(errorStack,newError);
-        return;
-    }
-    else{
-        error *topNode = errorPtr_stack_top(errorStack);
-        if(e.lno > topNode->lno){
+    if(STACK_ENABLED){
+        error *newError = (error *)(malloc(sizeof(error)));
+        *newError = e;
+        if(errorPtr_stack_isEmpty(errorStack)){
             errorPtr_stack_push(errorStack,newError);
             return;
         }
-        else if(e.lno < topNode->lno){
-            //this case does not arise
-        }
         else{
-            if(topNode->errType == LEXICAL){
+            error *topNode = errorPtr_stack_top(errorStack);
+            if(e.lno > topNode->lno){
                 errorPtr_stack_push(errorStack,newError);
                 return;
             }
-            else if(e.errType == LEXICAL){
-                errorPtr_stack_pop(errorStack);
-                errorPtr_stack_push(errorStack,newError);
-                errorPtr_stack_push(errorStack,topNode);
-                return;
+            else if(e.lno < topNode->lno){
+                //this case does not arise
             }
             else{
-                if(topNode->errType == SYNTAX_NTT && e.errType == SYNTAX_TT){
-                    free(errorPtr_stack_pop(errorStack));
+                if(topNode->errType == LEXICAL){
                     errorPtr_stack_push(errorStack,newError);
                     return;
                 }
+                else if(e.errType == LEXICAL){
+                    errorPtr_stack_pop(errorStack);
+                    errorPtr_stack_push(errorStack,newError);
+                    errorPtr_stack_push(errorStack,topNode);
+                    return;
+                }
+                else{
+                    if(topNode->errType == SYNTAX_NTT && e.errType == SYNTAX_TT){
+                        free(errorPtr_stack_pop(errorStack));
+                        errorPtr_stack_push(errorStack,newError);
+                        return;
+                    }
+                }
             }
         }
+        free(newError);
     }
-    free(newError);
+    else{
+           printError(e);
+    }
 }
+
+
 
 void printAllErrors() {
     errorPtr_stack *tmpStack = errorPtr_stack_create();
@@ -62,24 +93,7 @@ void printAllErrors() {
     }
     while (!errorPtr_stack_isEmpty(tmpStack)) {
         error *topNode = errorPtr_stack_pop(tmpStack);
-        switch (topNode->errType) {
-            case LEXICAL:
-                fprintf(stderr, "Line %u: LEXICAL ERROR: Invalid token '%s' found.\n", topNode->lno,
-                        topNode->edata.le.errTk);
-                break;
-            case SYNTAX_TT:
-                fprintf(stderr, "Line %u: SYNTAX ERROR in input: Expected '%s' but Found '%s'\n", topNode->lno,
-                        enum2LexemeTable[topNode->edata.se.stackTopSymbol], ((topNode->edata).se.tkinfo)->lexeme);
-                break;
-            case SYNTAX_NTT:
-                fprintf(stderr, "Line %u: SYNTAX ERROR: Stack top, '%s' cannot generate the token '%s' ('%s')\n",
-                        topNode->lno, inverseMappingTable[topNode->edata.se.stackTopSymbol],
-                        inverseMappingTable[((topNode->edata).se.tkinfo)->type], ((topNode->edata).se.tkinfo)->lexeme);
-                break;
-            case STACK_NON_EMPTY:
-                fprintf(stderr, "SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
-                break;
-        }
+        printError(*topNode);
         free(topNode);
     }
 }

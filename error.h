@@ -32,5 +32,5 @@ void foundNewError(error e);
 void initErrorStack();
 void printAllErrors();
 void destroyErrorStack();
-
+void printError(error e);
 #endif //ERROR_H
