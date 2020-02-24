@@ -337,8 +337,11 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                         else if(lookahead >= '0' && lookahead <= '9') 
                             state = 1;
 
-                        else if(lookahead == '\0')
+                        else if(lookahead == '\0'){
+                            free(tkin);
                             return NULL;
+                        }
+
 
                         else {   
                             state = 0;
@@ -606,9 +609,11 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                 else if(lookahead == '\n')
                     line_number++;
 
-                else if(lookahead == '\0')
+                else if(lookahead == '\0'){
+                    free(tkin);
                     return NULL;
-
+                }
+                
                 else {
                     // Do nothing
                 }

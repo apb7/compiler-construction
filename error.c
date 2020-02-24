@@ -89,9 +89,11 @@ void foundNewError(error e){
            if(e.errType == LEXICAL){
                free(e.edata.le.errTk);
            }
+           else if(e.errType == SYNTAX_NTT || e.errType == SYNTAX_TT){
+               free(e.edata.se.tkinfo);
+           }
     }
 }
-
 
 
 void printAllErrors() {

@@ -458,6 +458,7 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
          */
 
         error tmp;
+        memset(&tmp,0,sizeof(error));
         tmp.errType = STACK_NON_EMPTY;
         foundNewError(tmp);
         while(topNode->tk != g_EOS){
@@ -515,6 +516,7 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
     if(*tkinfo == NULL){
         //input is over
         error tmp;
+        memset(&tmp,0,sizeof(error));
         tmp.errType = STACK_NON_EMPTY;
         foundNewError(tmp);
         while(topNode->tk != g_EOS){
