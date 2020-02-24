@@ -12,7 +12,6 @@
 #include <string.h>
 #include "../utils/hash.h"
 
-//#include "../oldHash.h"
 #include "lexerDef.h"
 #include "../config.h"
 
@@ -163,7 +162,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
         getStream(file_ptr);
     }
 
-    // TODO: Clarify allocation.
     tokenInfo* tkin = (tokenInfo*) malloc(sizeof(tokenInfo));
     char lookahead;
 
