@@ -76,11 +76,10 @@ int main(int argc, char *argv[]) {
 //    printParseTable();
 
     char userInput;
-
+    int x = 0;
     while(1) {
         printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n");
         scanf(" %c", &userInput);
-
         switch(userInput) {
 
             case '0':
@@ -115,7 +114,8 @@ int main(int argc, char *argv[]) {
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 printTree(root, argv[2]);   //printTree also frees the tree after printing it
 
-            } break;
+            }
+            break;
 
             case '4':
             {
@@ -142,6 +142,7 @@ int main(int argc, char *argv[]) {
             default:
                 printf("Invalid Choice. Please try again! \n");
         }
+
     }
 
     return 0;

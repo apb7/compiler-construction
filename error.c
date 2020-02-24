@@ -105,4 +105,5 @@ void printAllErrors() {
             free((topNode->edata).le.errTk);
         free(topNode);
     }
+    errorPtr_stack_del_head(tmpStack);
 }

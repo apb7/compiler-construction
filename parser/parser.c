@@ -491,6 +491,7 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
             // the following wrapping if might be unnecessary since whenever we are here this if would always result in 'true'
             if(ERROR_RECOVERY_VERBOSE)
                 fprintf(stderr,"Skipping token '%s'.\n",(*tkinfo)->lexeme);
+            free(*tkinfo);
             if(!(*eosEncountered)) {
                 *tkinfo = getNextToken(*srcFilePtr);
                 if (*tkinfo == NULL) {
@@ -667,6 +668,8 @@ treeNode *parseInputSourceCode(char *src){
         printAllErrors();
     }
     destroyErrorStack();
+    treeNodePtr_stack_del_head(parseStack);
+    treeNodePtr_stack_del_head(tmpStack);
     return parseTreeRoot;
 }
 
@@ -675,12 +678,12 @@ void destroyTree(treeNode *root){
         return;
     treeNode* child=root->child;
     while(child != NULL) {
+        treeNode *tmp = child->next;
         destroyTree(child);
-        child=child->next;
+        child=tmp;
     }
-    //TODO: Free the tkinfo
-//    if(root->tkinfo)
-//        free(root->tkinfo);
+    if(root->tkinfo)
+        free(root->tkinfo);
     free(root);
 }
 
