@@ -396,7 +396,7 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent){
 
 intSet makeDefaultSynSet(){
     intSet defaultSyn = 0;
-    gSymbol default_terminal[] = {g_DECLARE, g_START};
+    gSymbol default_terminal[] = {g_DECLARE, g_START, g_DEF, g_DRIVERDEF};
     int length = len(default_terminal);
     for(int i = 0; i < length; i++) {
         defaultSyn = add_element(defaultSyn, default_terminal[i]);

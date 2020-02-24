@@ -1,7 +1,5 @@
 **Program to calculate the nth fibonacci number**
-<<module fibonacciN>>
-takes input[n : integer];
-returns  [res: integer];
+<<<driver program>>>
 start
 	declare index:integer;
 	declare t:boolean;
@@ -31,8 +29,8 @@ start
 	begin **syntax error 2**
 		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
-	end
-	res := fib[n] **syntax error 4**
+	end;	**syntax error 4**
+	res := fib[n]; 
 end
 
 **Program to calculate the nth fibonacci number**
