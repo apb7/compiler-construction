@@ -11,7 +11,7 @@
 // Mapping Table Functions
 void addSymbol(char *symbol, int index, hashTable *mt){
     if (mt == NULL){
-        printf("Mapping Table doesn't exist\n");
+        printf("Hash Table doesn't exist\n");
         return;
     }
 
@@ -37,7 +37,7 @@ void addSymbol(char *symbol, int index, hashTable *mt){
 
 bool searchSymbol(char *symbol, hashTable *mt){
     if (mt == NULL){
-        printf("Mapping Table doesn't exist\n");
+        printf("Hash Table doesn't exist\n");
         return false;
     }
 
@@ -61,7 +61,7 @@ bool searchSymbol(char *symbol, hashTable *mt){
 
 gSymbol getEnumValue(char *symbol, hashTable *mt){
     if (mt == NULL){
-        printf("Mapping Table doesn't exist\n");
+        printf("Hash Table doesn't exist\n");
         return -1;
     }
 
@@ -116,7 +116,7 @@ struct hashTable* createHashTable(int size){ // creates and returns an empty map
 
 void printHashTable(hashTable *mt){
     if (mt == NULL){
-        printf("Mapping Table doesn't exist\n");
+        printf("Hash Table doesn't exist\n");
         return;
     }
 
