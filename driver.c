@@ -15,7 +15,7 @@
 #include "utils/set.h"
 #include "config.h"
 #include "lexer/lexer.h"
-
+#include "utils/errorPtr_stack.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -32,6 +32,7 @@ extern intSet* firstSet;
 extern intSet* followSet;
 extern char *inverseMappingTable[];
 extern int **parseTable;
+errorPtr_stack *errorStack;
 
 
 int main(int argc, char *argv[]) {
@@ -63,13 +64,14 @@ int main(int argc, char *argv[]) {
 
     fillHashTable(keywords,keyword_ht);
 
-    populateGrammarStruct("../data/grammar.txt");
+    populateGrammarStruct("data/grammar.txt");
 
 //     printGrammar();
 
     populateFirstSet();
     populateFollowSet();
     populateParseTable();
+    modifyParseTable_Err_Recovery();
 
 //    printParseTable();
 
@@ -98,13 +100,10 @@ int main(int argc, char *argv[]) {
 
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
-
                 while((tk = getNextToken(fp_arg)) != NULL) {
                     printf("%12d %20s %20s\n", tk->lno, tk->lexeme, inverseMappingTable[tk->type]);
-
                     free(tk);
                 }
-
                 fclose(fp_arg);
             } break;
 
@@ -113,8 +112,9 @@ int main(int argc, char *argv[]) {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
-                treeNode *root = parseInputSourceCode(argv[1]);
-                printTree(root, argv[2]);
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                printTree(root, argv[2]);   //printTree also frees the tree after printing it
+
             } break;
 
             case '4':
@@ -135,7 +135,9 @@ int main(int argc, char *argv[]) {
                 total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
 
                 printf("Total CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
-            } break;
+                destroyTree(root);
+            }
+            break;
 
             default:
                 printf("Invalid Choice. Please try again! \n");

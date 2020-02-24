@@ -11,10 +11,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/hash.h"
-
+#include "../utils/util.h"
+#include "../error.h"
 #include "lexerDef.h"
 #include "../config.h"
+#include "../utils/errorPtr_stack.h"
 
+extern errorPtr_stack *errorStack;
 
 typedef unsigned int uint;
 
@@ -139,19 +142,21 @@ void removeComments(char *testcaseFile, char *cleanFile) {
 // Prints the string in global buffer from start to end, not including end.
 // [start, end)
 void print_lexical_error(uint start, uint end) {
-    fprintf(stderr, "Line %u: Lexical error, invalid token found\t", line_number);
-
+//    fprintf(stderr, "LEXICAL ERROR: invalid token on line number %u.\n \t", line_number);
     start = start % TWIN_BUFFER_SIZE;
     end = end % TWIN_BUFFER_SIZE;
 
-    do {
-        // Put the error in the error stream, stderr.
-        fprintf(stderr, "%c", buffer_for_tokenization[start]);
-        start = (start + 1) % TWIN_BUFFER_SIZE;
-    }
-    while(start != end);
+    char *errTk = allocString(end-start);
 
-    fprintf(stderr, "\n");
+    for(uint i = start; i<end;i = (i + 1) % TWIN_BUFFER_SIZE){
+        errTk[i-start] = buffer_for_tokenization[i];
+    }
+    errTk[end-start] = '\0';
+
+    error e = {LEXICAL,line_number};
+    e.edata.le.errTk = errTk;
+    foundNewError(e);
+
 }
 
 tokenInfo* getNextToken(FILE *file_ptr) {

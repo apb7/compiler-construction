@@ -28,6 +28,7 @@ treeNode *parseInputSourceCode(char *src);
 grammarNode createRuleNode(char *rule);
 void printTreeOld(treeNode *root);
 void printTree(treeNode* root,  char* fname);
+void destroyTree(treeNode *root);
 
 treeNode *newTreeNode(gSymbol sym, treeNode *parent);
 
