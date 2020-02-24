@@ -5,10 +5,6 @@
 // APURV BAJAJ     2016B3A70549P
 // HASAN NAQVI     2016B5A70452P
 
-//
-// Created by Tussank on 20-02-2020.
-//
-
 #ifndef UTILS_H
 #define UTILS_H
 

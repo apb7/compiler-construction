@@ -11,7 +11,7 @@
 #include "treeNodePtr_stack_config.h"
 
 void treeNodePtr_del_val(treeNode* ptr){
-   /**/ // TODO: this is bad 'cause still the memory corresponding to children and tkinfo will leak.
+   /*DO NOTHING*/
     }
 
 bool treeNodePtr_equals(treeNode* ptr1, treeNode* ptr2){

@@ -678,6 +678,7 @@ void destroyTree(treeNode *root){
         destroyTree(child);
         child=child->next;
     }
+    //TODO: Free the tkinfo
 //    if(root->tkinfo)
 //        free(root->tkinfo);
     free(root);
