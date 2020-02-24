@@ -613,7 +613,7 @@ tokenInfo* getNextToken(FILE *file_ptr) {
                     free(tkin);
                     return NULL;
                 }
-                
+
                 else {
                     // Do nothing
                 }
