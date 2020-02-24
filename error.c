@@ -94,6 +94,8 @@ void printAllErrors() {
     while (!errorPtr_stack_isEmpty(tmpStack)) {
         error *topNode = errorPtr_stack_pop(tmpStack);
         printError(*topNode);
+        if(topNode->errType == LEXICAL)
+            free((topNode->edata).le.errTk);
         free(topNode);
     }
 }
