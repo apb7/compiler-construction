@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 //#include "lexer.h"
 #include "parserDef.h"
 #include <string.h>
@@ -25,9 +32,7 @@ ruleRange ruleRangeArr[NUM_NON_TERMINALS];  //Number of rules for each non termi
 intSet* firstSet;   //This array stores first sets of all the non terminals
 intSet* followSet;  //This array stores follow sets of all the non terminals
 int parseTable[NUM_NON_TERMINALS][NUM_TERMINALS + 1];   //This table is used for predictive parsing
-syntaxError last_encountered_error;
 intSet defaultSyn;
-
 
 //This table is used to convert Enums to their corresponding strings
 char *inverseMappingTable[] = {
@@ -58,7 +63,7 @@ char *enum2LexemeTable[] = {
 #define ERROR_RECOVERY_SKIP -numRules
 
 //ntx can be used to map NonTerminal Enums to 0 based indexing
-int ntx(int nonTerminalId){
+int ntx(int nonTerminalId) {
     int adjustedValue = nonTerminalId - g_EOS - 1;
     if(adjustedValue < 0){
         fprintf(stderr,"ntx: Invalid nonTerminal, %d\n",nonTerminalId);
@@ -68,22 +73,24 @@ int ntx(int nonTerminalId){
 }
 
 //rntx is the inverse of ntx
-int rntx(int nonTerminalIdx){ return nonTerminalIdx + g_EOS + 1; }
+int rntx(int nonTerminalIdx) {
+    return nonTerminalIdx + g_EOS + 1;
+}
 
 /*------- BOOLEAN CHECK FUNCTIONS -------*/
 int isEpsilon(gSymbol symbol) {
-    return (symbol == g_EPS ? 1 : 0);
+    return symbol == g_EPS;
 }
 
 int isTerminal(gSymbol symbol) {
-    return (symbol < g_EOS ? 1 : 0);
+    return symbol < g_EOS;
 }
 
 int isNonTerminal(gSymbol symbol) {
-    return ((symbol>g_EOS && symbol<g_numSymbols)?1:0);
+    return (symbol > g_EOS && symbol < g_numSymbols);
 }
 
-bool isLeafNode(treeNode *ptr){
+bool isLeafNode(treeNode *ptr) {
     if(ptr == NULL)
         return false;
     if(ptr->child == NULL)
@@ -100,7 +107,7 @@ bool isLeafNode(treeNode *ptr){
 /*
  * This function is used to create and return a RhsNode for a rule of the grammar
  */
-rhsNode *createRhsNode(char *rhsTk){
+rhsNode *createRhsNode(char *rhsTk) {
     if(!rhsTk){
         fprintf(stderr,"createRhsNode: NULL Token\n");
         return NULL;
@@ -118,12 +125,14 @@ rhsNode *createRhsNode(char *rhsTk){
 /*
  * This functions assumes that grammar rules are properly defined
  */
-grammarNode createRuleNode(char *rule){
+grammarNode createRuleNode(char *rule) {
     //rule has the format "A,B,c,D,a" for a rule of type A -> BcDa
-    char **ruleArr = strSplit(rule,',');
+    char **ruleArr = strSplit(rule, ',');
+
     grammarNode gnode;
     gnode.lhs = getEnumValue(ruleArr[0],mt);
     gnode.head = createRhsNode(ruleArr[1]);
+
     int i = 2;
     rhsNode *tmp = gnode.head;
     while(ruleArr[i] != NULL){
@@ -144,39 +153,43 @@ grammarNode createRuleNode(char *rule){
  * moduleDeclarations,moduleDeclaration,moduleDeclarations
  * moduleDeclarations,EPS
  */
-void printRuleRange(){
+void printRuleRange() {
     for(int i = 0; i < NUM_NON_TERMINALS; i++){
         printf("start: %d, end: %d\n", ruleRangeArr[i].start, ruleRangeArr[i].end);
     }
 }
-void populateGrammarStruct(char *grFile){
+
+void populateGrammarStruct(char *grammarFile) {
     grammarArr = NULL;
-    if(!grFile)
+
+    if(!grammarFile)
         return;
-    FILE *fp = fopen(grFile,"r");
-    if(!fp){
-        fprintf(stderr,"populateGrammarStruct: ERROR, Unable to open file %s\n",grFile);
+
+    FILE *fp = fopen(grammarFile, "r");
+    if(!fp) {
+        fprintf(stderr,"populateGrammarStruct: ERROR, Unable to open file %s\n", grammarFile);
         return;
     }
+
     int i;
     char buf[MAX_LINE_LEN] = {0};
-    fgets(buf,MAX_LINE_LEN,fp);
-    sscanf(buf,"%d",&numRules);
+    fgets(buf, MAX_LINE_LEN, fp);
+
+    sscanf(buf, "%d", &numRules);
     grammarArr = (grammarNode *) calloc(numRules, sizeof(grammarNode));
-    for(i=0;i<numRules;i++){
+
+    for(i = 0; i < numRules; i++) {
         fgets(buf,MAX_LINE_LEN,fp);
         char *tRule = trim(buf);
         grammarArr[i] = createRuleNode(tRule);
-        if(i>0 && grammarArr[i - 1].lhs != grammarArr[i].lhs){
+
+        if(i>0 && grammarArr[i - 1].lhs != grammarArr[i].lhs) {
             ruleRangeArr[ntx(grammarArr[i - 1].lhs)].end = i - 1;
             ruleRangeArr[ntx(grammarArr[i].lhs)].start = i;
         }
-        else if(i == 0){
-            ruleRangeArr[ntx(grammarArr[i].lhs)].start = i;
-        }
     }
+    ruleRangeArr[ntx(grammarArr[0].lhs)].start = 0;
     ruleRangeArr[ntx(grammarArr[numRules - 1].lhs)].end = numRules - 1;
-
 }
 
 /* ------------------ GRAMMAR REPRESENTATION ENDS ------------------*/
@@ -188,41 +201,47 @@ void populateGrammarStruct(char *grFile){
  * This function fills the entries of the global First array
  */
 void populateFirstSet() {
-    int n=numRules;
     int isChanged=1;
+
     firstSet = (intSet*)calloc(NUM_NON_TERMINALS, sizeof(intSet));
-    memset(firstSet,0,sizeof(intSet));
+    memset(firstSet, 0, sizeof(intSet));
+
     while(isChanged) {
         isChanged=0;
-        for(int i = 0; i < n; i++) {
-            gSymbol left_val=grammarArr[i].lhs;
+        for(int i = 0; i < numRules; i++) {
+            gSymbol left_val = grammarArr[i].lhs;
             rhsNode* first = grammarArr[i].head;
-            while(first!=NULL) {
-                gSymbol ff_val=first->s;
+
+            while(first != NULL) {
+                gSymbol ff_val = first->s;
                 if(isTerminal(ff_val)) {
                     intSet prev=firstSet[ntx(left_val)];
-                    firstSet[ntx(left_val)]=add_elt(firstSet[ntx(left_val)],ff_val);
+                    firstSet[ntx(left_val)] = add_element(firstSet[ntx(left_val)],ff_val);
                     if(prev != firstSet[ntx(left_val)]) 
-                        isChanged=1;
+                        isChanged = 1;
                     break;
-                } else if(isEpsilon(ff_val)) {
-                    first=first->next;
-                } else {
-                    intSet prev=firstSet[ntx(left_val)];
-                    firstSet[ntx(left_val)]=union_set(firstSet[ntx(left_val)],remove_elt(firstSet[ntx(ff_val)],g_EPS));
+                }
+                else if(isEpsilon(ff_val)) {
+                    first = first->next;
+                }
+                else {
+                    intSet prev = firstSet[ntx(left_val)];
+                    firstSet[ntx(left_val)] = union_set(firstSet[ntx(left_val)], remove_element(firstSet[ntx(ff_val)], g_EPS));
+
                     if(prev != firstSet[ntx(left_val)])
-                        isChanged=1;
-                    if(isPresent(firstSet[ntx(ff_val)],g_EPS)) {
-                        first=first->next;
-                    }
-                    else break;
+                        isChanged = 1;
+
+                    if(isPresent(firstSet[ntx(ff_val)], g_EPS))
+                        first = first->next;
+                    else
+                        break;
                 }
             }
-            if(first==NULL) {
-                intSet prev=firstSet[ntx(left_val)];
-                firstSet[ntx(left_val)]=add_elt(firstSet[ntx(left_val)],g_EPS);
+            if(first == NULL) {
+                intSet prev = firstSet[ntx(left_val)];
+                firstSet[ntx(left_val)] = add_element(firstSet[ntx(left_val)], g_EPS);
                 if(prev != firstSet[ntx(left_val)])
-                    isChanged=1;
+                    isChanged = 1;
             }
         }
     }
@@ -233,61 +252,66 @@ void populateFirstSet() {
  * This function fills the entries of the global Follow array
  */
 void populateFollowSet() {
-    int n=numRules;
-    int isChanged=1;
+    int isChanged = 1;
     followSet = (intSet*)calloc(NUM_NON_TERMINALS, sizeof(intSet));
     memset(followSet,0,sizeof(intSet));
     //follow of topmost NT is $;
-    followSet[0]=add_elt(followSet[0],g_EOS);
+    followSet[0] = add_element(followSet[0], g_EOS);
     while(isChanged) {
 
         isChanged=0;
-        
-        for(int i = 0; i < n; i++) {
-            gSymbol left_val=grammarArr[i].lhs;
+
+        for(int i = 0; i < numRules; i++) {
+            gSymbol left_val = grammarArr[i].lhs;
             rhsNode* first = grammarArr[i].head;
-            while(first!=NULL) {
-                gSymbol ff_val=first->s;
+
+            while(first != NULL) {
+                gSymbol ff_val = first->s;
                 if(isTerminal(ff_val) || isEpsilon(ff_val)) {
-                    first=first->next;
+                    first = first->next;
                     continue;
                 }
                 rhsNode* second = first->next;
 
                 while(1) {
-                    if(second==NULL) {
-                        intSet prev=followSet[ntx(ff_val)];
-                        followSet[ntx(ff_val)]=union_set(followSet[ntx(ff_val)],followSet[ntx(left_val)]);
-                        if(prev!=followSet[ntx(ff_val)])
-                            isChanged=1;
+                    if(second == NULL) {
+                        intSet prev = followSet[ntx(ff_val)];
+                        followSet[ntx(ff_val)] = union_set(followSet[ntx(ff_val)], followSet[ntx(left_val)]);
+                        if(prev != followSet[ntx(ff_val)])
+                            isChanged = 1;
                         break;
                     }
-                    gSymbol ss_val=second->s;
+                    gSymbol ss_val = second->s;
                     if(isEpsilon(ss_val)) {
-                        second=second->next;
-                    } else if(isTerminal(ss_val)) {
-                        intSet prev=followSet[ntx(ff_val)];
-                        followSet[ntx(ff_val)]=add_elt(followSet[ntx(ff_val)],ss_val);
-                        if(prev!=followSet[ntx(ff_val)])
-                            isChanged=1;
+                        second = second->next;
+                    }
+                    else if(isTerminal(ss_val)) {
+                        intSet prev = followSet[ntx(ff_val)];
+                        followSet[ntx(ff_val)] = add_element(followSet[ntx(ff_val)], ss_val);
+                        if(prev != followSet[ntx(ff_val)])
+                            isChanged = 1;
                         break;
-                    } else {
-                        intSet prev=followSet[ntx(ff_val)];
-                        followSet[ntx(ff_val)]=union_set(followSet[ntx(ff_val)],firstSet[ntx(ss_val)]);
-                        if(prev!=followSet[ntx(ff_val)])
-                            isChanged=1;
-                        if(isPresent(firstSet[ntx(ss_val)],g_EPS)) second=second->next; 
-                        else break;
+                    }
+                    else {
+                        intSet prev = followSet[ntx(ff_val)];
+                        followSet[ntx(ff_val)] = union_set(followSet[ntx(ff_val)], firstSet[ntx(ss_val)]);
+                        if(prev != followSet[ntx(ff_val)])
+                            isChanged = 1;
+
+                        if(isPresent(firstSet[ntx(ss_val)], g_EPS))
+                            second = second->next;
+                        else
+                            break;
                     }
                 }
-
-                first=first->next;
+                first = first->next;
             }
         }
     }
+
     for(int i = 0; i < NUM_NON_TERMINALS; i++) {
-        if(isPresent(followSet[i],g_EPS))
-            followSet[i] = remove_elt(followSet[i],g_EPS);
+        if(isPresent(followSet[i], g_EPS))
+            followSet[i] = remove_element(followSet[i],g_EPS);
     }
 }
 /*------------FIRST AND FOLLOW ENDS-------------*/
@@ -306,25 +330,28 @@ void initParseTable() {
 
 //To compute the predictSet used for populating the parse table
 intSet predictSet(grammarNode* g) {
-    intSet mask=0;
-    gSymbol lval=g->lhs;
-    rhsNode* current=g->head;
+    intSet mask = 0;
+    gSymbol lval = g->lhs;
+    rhsNode* current = g->head;
     while(current != NULL) {
-        int rval=current->s;
+        int rval = current->s;
         if(isEpsilon(rval)) {
-            current=current->next;
-        } else if(isTerminal(rval)) {
-            mask=add_elt(mask,rval);
+            current = current->next;
+        }
+        else if(isTerminal(rval)) {
+            mask = add_element(mask, rval);
             break;
-        } else {
-            mask=union_set(mask,remove_elt(firstSet[ntx(rval)],g_EPS));
+        }
+        else {
+            mask = union_set(mask,remove_element(firstSet[ntx(rval)],g_EPS));
             if(isPresent(firstSet[ntx(rval)],g_EPS))
-                current=current->next;
-            else break;
+                current = current->next;
+            else
+                break;
         }
     }
-    if(current==NULL) {
-        mask=union_set(mask,followSet[ntx(lval)]);
+    if(current == NULL) {
+        mask = union_set(mask,followSet[ntx(lval)]);
     }
     return mask;
 }
@@ -341,7 +368,7 @@ int populateParseTable() {
                     return 0;
                 }
                 else
-                    parseTable[ntx(grammarArr[i].lhs)][bit]=i;
+                    parseTable[ntx(grammarArr[i].lhs)][bit] = i;
             }
         }
     }
@@ -374,7 +401,7 @@ intSet makeDefaultSynSet(){
     gSymbol default_terminal[] = {g_DECLARE, g_START};
     int length = len(default_terminal);
     for(int i = 0; i < length; i++) {
-        defaultSyn = add_elt(defaultSyn, default_terminal[i]);
+        defaultSyn = add_element(defaultSyn, default_terminal[i]);
     }
 
     return defaultSyn;
@@ -464,6 +491,7 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
             // the following wrapping if might be unnecessary since whenever we are here this if would always result in 'true'
             if(ERROR_RECOVERY_VERBOSE)
                 fprintf(stderr,"Skipping token '%s'.\n",(*tkinfo)->lexeme);
+            free(*tkinfo);
             if(!(*eosEncountered)) {
                 *tkinfo = getNextToken(*srcFilePtr);
                 if (*tkinfo == NULL) {
@@ -640,6 +668,8 @@ treeNode *parseInputSourceCode(char *src){
         printAllErrors();
     }
     destroyErrorStack();
+    treeNodePtr_stack_del_head(parseStack);
+    treeNodePtr_stack_del_head(tmpStack);
     return parseTreeRoot;
 }
 
@@ -648,11 +678,12 @@ void destroyTree(treeNode *root){
         return;
     treeNode* child=root->child;
     while(child != NULL) {
+        treeNode *tmp = child->next;
         destroyTree(child);
-        child=child->next;
+        child=tmp;
     }
-//    if(root->tkinfo)
-//        free(root->tkinfo);
+    if(root->tkinfo)
+        free(root->tkinfo);
     free(root);
 }
 

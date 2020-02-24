@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #include "error.h"
 #include "utils/errorPtr_stack.h"
 #include "utils/errorPtr_stack_config.h"
@@ -94,6 +101,9 @@ void printAllErrors() {
     while (!errorPtr_stack_isEmpty(tmpStack)) {
         error *topNode = errorPtr_stack_pop(tmpStack);
         printError(*topNode);
+        if(topNode->errType == LEXICAL)
+            free((topNode->edata).le.errTk);
         free(topNode);
     }
+    errorPtr_stack_del_head(tmpStack);
 }

@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -6,7 +13,6 @@
 #include "../utils/hash.h"
 #include "../utils/util.h"
 #include "../error.h"
-//#include "../oldHash.h"
 #include "lexerDef.h"
 #include "../config.h"
 #include "../utils/errorPtr_stack.h"
@@ -161,7 +167,6 @@ tokenInfo* getNextToken(FILE *file_ptr) {
         getStream(file_ptr);
     }
 
-    // TODO: Clarify allocation.
     tokenInfo* tkin = (tokenInfo*) malloc(sizeof(tokenInfo));
     char lookahead;
 
