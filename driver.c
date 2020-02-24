@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 //    printParseTable();
 
     char userInput;
-    int x = 0;
+
     while(1) {
         printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n");
         scanf(" %c", &userInput);
