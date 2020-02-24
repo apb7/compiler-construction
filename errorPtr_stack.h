@@ -7,7 +7,7 @@
 
 #ifndef ERROR_STACK_H
 #define ERROR_STACK_H
-
+#define errorPtr_STACK_MAX 10000
 #include "error.h"
 
 #define TYPE error*

@@ -18,11 +18,9 @@
 #include "config.h"
 #include "lexer.h"
 #include "treeNodePtr_stack.h" // TYPE_stack.h
-#include "treeNodePtr_stack_config.h" // TYPE_stack_config.h
 #include "lexerDef.h"
 #include "error.h"
 #include "errorPtr_stack.h"
-#include "errorPtr_stack_config.h"
 
 
 grammarNode *grammarArr;    //This array stores all the grammar rules each in a grammarNode

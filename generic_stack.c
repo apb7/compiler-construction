@@ -9,6 +9,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void NAME_TYPE(del_val)(TYPE val){
+    /* do nothing since int is primitive and no dynamic memory allocation is involved */
+}
+
+bool NAME_TYPE(equals)(TYPE a, TYPE b){
+    return a == b;
+}
+
+void NAME_TYPE(print)(TYPE ptr, FILE* fp){
+    /* Do Nothing */
+}
+
 NAME_TYPE(stack)* (NAME_TYPE(stack_create))(){
     NAME_TYPE(stack)* stk = (NAME_TYPE(stack)*)malloc(sizeof(NAME_TYPE(stack)));
     NAME_TYPE(stack_init)(stk);

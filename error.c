@@ -7,7 +7,6 @@
 
 #include "error.h"
 #include "errorPtr_stack.h"
-#include "errorPtr_stack_config.h"
 #include "stdlib.h"
 
 extern errorPtr_stack *errorStack;

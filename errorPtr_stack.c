@@ -6,7 +6,6 @@
 // HASAN NAQVI     2016B5A70452P
 
 #include "errorPtr_stack.h"
-#include "errorPtr_stack_config.h"
 #include "error.h"
 
 #define TYPE error*

@@ -6,7 +6,6 @@
 // HASAN NAQVI     2016B5A70452P
 
 #include "treeNodePtr_stack.h"
-#include "treeNodePtr_stack_config.h"
 #include "parserDef.h"
 
 

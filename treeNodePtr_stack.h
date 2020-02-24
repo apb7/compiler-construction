@@ -9,7 +9,7 @@
 #define COMPILER_CONSTRUCTION_TREENODEPTR_STACK_H
 
 #include "parserDef.h"
-
+#define treeNodePtr_STACK_MAX 100
 #define TYPE treeNode*
 #define NAME_TYPE(a) treeNodePtr_##a
 

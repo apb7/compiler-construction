@@ -12,7 +12,6 @@
 
 #include "parserDef.h"
 
-#define TREE_PRINT_FILE_PATH "parse-tree.txt"
 #define ERROR_RECOVERY_VERBOSE 0
 
 /*
