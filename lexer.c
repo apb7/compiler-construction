@@ -146,11 +146,14 @@ void print_lexical_error(uint start, uint end) {
     start = start % TWIN_BUFFER_SIZE;
     end = end % TWIN_BUFFER_SIZE;
 
-    char *errTk = allocString(end-start);
+    char *errTk = allocString((end+TWIN_BUFFER_SIZE-start)%TWIN_BUFFER_SIZE);
 
-    for(uint i = start; i<end; i = (i + 1) % TWIN_BUFFER_SIZE){
+    uint i = start;
+    do{
         errTk[(i+TWIN_BUFFER_SIZE-start)%TWIN_BUFFER_SIZE] = buffer_for_tokenization[i];
-    }
+        i = (i + 1) % TWIN_BUFFER_SIZE;
+    }while(i != end);
+
     errTk[(end+TWIN_BUFFER_SIZE-start)%TWIN_BUFFER_SIZE] = '\0';
 
     error e = {LEXICAL,line_number};
