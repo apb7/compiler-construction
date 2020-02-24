@@ -12,7 +12,7 @@
 #ifndef PARSERHASH_H
 #define PARSERHASH_H
 #include <stdbool.h>
-#include "../parser/parserDef.h"
+#include "parserDef.h"
 
 // struct definitions
 // Mapping Table (Symbol -> Enum)

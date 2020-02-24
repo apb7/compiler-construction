@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "../error.h"
+#include "error.h"
 
 void errorPtr_del_val(error *val){
     /* do nothing since int is primitive and no dynamic memory allocation is involved */

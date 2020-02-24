@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "../parser/parserDef.h"
+#include "parserDef.h"
 #include "treeNodePtr_stack_config.h"
 
 void treeNodePtr_del_val(treeNode* ptr){

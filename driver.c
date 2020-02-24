@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "utils/hash.h"
-#include "parser/parserDef.h"
-#include "parser/parser.h"
-#include "utils/set.h"
+#include "hash.h"
+#include "parserDef.h"
+#include "parser.h"
+#include "set.h"
 #include "config.h"
-#include "lexer/lexer.h"
-#include "utils/errorPtr_stack.h"
+#include "lexer.h"
+#include "errorPtr_stack.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -57,14 +57,14 @@ int main(int argc, char *argv[]) {
 
     char* keywords[] = {
         #define K(a,b,c) c,
-        #include "data/keywords.txt"
+        #include "keywords.txt"
         #undef K
         "#"
     };
 
     fillHashTable(keywords,keyword_ht);
 
-    populateGrammarStruct("../data/grammar.txt");
+    populateGrammarStruct("grammar.txt");
 
 //     printGrammar();
 

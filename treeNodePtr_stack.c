@@ -5,17 +5,16 @@
 // APURV BAJAJ     2016B3A70549P
 // HASAN NAQVI     2016B5A70452P
 
-#ifndef ERROR_STACK_H
-#define ERROR_STACK_H
+#include "treeNodePtr_stack.h"
+#include "treeNodePtr_stack_config.h"
+#include "parserDef.h"
 
-#include "../error.h"
 
-#define TYPE error*
-#define NAME_TYPE(a) errorPtr_##a
+#define TYPE treeNode*
+#define NAME_TYPE(a) treeNodePtr_##a
 
-#include "generic_stack.h"
+#include "generic_stack.c"
 
 #undef TYPE
 #undef NAME_TYPE
 
-#endif //ERROR_STACK_H

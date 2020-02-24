@@ -5,16 +5,17 @@
 // APURV BAJAJ     2016B3A70549P
 // HASAN NAQVI     2016B5A70452P
 
-#include "treeNodePtr_stack.h"
-#include "treeNodePtr_stack_config.h"
-#include "../parser/parserDef.h"
+#ifndef COMPILER_CONSTRUCTION_TREENODEPTR_STACK_H
+#define COMPILER_CONSTRUCTION_TREENODEPTR_STACK_H
 
+#include "parserDef.h"
 
 #define TYPE treeNode*
 #define NAME_TYPE(a) treeNodePtr_##a
 
-#include "generic_stack.c"
+#include "generic_stack.h"
 
 #undef TYPE
 #undef NAME_TYPE
 
+#endif //COMPILER_CONSTRUCTION_TREENODEPTR_STACK_H

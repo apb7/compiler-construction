@@ -11,7 +11,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -29,7 +29,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -48,7 +48,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -66,7 +66,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -85,7 +85,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -103,7 +103,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -122,7 +122,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -140,7 +140,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -159,7 +159,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -177,7 +177,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -196,7 +196,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -214,7 +214,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -233,7 +233,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -251,7 +251,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -270,7 +270,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -288,7 +288,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -307,7 +307,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -325,7 +325,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -344,7 +344,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -362,7 +362,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -381,7 +381,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -399,7 +399,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -418,7 +418,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -436,7 +436,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -455,7 +455,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -473,7 +473,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -492,7 +492,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -510,7 +510,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -529,7 +529,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -547,7 +547,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -566,7 +566,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -584,7 +584,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -603,7 +603,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -621,7 +621,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -640,7 +640,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -658,7 +658,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -677,7 +677,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -695,7 +695,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -714,7 +714,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -732,7 +732,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -751,7 +751,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -769,7 +769,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -788,7 +788,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -806,7 +806,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -825,7 +825,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -843,7 +843,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -862,7 +862,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -880,7 +880,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -899,7 +899,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -917,7 +917,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -936,7 +936,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -954,7 +954,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -973,7 +973,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -991,7 +991,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1010,7 +1010,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1028,7 +1028,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1047,7 +1047,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1065,7 +1065,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1084,7 +1084,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1102,7 +1102,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1121,7 +1121,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1139,7 +1139,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1158,7 +1158,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1176,7 +1176,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1195,7 +1195,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1213,7 +1213,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1232,7 +1232,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1250,7 +1250,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1269,7 +1269,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1287,7 +1287,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1306,7 +1306,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1324,7 +1324,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1343,7 +1343,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1361,7 +1361,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1380,7 +1380,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1398,7 +1398,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1417,7 +1417,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1435,7 +1435,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1454,7 +1454,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1472,7 +1472,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1491,7 +1491,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1509,7 +1509,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1528,7 +1528,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1546,7 +1546,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1565,7 +1565,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1583,7 +1583,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1602,7 +1602,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1620,7 +1620,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1639,7 +1639,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1657,7 +1657,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1676,7 +1676,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1694,7 +1694,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1713,7 +1713,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1731,7 +1731,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1750,7 +1750,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1768,7 +1768,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1787,7 +1787,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1805,7 +1805,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1824,7 +1824,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1842,7 +1842,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1861,7 +1861,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1879,7 +1879,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1898,7 +1898,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1916,7 +1916,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1935,7 +1935,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1953,7 +1953,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -1972,7 +1972,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -1990,7 +1990,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2009,7 +2009,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2027,7 +2027,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2046,7 +2046,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2064,7 +2064,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2083,7 +2083,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2101,7 +2101,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2120,7 +2120,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2138,7 +2138,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2157,7 +2157,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2175,7 +2175,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2194,7 +2194,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2212,7 +2212,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2231,7 +2231,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2249,7 +2249,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2268,7 +2268,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2286,7 +2286,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2305,7 +2305,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2323,7 +2323,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**
@@ -2342,7 +2342,7 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error**
 		index:= index++; **error 3**
 	end
 	res := fib[n];
@@ -2360,7 +2360,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**

@@ -8,8 +8,8 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include "parser/parserDef.h"
-#include "lexer/lexerDef.h"
+#include "parserDef.h"
+#include "lexerDef.h"
 
 typedef enum {
     NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY

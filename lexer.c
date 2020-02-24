@@ -10,12 +10,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/hash.h"
-#include "../utils/util.h"
-#include "../error.h"
+#include "hash.h"
+#include "util.h"
+#include "error.h"
 #include "lexerDef.h"
-#include "../config.h"
-#include "../utils/errorPtr_stack.h"
+#include "config.h"
+#include "errorPtr_stack.h"
 
 extern errorPtr_stack *errorStack;
 
@@ -148,7 +148,7 @@ void print_lexical_error(uint start, uint end) {
 
     char *errTk = allocString(end-start);
 
-    for(uint i = start; i<end;i = (i + 1) % TWIN_BUFFER_SIZE){
+    for(uint i = start; i<end; i = (i + 1) % TWIN_BUFFER_SIZE){
         errTk[i-start] = buffer_for_tokenization[i];
     }
     errTk[end-start] = '\0';

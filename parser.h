@@ -8,7 +8,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../utils/set.h"
+#include "set.h"
 #include "parserDef.h"
 
 void printRuleRange();

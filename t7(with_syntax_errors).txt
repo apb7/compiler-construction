@@ -11,8 +11,8 @@ start
 	fib[2] := 1; 
 	while(index <= n)
 	start
-		fib[index] := fib[index - 1] + fib[index - 2]; **error?**
-		index:= index++; **error 3**
+		fib[index] := fib[index - 1] + fib[index - 2]; **error 3**
+		index:= index++; **error 4**
 	end
 	res := fib[n];
 end
@@ -24,7 +24,7 @@ start
 	declare s:integer;
 	get_value(k);
 	[s]:= use module fibonacciN with parameters k;
-	print(s) **error 4**
+	print(s) **error 5**
 end
 
 ** List all errors with line numbers in the following format

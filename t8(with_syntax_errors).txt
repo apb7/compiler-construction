@@ -10,7 +10,7 @@ start
 	fact[1] := 1;
 	while(index <= n)
 	begin **syntax error 2**
-		fact[index] := index * fact[index - 1]; **syntax error?**
+		fact[index] := index * fact[index - 1]; **syntax error 6**
 		index := ++index; **syntax error 3**
 	end
 	res := fib[n] **syntax error 4**

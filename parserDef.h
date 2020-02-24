@@ -8,17 +8,17 @@
 #ifndef PARSERDEF_H
 #define PARSERDEF_H
 
-#include "../lexer/lexerDef.h"
+#include "lexerDef.h"
 
 typedef enum{
     #define X(a,b) g_ ## a,
     #define K(a,b,c) g_ ## a,
-    #include "../data/keywords.txt"
-    #include "../data/tokens.txt"
+    #include "keywords.txt"
+    #include "tokens.txt"
 
     g_EPS,
     g_EOS,
-    #include "../data/nonTerminals.txt"
+    #include "nonTerminals.txt"
 
     #undef K
     #undef X

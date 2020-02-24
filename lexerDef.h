@@ -11,8 +11,8 @@
 typedef enum {
     #define X(a,b) a,
     #define K(a,b,c) a,
-    #include "../data/keywords.txt"
-    #include "../data/tokens.txt"
+    #include "keywords.txt"
+    #include "tokens.txt"
     COMMENTMARK
     #undef K
     #undef X

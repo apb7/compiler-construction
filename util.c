@@ -14,7 +14,7 @@
  * Some helper functions
  */
 
-char *allocString(int size){
+char* allocString(int size){
     char *cstr = (char *)(calloc(size+1,sizeof(char)));
     return cstr;
 }

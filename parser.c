@@ -12,17 +12,17 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#include "../utils/set.h"
-#include "../utils/hash.h"
-#include "../utils/util.h"
-#include "../config.h"
-#include "../lexer/lexer.h"
-#include "../utils/treeNodePtr_stack.h" // TYPE_stack.h
-#include "../utils/treeNodePtr_stack_config.h" // TYPE_stack_config.h
-#include "../lexer/lexerDef.h"
-#include "../error.h"
-#include "../utils/errorPtr_stack.h"
-#include "../utils/errorPtr_stack_config.h"
+#include "set.h"
+#include "hash.h"
+#include "util.h"
+#include "config.h"
+#include "lexer.h"
+#include "treeNodePtr_stack.h" // TYPE_stack.h
+#include "treeNodePtr_stack_config.h" // TYPE_stack_config.h
+#include "lexerDef.h"
+#include "error.h"
+#include "errorPtr_stack.h"
+#include "errorPtr_stack_config.h"
 
 
 grammarNode *grammarArr;    //This array stores all the grammar rules each in a grammarNode
@@ -38,11 +38,11 @@ intSet defaultSyn;
 char *inverseMappingTable[] = {
 #define X(a,b) b,
 #define K(a,b,c) b,
-#include "../data/keywords.txt"
-#include "../data/tokens.txt"
+#include "keywords.txt"
+#include "tokens.txt"
         "EPS",
         "$",
-#include "../data/nonTerminals.txt"
+#include "nonTerminals.txt"
         "#"
 #undef K
 #undef X
@@ -51,8 +51,8 @@ char *inverseMappingTable[] = {
 //used mainly for error printing
 char *enum2LexemeTable[] = {
 #define K(a,b,c) c,
-#include "../data/keywords.txt"
-#include "../data/tokens.txt"
+#include "keywords.txt"
+#include "tokens.txt"
 "EPS", "$",
 "#"
 #undef K
