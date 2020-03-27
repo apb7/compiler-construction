@@ -40,11 +40,13 @@ struct rhsNode{
 typedef struct rhsNode rhsNode;
 
 typedef struct{
+    int gRuleIndex; // 0-based index of the grammar rule used. 
     gSymbol lhs;    //non terminal symbol
     rhsNode *head;
 } grammarNode;
 
 struct treeNode{
+    int gRuleIndex; // 0-based index of the grammar rule used.
     gSymbol tk;                     //ENUM Value
     tokenInfo *tkinfo;              // Info for Terminals
     struct treeNode *next;     //My Sibling on right

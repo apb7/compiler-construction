@@ -123,11 +123,12 @@ rhsNode *createRhsNode(char *rhsTk) {
 /*
  * This functions assumes that grammar rules are properly defined
  */
-grammarNode createRuleNode(char *rule) {
+grammarNode createRuleNode(char *rule, int ruleIndex) {
     //rule has the format "A,B,c,D,a" for a rule of type A -> BcDa
     char **ruleArr = strSplit(rule, ',');
 
     grammarNode gnode;
+    gnode.gRuleIndex = ruleIndex;
     gnode.lhs = getEnumValue(ruleArr[0],mt);
     gnode.head = createRhsNode(ruleArr[1]);
 
@@ -179,7 +180,7 @@ void populateGrammarStruct(char *grammarFile) {
     for(i = 0; i < numRules; i++) {
         fgets(buf,MAX_LINE_LEN,fp);
         char *tRule = trim(buf);
-        grammarArr[i] = createRuleNode(tRule);
+        grammarArr[i] = createRuleNode(tRule, i);
 
         if(i>0 && grammarArr[i - 1].lhs != grammarArr[i].lhs) {
             ruleRangeArr[ntx(grammarArr[i - 1].lhs)].end = i - 1;
@@ -378,13 +379,14 @@ int populateParseTable() {
 
 /* ------------------ PARSE TREE HELPER FUNCTIONS START ------------------*/
 
-treeNode *newTreeNode(gSymbol sym, treeNode *parent){
+treeNode *newTreeNode(gSymbol sym, treeNode *parent, int gRuleIndex){
     treeNode *tmp = (treeNode *) malloc(sizeof(treeNode));
     tmp->next = NULL;
     tmp->child = NULL;
     tmp->tkinfo = NULL;
     tmp->tk = sym;
     tmp->parent = parent;
+    tmp->gRuleIndex = gRuleIndex;
     return tmp;
 }
 
@@ -575,11 +577,11 @@ treeNode *parseInputSourceCode(char *src){
     treeNodePtr_stack *tmpStack = treeNodePtr_stack_create();
 
     //Push $ symbol to stack
-    treeNode *dummyNode = newTreeNode(g_EOS,NULL);
+    treeNode *dummyNode = newTreeNode(g_EOS,NULL, -1);
     treeNodePtr_stack_push(parseStack,dummyNode);
 
     //Push Start Symbol (program) to stack
-    treeNode *parseTreeRoot = newTreeNode(g_program,NULL);
+    treeNode *parseTreeRoot = newTreeNode(g_program,NULL, 0);
     treeNodePtr_stack_push(parseStack,parseTreeRoot);
 
     tokenInfo *tkinfo = getNextToken(srcFilePtr);
@@ -598,6 +600,7 @@ treeNode *parseInputSourceCode(char *src){
          */
         gSymbol sym = eosEncountered ? g_EOS : (tkinfo->type);
         treeNode *topNode = treeNodePtr_stack_top(parseStack);
+
         if(topNode->tk == g_EPS){
             topNode->tkinfo = NULL;
             topNode->child = NULL;
@@ -628,14 +631,19 @@ treeNode *parseInputSourceCode(char *src){
                 recoverNonTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
             }
             else{
+                // Doubt(apb7): Why not use pointer here for gNode?
                 grammarNode gNode = grammarArr[ruleId];
+                topNode->gRuleIndex = gNode.gRuleIndex;
+
                 if(gNode.lhs != topNode->tk){
                     //Report Unexpected Error
                     fprintf(stderr,"SYNTAX ANALYSER, Unexpected Error: Either the grammar was incorrectly built or the parse table was wrongly computed.\n");
                 }
+
                 treeNodePtr_stack_pop(parseStack);
                 rhsNode *rhsPtr = gNode.head;
                 treeNode *currChild = NULL;
+
                 while(rhsPtr != NULL){
                     /* since in the newTreeNode(...) we set the 'next' pointer to NULL,
                      * we need not check here to find when have we encountered the last rhsNode
@@ -645,7 +653,7 @@ treeNode *parseInputSourceCode(char *src){
                      * or we would have done so after this loop had terminated (since at that time the last rhsNode would be on
                      * top of tmpStack)
                      */
-                    treeNode *tmpChild = newTreeNode(rhsPtr->s,topNode);
+                    treeNode *tmpChild = newTreeNode(rhsPtr->s,topNode, -1);
                     treeNodePtr_stack_push(tmpStack, tmpChild);
                     if(currChild == NULL){
                         topNode->child = tmpChild;
@@ -764,6 +772,9 @@ void printTreeNode(treeNode *ptr, FILE *fp){
     }
     if(!ptr)
         return;
+
+    fprintf(fp,"%-21d", ptr->gRuleIndex);
+
     if(isLeaf && ptr->tk != g_EPS && ptr->tkinfo != NULL){
         fprintf(fp,"%-21s",ptr->tkinfo->lexeme);
         fprintf(fp,"%-15u",ptr->tkinfo->lno);
@@ -823,7 +834,7 @@ void printTree(treeNode* root,  char* fname) {
     if(!root)
         return;
     FILE *fpt = fopen(fname,"w");
-    fprintf(fpt,"%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
+    fprintf(fpt,"%-21s%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[GR_RULE_INDEX]","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
     printTreeUtil(root, fpt);
     fclose(fpt);
     destroyTree(root);

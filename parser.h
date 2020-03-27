@@ -25,11 +25,11 @@ void printFirst();
 void printFollow();
 void printPredictSets();
 treeNode *parseInputSourceCode(char *src);
-grammarNode createRuleNode(char *rule);
+grammarNode createRuleNode(char *rule, int ruleIndex);
 void printTreeOld(treeNode *root);
 void printTree(treeNode* root,  char* fname);
 void destroyTree(treeNode *root);
 
-treeNode *newTreeNode(gSymbol sym, treeNode *parent);
+treeNode *newTreeNode(gSymbol sym, treeNode *parent, int gRuleIndex);
 
 #endif //PARSER_H
