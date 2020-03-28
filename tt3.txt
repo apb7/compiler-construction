@@ -10,7 +10,8 @@ start
 	declare r2_ABC: integer;
 	declare R3_abc: real;
 	get_value(var_1_);
-
+	declare num1,num2,num3:integer;
+	[num1,num2,num3]:=use module square with parameters num1,num2,num3;
     switch(t)
 		start
 			case true: print(list[index]);
@@ -23,8 +24,8 @@ start
 end
 
 <<module square>>
-takes input [x:integer];
-returns [value:integer];
+takes input [num1:integer,num2:integer,num3:integer];
+returns [num1:integer,num2:integer,num3:integer];
 start
 end
 

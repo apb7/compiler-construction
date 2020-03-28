@@ -343,7 +343,62 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 53:
             return buildASTTree(parseNodeRoot->child);
 
-/* TODO 54 55 56 */
+        // <moduleReuseStmt> -> <optional> USE MODULE ID WITH PARAMETERS <idList> SEMICOL
+        // <optional> -> SQBO <idList> SQBC ASSIGNOP
+        // <optional> -> ε
+        case 54:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+            parseNode *parseChild = parseNodeRoot->child; // <optional>
+
+            // <optional> -> ε
+            if(parseChild->gRuleIndex + 2 == 56) {
+
+                // Skip USE MODULE
+                parseChild = (((parseChild->next)->next)->next); // ID
+                ASTNode *ASTChild = buildASTTree(parseChild);
+                ASTChild->parent = newNode;
+                newNode->child = ASTChild;
+
+                // Skip WITH PARAMETERS
+                parseChild = (((parseChild->next)->next)->next); // <idList>
+                ASTChild->next = buildASTTree(parseChild);
+                ASTChild = ASTChild->next;
+                ASTChild->parent = newNode;
+
+            }
+            else { // <optional> -> SQBO <idList> SQBC ASSIGNOP
+
+                parseNode *parseGrandChild = parseChild->child;
+                // Skip SQBO
+                parseGrandChild = (parseGrandChild->next); // <idList>
+                ASTNode *ASTGrandChild = buildASTTree(parseGrandChild);
+
+                // Skip SQBC
+                parseGrandChild = (parseGrandChild->next)->next; // ASSIGNOP
+                ASTNode *ASTChild = buildASTTree(parseGrandChild);
+
+                ASTChild->parent = newNode;
+                newNode->child = ASTChild;
+
+                ASTGrandChild->parent = ASTChild;
+                ASTChild->child = ASTGrandChild;
+
+                // Skip USE MODULE
+                parseChild = (((parseChild->next)->next)->next); // ID
+                ASTGrandChild->next = buildASTTree(parseChild);
+                ASTGrandChild = ASTGrandChild->next;
+                ASTGrandChild->parent = ASTChild;
+
+                // Skip WITH PARAMETERS
+                parseChild = (((parseChild->next)->next)->next); // <idList>
+                ASTGrandChild->next = buildASTTree(parseChild);
+                ASTGrandChild = ASTGrandChild->next;
+                ASTGrandChild->parent = ASTChild;
+            }
+
+            return newNode;
+        }
 
         // <idList> -> ID <N3>
         // <N3> -> COMMA ID <N3>
@@ -421,7 +476,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             AST_child->next = AST_sibling;
             AST_sibling->parent = newNode;
-            
+
             AST_child = AST_sibling;
             parse_child = parse_child->next; // <default>
             AST_sibling = buildASTTree(parse_child);
