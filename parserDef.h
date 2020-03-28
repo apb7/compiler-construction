@@ -47,7 +47,7 @@ typedef struct{
 
 struct treeNode{
     int gRuleIndex; // 0-based index of the grammar rule used.
-    gSymbol tk;                     //ENUM Value
+    gSymbol gs;                     //ENUM Value
     tokenInfo *tkinfo;              // Info for Terminals
     struct treeNode *next;     //My Sibling on right
     struct treeNode *child;    //My first child

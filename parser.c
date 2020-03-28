@@ -384,7 +384,7 @@ treeNode *newTreeNode(gSymbol sym, treeNode *parent, int gRuleIndex){
     tmp->next = NULL;
     tmp->child = NULL;
     tmp->tkinfo = NULL;
-    tmp->tk = sym;
+    tmp->gs = sym;
     tmp->parent = parent;
     tmp->gRuleIndex = gRuleIndex;
     return tmp;
@@ -447,7 +447,7 @@ void popSafe(treeNodePtr_stack **parseStack){
     topNode->tkinfo = NULL;
     topNode->child = NULL;
     if(ERROR_RECOVERY_VERBOSE)
-        fprintf(stderr,"Safely popping '%s'\n",inverseMappingTable[topNode->tk]);
+        fprintf(stderr,"Safely popping '%s'\n",inverseMappingTable[topNode->gs]);
     treeNodePtr_stack_pop(*parseStack);
 }
 void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr, tokenInfo **tkinfo, bool *eosEncountered){
@@ -463,7 +463,7 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
         memset(&tmp,0,sizeof(error));
         tmp.errType = STACK_NON_EMPTY;
         foundNewError(tmp);
-        while(topNode->tk != g_EOS){
+        while(topNode->gs != g_EOS){
             popSafe(parseStack);
             topNode = treeNodePtr_stack_top(*parseStack);
         }
@@ -474,7 +474,7 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
         tokenInfo *tmpe = (tokenInfo *) (malloc(sizeof(tokenInfo)));
         *tmpe = *(*tkinfo);
         e.edata.se.tkinfo = tmpe;
-        e.edata.se.stackTopSymbol = topNode->tk;
+        e.edata.se.stackTopSymbol = topNode->gs;
         foundNewError(e);
         // can skip tokens in the input
         // skipping tokens code goes here
@@ -490,7 +490,7 @@ void recoverNonTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFileP
          * if pTb[M,a] is -1, skip 'a' from input (i.e. getNextToken)
          * if pTb[M,a] is -2, popSafe from the stack (don't get next token)
          */
-        if(parseTable[ntx(topNode->tk)][(*tkinfo)->type] == ERROR_RECOVERY_SKIP){
+        if(parseTable[ntx(topNode->gs)][(*tkinfo)->type] == ERROR_RECOVERY_SKIP){
             // the following wrapping if might be unnecessary since whenever we are here this if would always result in 'true'
             if(ERROR_RECOVERY_VERBOSE)
                 fprintf(stderr,"Skipping token '%s'.\n",(*tkinfo)->lexeme);
@@ -521,7 +521,7 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
         memset(&tmp,0,sizeof(error));
         tmp.errType = STACK_NON_EMPTY;
         foundNewError(tmp);
-        while(topNode->tk != g_EOS){
+        while(topNode->gs != g_EOS){
             popSafe(parseStack);
             topNode = treeNodePtr_stack_top(*parseStack);
         }
@@ -533,9 +533,9 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
     tokenInfo *tmpe = (tokenInfo *) (malloc(sizeof(tokenInfo)));
     *tmpe = *(*tkinfo);
     e.edata.se.tkinfo = tmpe;
-    e.edata.se.stackTopSymbol = topNode->tk;
+    e.edata.se.stackTopSymbol = topNode->gs;
     foundNewError(e);
-    if(topNode->tk == g_EOS){
+    if(topNode->gs == g_EOS){
         /* If the terminal on top of stck is $, we must end parsing
          * Making 'eosEncountered' as 'true' and returning takes care of terminating the parsing
          * We don't need to pop from parseStack in this case
@@ -601,12 +601,12 @@ treeNode *parseInputSourceCode(char *src){
         gSymbol sym = eosEncountered ? g_EOS : (tkinfo->type);
         treeNode *topNode = treeNodePtr_stack_top(parseStack);
 
-        if(topNode->tk == g_EPS){
+        if(topNode->gs == g_EPS){
             topNode->tkinfo = NULL;
             topNode->child = NULL;
             treeNodePtr_stack_pop(parseStack);
         }
-        else if(topNode->tk == sym){
+        else if(topNode->gs == sym){
             if(eosEncountered)
                 break;
             topNode->tkinfo = tkinfo;
@@ -617,14 +617,14 @@ treeNode *parseInputSourceCode(char *src){
                 eosEncountered = true;
             }
         }
-        else if(topNode->tk <= g_EOS){
+        else if(topNode->gs <= g_EOS){
             //topNode is not a non Terminal
             errorFree = false;
             recoverTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
         }
         else{
             //topNode is a non Terminal
-            int ruleId = parseTable[ntx(topNode->tk)][sym];
+            int ruleId = parseTable[ntx(topNode->gs)][sym];
             if(ruleId == ERROR_RECOVERY_SKIP || ruleId == ERROR_RECOVERY_POP){
                 //Invalid Combination
                 errorFree = false;
@@ -635,7 +635,7 @@ treeNode *parseInputSourceCode(char *src){
                 grammarNode gNode = grammarArr[ruleId];
                 topNode->gRuleIndex = gNode.gRuleIndex;
 
-                if(gNode.lhs != topNode->tk){
+                if(gNode.lhs != topNode->gs){
                     //Report Unexpected Error
                     fprintf(stderr,"SYNTAX ANALYSER, Unexpected Error: Either the grammar was incorrectly built or the parse table was wrongly computed.\n");
                 }
@@ -775,22 +775,22 @@ void printTreeNode(treeNode *ptr, FILE *fp){
 
     fprintf(fp,"%-21d", ptr->gRuleIndex);
 
-    if(isLeaf && ptr->tk != g_EPS && ptr->tkinfo != NULL){
+    if(isLeaf && ptr->gs != g_EPS && ptr->tkinfo != NULL){
         fprintf(fp,"%-21s",ptr->tkinfo->lexeme);
         fprintf(fp,"%-15u",ptr->tkinfo->lno);
     }
     else
         fprintf(fp,"%-21s%-15s",blank,blank);
 
-    if(isTerminal(ptr->tk))
-        fprintf(fp,"%-25s",inverseMappingTable[ptr->tk]);
+    if(isTerminal(ptr->gs))
+        fprintf(fp,"%-25s",inverseMappingTable[ptr->gs]);
     else
         fprintf(fp,"%-25s",blank);
 
-    if(ptr->tk == g_NUM){
+    if(ptr->gs == g_NUM){
         fprintf(fp,"%-15d",(ptr->tkinfo->value).num);
     }
-    else if(ptr->tk == g_RNUM){
+    else if(ptr->gs == g_RNUM){
         fprintf(fp,"%-15f",(ptr->tkinfo->value).rnum);
     }
     else{
@@ -800,7 +800,7 @@ void printTreeNode(treeNode *ptr, FILE *fp){
     if(ptr->parent == NULL)
         fprintf(fp,"%-25s","ROOT");
     else
-        fprintf(fp,"%-25s",inverseMappingTable[ptr->parent->tk]);
+        fprintf(fp,"%-25s",inverseMappingTable[ptr->parent->gs]);
 
     if(isLeaf){
         fprintf(fp,"%-10s","yes");
@@ -808,7 +808,7 @@ void printTreeNode(treeNode *ptr, FILE *fp){
     }
     else{
         fprintf(fp,"%-10s","no");
-        fprintf(fp,"%s\n",inverseMappingTable[ptr->tk]);
+        fprintf(fp,"%s\n",inverseMappingTable[ptr->gs]);
     }
 
 
@@ -855,10 +855,10 @@ void putAllChildrenInSt(treeNode *child, treeNodePtr_stack *s1){
 
 void printInfoTreeNode(treeNode *ptr){
     if(ptr->parent == NULL){
-        printf("(NULL->%s)\t",inverseMappingTable[ptr->tk]);
+        printf("(NULL->%s)\t",inverseMappingTable[ptr->gs]);
     }
     else
-        printf("(%s->%s)\t",inverseMappingTable[ptr->parent->tk],inverseMappingTable[ptr->tk]);
+        printf("(%s->%s)\t",inverseMappingTable[ptr->parent->gs],inverseMappingTable[ptr->gs]);
 }
 
 void printTreeOld(treeNode *root){
@@ -888,7 +888,7 @@ void printTreeOld(treeNode *root){
             putAllChildrenInSt(curr->child,s1);
             printTreeNode(curr,fpt);
             printInfoTreeNode(curr);
-//            printf("%d\t",curr->tk);
+//            printf("%d\t",curr->gs);
             treeNodePtr_stack_pop(s2);
         }
         printf("\n\n");
