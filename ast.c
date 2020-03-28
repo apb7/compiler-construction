@@ -174,6 +174,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 25:
             return buildASTTree(parseNodeRoot->child);
 
+        // Doubt(apb7): Do we need a node for <moduleDef> ?
         // <moduleDef> -> START <statements> END 
         case 26:
         {
@@ -184,7 +185,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             if(AST_child == NULL)
                 return NULL;
-            
+
             ASTNode *newNode = createASTNode(parseNodeRoot);
             AST_child->parent = newNode;
             newNode->child = AST_child;
@@ -247,7 +248,8 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 33:
             return buildASTTree(parseNodeRoot->child);
 
-        // <ioStmt> -> GET_VALUE BO ID BC SEMICOL 
+        // For design uniformity in <statement>, create <ioStmt> node.
+        // <ioStmt> -> GET_VALUE BO ID BC SEMICOL
         case 34:
         {
             ASTNode *newNode = createASTNode(parseNodeRoot);
@@ -277,11 +279,9 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return newNode;
         }
 
-        // <boolConstt> -> TRUE
-        case 36:
-        // <boolConstt> -> FALSE
-        case 37:
-            return create_self_node_with_single_child(parseNodeRoot);
+        case 36: // <boolConstt> -> TRUE
+        case 37: // <boolConstt> -> FALSE
+            return buildASTTree(parseNodeRoot->child);
 
         // <var_id_num> -> ID <whichId>
         case 38:
@@ -304,15 +304,14 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return newNode;
         }
 
-        // <var_id_num> -> NUM
-        case 39:
-        // <var_id_num> -> RNUM
-        case 40:
-        // <var> -> <var_id_num> 
-        case 41:
-        // <var> -> <boolConstt> 
-        case 42:
+        // Keep <var_id_num> node for uniformity.
+        case 39: // <var_id_num> -> NUM
+        case 40: // <var_id_num> -> RNUM
             return create_self_node_with_single_child(parseNodeRoot);
+
+        case 41: // <var> -> <var_id_num>
+        case 42: // <var> -> <boolConstt>
+            return buildASTTree(parseNodeRoot->child);
 
         // <whichId> -> SQBO <index> SQBC
         case 43:
@@ -409,7 +408,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             parseNode *parse_child = parseNodeRoot->child; // ID
             ASTNode *AST_child = buildASTTree(parse_child);
-            
+
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
@@ -436,7 +435,206 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return newNode;
         }
 
-/* 58 .. 93 */
+/* 60 .. 93 */
+        // <expression> -> <arithmeticOrBooleanExpr>
+        case 60:
+        // <expression> -> <U>
+        case 61:
+            return buildASTTree(parseNodeRoot->child);
+
+        // <U> -> <unary_op> <new_NT>
+        case 62:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parseChild = parseNodeRoot->child; // <unary_op>
+            ASTNode *ASTChild = buildASTTree(parseChild);
+
+            ASTChild->parent = newNode;
+            newNode->child = ASTChild;
+
+            parseChild = parseChild->next; // <new_NT>
+            ASTChild->next = buildASTTree(parseChild);
+            ASTChild = ASTChild->next;
+            ASTChild->parent = newNode;
+
+            return newNode;
+        }
+
+        // <new_NT> -> BO <arithmeticExpr> BC
+        case 63:
+            return buildASTTree((parseNodeRoot->child)->next);
+
+        case 64: // <new_NT> ->  <var_id_num>
+        case 65: // <unary_op> -> PLUS
+        case 66: // <unary_op> -> MINUS
+            return buildASTTree(parseNodeRoot->child);
+
+/*
+
+<arithmeticOrBooleanExpr> -> <AnyTerm> <N7>
+arithmeticOrBooleanExpr.addr = N7.syn
+N7.inh = AnyTerm.addr
+
+<N7> -> <logicalOp> <AnyTerm> <N71>
+N71.inh = new Node(logicalOp.addr, N7.inh, AnyTerm.addr)
+N7.syn = N71.syn
+
+<N7> -> ε
+N7.syn = N7.inh
+
+<AnyTerm> -> <arithmeticExpr> <N8>
+AnyTerm.addr = N8.syn
+N8.inh = arithmeticExpr.addr
+
+<AnyTerm> -> <boolConstt>
+AnyTerm.addr = boolConstt.addr
+
+<N8> -> <relationalOp> <arithmeticExpr>
+N8.syn = new Node(relationalOp.addr, arithmeticExpr.addr)
+
+<N8> -> ε
+N8.syn = N8.inh
+
+<arithmeticExpr> -> <term> <N4>
+arithmeticExpr.addr = N4.syn
+N4.inh = term.addr
+
+<N4> -> <op1> <term> <N41>
+N41.inh = new Node(op1.addr, N4.inh, term.addr)
+N4.syn = N41.syn
+
+<N4> -> ε
+N4.addr = NULL
+
+<term> -> <factor> <N5>
+term.addr = N5.syn
+N5.inh = factor.addr
+
+<N5> -> <op2> <factor> <N51>
+N51.inh = new Node(op2.addr, N5.inh, factor.addr)
+N5.syn = N51.syn
+
+<N5> -> ε
+N5.syn = N5.inh
+
+<factor> -> BO <arithmeticOrBooleanExpr> BC
+factor.addr = arithmeticOrBooleanExpr.addr
+
+<factor> -> <var_id_num>
+factor.addr = var_id_num.addr
+
+<op1> -> PLUS
+op1.addr = new Leaf(PLUS.value)
+
+<op1> -> MINUS
+op1.addr = new Leaf(MINUS.value)
+
+<op2> -> MUL
+op2.addr = new Leaf(MUL.value)
+
+<op2> -> DIV
+op2.addr = new Leaf(DIV.value)
+
+<logicalOp> -> AND
+logicalOp.addr = new Leaf(AND.value)
+
+<logicalOp> -> OR
+logicalOp.addr = new Leaf(OR.value)
+
+<relationalOp> -> LT
+relationalOp.addr = new Leaf(LT.value)
+
+<relationalOp> -> LE
+relationalOp.addr = new Leaf(LE.value)
+
+<relationalOp> -> GT
+relationalOp.addr = new Leaf(GT.value)
+
+<relationalOp> -> GE
+relationalOp.addr = new Leaf(GE.value)
+
+<relationalOp> -> EQ
+relationalOp.addr = new Leaf(EQ.value)
+
+<relationalOp> -> NE
+relationalOp.addr = new Leaf(NE.value)
+
+*/
+
+        // <arithmeticExpr> -> <term> <N4>
+        // <N4> -> <op1> <term> <N41>
+        // <N4> -> ε
+        // case 74:
+        // {
+        //     parseNode* parseChild = parseNodeRoot->child; // <term>
+        //     ASTNode* ASTChild = buildASTTree(parseChild);
+
+        //     parseChild = parseChild->next; // N4
+        //     parseNode* parseGrandChild = parseChild->child; // Either <op1> or EPS
+
+        //     ASTNode* newNode = buildASTTree(parseGrandChild);
+
+        //     if(newNode == NULL) return ASTChild; // EPS
+
+        //     // <op1>
+        //     ASTChild->parent = newNode;
+        //     newNode->child = ASTChild;
+
+        //     parseGrandChild = parseGrandChild->next; // <term>
+        //     ASTChild->next = buildASTTree(parseGrandChild);
+        //     ASTChild = ASTChild->next;
+        //     ASTChild->parent = newNode;
+
+        //     ASTChild->next = buildASTTree(parseGrandChild->next); // <N41>
+
+
+        // }
+
+        case 74: // <arithmeticExpr> -> <term> <N4>
+        {
+            ASTNode* AST_N4 = buildASTTree((parseNodeRoot->child)->next);
+            return AST_N4;
+        }
+
+        case 75: // <N4> -> <op1> <term> <N41>
+        {
+            ASTNode* AST_N41 = buildASTTree(parseNodeRoot->child->next->next); // <N41>
+
+            ASTNode* ASTOp1 = buildASTTree(parseNodeRoot->child);
+            ASTNode* ASTterm1 = parseNodeRoot->parent->child == g_term ? buildASTTree(parseNodeRoot->parent->child) : NULL;
+            ASTNode* ASTterm2 = buildASTTree(parseNodeRoot->child->next);
+
+            if(ASTterm1) {
+                ASTOp1->child = ASTterm1;
+                ASTterm1->parent = ASTOp1;
+                ASTterm1->next = ASTterm2;
+                ASTterm2->parent = ASTOp1;
+            }
+            else {
+                ASTOp1->child = ASTterm2;
+                ASTterm2->parent = ASTOp1;
+            }
+
+            if(AST_N41 == NULL)
+                return ASTOp1;
+
+            ASTNode* cur = AST_N41;
+
+            while(cur->child == g_op1)
+                cur = cur->child;
+
+            ASTOp1->next = cur->child;
+            ASTOp1->parent = cur;
+            cur->child = ASTOp1;
+
+            return AST_N41;
+        }
+
+        case 76:
+        {
+            return NULL;
+        }
 
         // <declareStmt> -> DECLARE <idList> COLON <dataType> SEMICOL
         case 94:
@@ -550,6 +748,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return buildASTTree(parseNodeRoot->child);
 
         // <default> -> DEFAULT COLON <statements> BREAK SEMICOL
+        // Keeping a <default> node will help in distinguishing it later.
         case 102:
         {
             ASTNode *newNode = createASTNode(parseNodeRoot);
