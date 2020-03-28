@@ -7,27 +7,28 @@
 
 extern char *inverseMappingTable[];
 
-ASTNode* buildASTTree(parseNode* root);
+ASTNode* buildASTTree(parseNode* parseNodeRoot);
 
 
 ASTNode* createASTNode(parseNode *parseNode){
     ASTNode *newNode = malloc(sizeof(ASTNode));
 
-    newNode->gs = parseNode->tk;
+    newNode->gs = parseNode->gs;
 
     // TODO : copy token if its being freed
-    newNode->tk = parseNode->tkinfo;
+    newNode->tkInfo = parseNode->tkinfo;
     newNode->next = NULL;
     newNode->child = NULL;
     newNode->parent = NULL;
 }
 
 
-ASTNode* create_self_node_with_single_child(parseNode *root) {
-    
-    ASTNode *newNode = createASTNode(root);
+ASTNode* create_self_node_with_single_child(parseNode *parseNodeRoot) {
 
-    ASTNode *AST_child = buildASTTree(root->child);
+    ASTNode *newNode = createASTNode(parseNodeRoot);
+
+    ASTNode *AST_child = buildASTTree(parseNodeRoot->child);
+    // Beware of SegFault. Use this function carefully.
     AST_child->parent = newNode;
     newNode->child = AST_child;
 
@@ -35,24 +36,24 @@ ASTNode* create_self_node_with_single_child(parseNode *root) {
 }
 
 
-ASTNode* buildASTTree(parseNode* root) {
+ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
-    if (root == NULL) {
+    if (parseNodeRoot == NULL) {
         printf("NULL ptr provided\n");
         return NULL;
     }
-    
-    printf("Rule %d %s\n", root->gRuleIndex + 2, inverseMappingTable[ root->tk ]);
 
-    switch(root->gRuleIndex + 2) {
+    printf("Rule %d %s\n", parseNodeRoot->gRuleIndex + 2, inverseMappingTable[ parseNodeRoot->gs ]);
+
+    switch(parseNodeRoot->gRuleIndex + 2) {
 
         // leaf node, either terminal or EPS
         case 1:
         {
-            if(root->tk == g_EPS)
+            if(parseNodeRoot->gs == g_EPS)
                 return NULL;
 
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
             return newNode;
         }
 
@@ -60,7 +61,7 @@ ASTNode* buildASTTree(parseNode* root) {
         case 2:
         {
             ASTNode *AST_child;
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
 
             do {
                 AST_child = buildASTTree(parse_child);
@@ -71,7 +72,7 @@ ASTNode* buildASTTree(parseNode* root) {
             if (parse_child == NULL)
                 return NULL;
 
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
@@ -97,7 +98,7 @@ ASTNode* buildASTTree(parseNode* root) {
         // <driverModule> -> DRIVERDEF DRIVER PROGRAM DRIVERENDDEF <moduleDef>
         case 8:
         {
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
 
             while(parse_child->next != NULL) {
                 parse_child = parse_child->next;
@@ -108,7 +109,7 @@ ASTNode* buildASTTree(parseNode* root) {
             if(AST_child == NULL)
                 return NULL;
             
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
@@ -123,14 +124,14 @@ ASTNode* buildASTTree(parseNode* root) {
         case 19:
         // <dataType> -> BOOLEAN
         case 20:
-            return create_self_node_with_single_child(root);
+            return create_self_node_with_single_child(parseNodeRoot);
 
         // <dataType> -> ARRAY SQBO <range_arrays> SQBC OF <type>
         case 21:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child->next->next; // <range_arrays>
+            parseNode *parse_child = parseNodeRoot->child->next->next; // <range_arrays>
 
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
@@ -148,9 +149,9 @@ ASTNode* buildASTTree(parseNode* root) {
         // <range_arrays> -> <index> RANGEOP <index>
         case 22:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child; // <index> 1
+            parseNode *parse_child = parseNodeRoot->child; // <index> 1
 
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
@@ -171,12 +172,12 @@ ASTNode* buildASTTree(parseNode* root) {
         case 24:
         // <type> -> BOOLEAN
         case 25:
-            return buildASTTree(root->child);
+            return buildASTTree(parseNodeRoot->child);
 
         // <moduleDef> -> START <statements> END 
         case 26:
         {
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next;
 
             ASTNode *AST_child = buildASTTree(parse_child);
@@ -184,7 +185,7 @@ ASTNode* buildASTTree(parseNode* root) {
             if(AST_child == NULL)
                 return NULL;
             
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
@@ -194,12 +195,12 @@ ASTNode* buildASTTree(parseNode* root) {
         // <statements> -> <statement> <statements>
         case 27:
         {
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
 
             ASTNode *AST_child = buildASTTree(parse_child);
             
             // Statement can't return NULL 
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
@@ -208,11 +209,11 @@ ASTNode* buildASTTree(parseNode* root) {
             // List of all statements until EPS encountered
             while(parse_child->gRuleIndex + 2 != 28) {
 
-                //printf("LOOP1 %s %d \n", inverseMappingTable[ parse_child->tk], parse_child->gRuleIndex);
+                //printf("LOOP1 %s %d \n", inverseMappingTable[ parse_child->gs], parse_child->gRuleIndex);
 
                 parse_child = parse_child->child;
 
-                //printf("LOOP2 %s %d \n", inverseMappingTable[ parse_child->tk], parse_child->gRuleIndex);
+                //printf("LOOP2 %s %d \n", inverseMappingTable[ parse_child->gs], parse_child->gRuleIndex);
 
                 AST_child->next = buildASTTree(parse_child);
                 AST_child = AST_child->next;
@@ -244,14 +245,14 @@ ASTNode* buildASTTree(parseNode* root) {
         case 32:
         // <statement> -> <iterativeStmt>
         case 33:
-            return buildASTTree(root->child);
+            return buildASTTree(parseNodeRoot->child);
 
         // <ioStmt> -> GET_VALUE BO ID BC SEMICOL 
         case 34:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next->next;
 
             ASTNode *AST_child = buildASTTree(parse_child);
@@ -264,9 +265,9 @@ ASTNode* buildASTTree(parseNode* root) {
         // <ioStmt> -> PRINT BO <var> BC SEMICOL
         case 35:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next->next;
 
             ASTNode *AST_child = buildASTTree(parse_child);
@@ -280,14 +281,14 @@ ASTNode* buildASTTree(parseNode* root) {
         case 36:
         // <boolConstt> -> FALSE
         case 37:
-            return create_self_node_with_single_child(root);
+            return create_self_node_with_single_child(parseNodeRoot);
 
         // <var_id_num> -> ID <whichId>
         case 38:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
 
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
@@ -311,11 +312,11 @@ ASTNode* buildASTTree(parseNode* root) {
         case 41:
         // <var> -> <boolConstt> 
         case 42:
-            return create_self_node_with_single_child(root);
+            return create_self_node_with_single_child(parseNodeRoot);
 
         // <whichId> -> SQBO <index> SQBC
         case 43:
-            return buildASTTree(root->child->next);
+            return buildASTTree(parseNodeRoot->child->next);
 
         // <whichId> -> ε
         case 44:
@@ -325,8 +326,8 @@ ASTNode* buildASTTree(parseNode* root) {
         case 45:
         // <simpleStmt> -> <moduleReuseStmt>
         case 46:
-            return create_self_node_with_single_child(root);
-        
+            return create_self_node_with_single_child(parseNodeRoot);
+
 // TODO : assignment statements
         // <assignmentStmt> -> ID <whichStmt>
         case 47:
@@ -340,19 +341,18 @@ ASTNode* buildASTTree(parseNode* root) {
         case 52:
         // <index> -> ID
         case 53:
-            return buildASTTree(root->child);
+            return buildASTTree(parseNodeRoot->child);
 
 /* TODO 54 55 56 */
-        
 
         // <idList> -> ID <N3>
         // <N3> -> COMMA ID <N3>
         // <N3> -> ε
         case 57:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child; // ID
+            parseNode *parse_child = parseNodeRoot->child; // ID
             ASTNode *AST_child = buildASTTree(parse_child);
             
             AST_child->parent = newNode;
@@ -386,9 +386,9 @@ ASTNode* buildASTTree(parseNode* root) {
         // <declareStmt> -> DECLARE <idList> COLON <dataType> SEMICOL
         case 94:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next; // <idList>
 
             ASTNode *AST_child = buildASTTree(parse_child);
@@ -407,9 +407,9 @@ ASTNode* buildASTTree(parseNode* root) {
         // <condionalStmt> -> SWITCH BO ID BC START <caseStmts> <default> END
         case 95:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next->next; // ID
 
             ASTNode *AST_child = buildASTTree(parse_child);
@@ -439,9 +439,9 @@ ASTNode* buildASTTree(parseNode* root) {
         // <N9> -> EPS
         case 96:
         {
-            ASTNode *newNode = createASTNode(root); // <caseStmts>
+            ASTNode *newNode = createASTNode(parseNodeRoot); // <caseStmts>
 
-            parseNode *parse_child = root->child->next; // <value>
+            parseNode *parse_child = parseNodeRoot->child->next; // <value>
             ASTNode *AST_child = buildASTTree(parse_child);
             
             AST_child->parent = newNode;
@@ -492,14 +492,14 @@ ASTNode* buildASTTree(parseNode* root) {
         case 100:
         // <value> -> FALSE
         case 101:
-            return buildASTTree(root->child);
+            return buildASTTree(parseNodeRoot->child);
 
         // <default> -> DEFAULT COLON <statements> BREAK SEMICOL
         case 102:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child;
+            parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next->next; // <statements>
 
             ASTNode *AST_child = buildASTTree(parse_child);
@@ -509,7 +509,7 @@ ASTNode* buildASTTree(parseNode* root) {
                 newNode->child = AST_child;
             }
 
-            return newNode;     
+            return newNode;
         }
 
         // <default> -> ε
@@ -521,9 +521,9 @@ ASTNode* buildASTTree(parseNode* root) {
         // <range> -> NUM RANGEOP NUM
         case 106:
         {
-            ASTNode *newNode = createASTNode(root);
+            ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = root->child; // NUM 1
+            parseNode *parse_child = parseNodeRoot->child; // NUM 1
 
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
@@ -543,26 +543,26 @@ idlist
 */
         default:
         {
-            printf("%d entered here\n", root->gRuleIndex + 2);
+            printf("%d entered here\n", parseNodeRoot->gRuleIndex + 2);
             return NULL;
         }
     }
 }
 
-void print_ASTTree(ASTNode *root) {
+void print_ASTTree(ASTNode *ASTNodeRoot) {
 
-    if(root == NULL)
+    if(ASTNodeRoot == NULL)
     {
         printf("NULL\n");
         return;
     }
 
-    if (root->child == NULL)
+    if (ASTNodeRoot->child == NULL)
         return;
 
-    printf("%s \n", inverseMappingTable[root->gs]);
+    printf("%s \n", inverseMappingTable[ASTNodeRoot->gs]);
 
-    ASTNode *child = root->child;
+    ASTNode *child = ASTNodeRoot->child;
 
     while(child!=NULL) {
         printf("%s\t", inverseMappingTable[child->gs]);
@@ -570,7 +570,7 @@ void print_ASTTree(ASTNode *root) {
     }
     printf("\n\n");
 
-    child = root->child;
+    child = ASTNodeRoot->child;
 
     while(child!=NULL) {
         print_ASTTree(child);
@@ -578,24 +578,25 @@ void print_ASTTree(ASTNode *root) {
     }
 }
 
-void print_ParseTree(parseNode *root) {
+void print_ParseTree(parseNode *parseNodeRoot) {
 
-    if(root == NULL)
+    if(parseNodeRoot == NULL)
     {
         printf("NULL\n");
         return;
     }
-    printf("%s \n", inverseMappingTable[root->tk]);
 
-    parseNode    *child = root->child;
+    printf("%s \n", inverseMappingTable[parseNodeRoot->gs]);
+
+    parseNode *child = parseNodeRoot->child;
 
     while(child!=NULL) {
-        printf("%s\t", inverseMappingTable[child->tk]);
+        printf("%s\t", inverseMappingTable[child->gs]);
         child = child->next;
     }
     printf("\n\n");
 
-    child = root->child;
+    child = parseNodeRoot->child;
 
     while(child!=NULL) {
         print_ParseTree(child);

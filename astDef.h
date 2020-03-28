@@ -8,13 +8,14 @@
 #ifndef ASTDEF_H
 #define ASTDEF_H
 
-#define  parseNode treeNode
 #include "parserDef.h"
+
+typedef treeNode parseNode;
 
 unsigned int number_of_ASTNodes;
 struct ASTNode {
     gSymbol gs;
-    tokenInfo *tk;
+    tokenInfo *tkInfo;
     struct ASTNode *next; // Sibling of the ASTNode.
     struct ASTNode *child; // Child of the ASTNode.
     struct ASTNode *parent; // Parent of the ASTNode.

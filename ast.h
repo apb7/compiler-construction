@@ -11,10 +11,10 @@
 #include "astDef.h"
 #include <stdbool.h>
 
-ASTNode* createASTNode(ASTNode *parent, treeNode *trNode);
-ASTNode* buildASTTree(treeNode* trNodeRoot);
+ASTNode* createASTNode(ASTNode *parent, parseNode *parseNode);
+ASTNode* buildASTTree(parseNode *parseNodeRoot);
 
-void print_ASTTree(ASTNode *root);
+void print_ASTTree(ASTNode *ASTNoderoot);
 
 
 #endif
