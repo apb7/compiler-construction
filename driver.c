@@ -17,6 +17,9 @@
 #include "lexer.h"
 #include "errorPtr_stack.h"
 
+#include "astDef.h"
+#include "ast.h"
+
 // Variables defined in lexer.c
 extern unsigned int fp;
 extern unsigned int bp;
@@ -136,6 +139,18 @@ int main(int argc, char *argv[]) {
 
                 printf("Total CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
                 destroyTree(root);
+            }
+            break;
+
+            case '5':
+            {
+                // Initialise lexer every time.
+                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
+
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                print_ParseTree(root);
+                ASTNode *ASTroot =buildASTTree(root);
+                print_ASTTree(ASTroot);
             }
             break;
 

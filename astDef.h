@@ -8,6 +8,7 @@
 #ifndef ASTDEF_H
 #define ASTDEF_H
 
+#define  parseNode treeNode
 #include "parserDef.h"
 
 unsigned int number_of_ASTNodes;

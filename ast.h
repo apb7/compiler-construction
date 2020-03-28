@@ -14,4 +14,7 @@
 ASTNode* createASTNode(ASTNode *parent, treeNode *trNode);
 ASTNode* buildASTTree(treeNode* trNodeRoot);
 
+void print_ASTTree(ASTNode *root);
+
+
 #endif
