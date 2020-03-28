@@ -460,7 +460,7 @@ ASTNode* buildASTTree(parseNode* root) {
             // List of all IDS until EPS encountered
             while(parse_child->gRuleIndex + 2 != 98) {
 
-                parseNode *parse_child = root->child->next; // <value>
+                parse_child = parse_child->child->next; // <value>
 
                 AST_child->next = buildASTTree(parse_child);
                 AST_child = AST_child->next;
@@ -556,11 +556,15 @@ void print_ASTTree(ASTNode *root) {
         printf("NULL\n");
         return;
     }
+
+    if (root->child == NULL)
+        return;
+
     printf("%s \n", inverseMappingTable[root->gs]);
 
     ASTNode *child = root->child;
 
-    while(child!=NULL){
+    while(child!=NULL) {
         printf("%s\t", inverseMappingTable[child->gs]);
         child = child->next;
     }
@@ -568,7 +572,7 @@ void print_ASTTree(ASTNode *root) {
 
     child = root->child;
 
-    while(child!=NULL){
+    while(child!=NULL) {
         print_ASTTree(child);
         child = child->next;
     }
@@ -585,7 +589,7 @@ void print_ParseTree(parseNode *root) {
 
     parseNode    *child = root->child;
 
-    while(child!=NULL){
+    while(child!=NULL) {
         printf("%s\t", inverseMappingTable[child->tk]);
         child = child->next;
     }
@@ -593,7 +597,7 @@ void print_ParseTree(parseNode *root) {
 
     child = root->child;
 
-    while(child!=NULL){
+    while(child!=NULL) {
         print_ParseTree(child);
         child = child->next;
     }
