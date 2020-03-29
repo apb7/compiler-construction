@@ -16,7 +16,9 @@ ASTNode* createASTNode(parseNode *parseNode){
     newNode->gs = parseNode->gs;
 
     // TODO : copy token if its being freed
-    newNode->tkInfo = parseNode->tkinfo;
+    newNode->tkinfo = parseNode->tkinfo;
+    newNode->start_line_no = -1;
+    newNode->end_line_no = -1;
     newNode->next = NULL;
     newNode->child = NULL;
     newNode->parent = NULL;
@@ -94,12 +96,6 @@ ASTNode* simple_recursive_list_non_empty(parseNode *parseNodeRoot, int stop_cond
         AST_child->parent = newNode;
 
         parse_child = parse_child->next; // <elems>
-        
-        // TO REMOVE!!!
-        if(parse_child == NULL) {
-            printf("Error within rule %d\n", stop_condition);
-            return NULL;
-        }
     }
 
     return newNode;
@@ -113,7 +109,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         return NULL;
     }
 
-    printf("Rule %d %s\n", parseNodeRoot->gRuleIndex + 2, inverseMappingTable[ parseNodeRoot->gs ]);
+    // printf("Rule %d %s\n", parseNodeRoot->gRuleIndex + 2, inverseMappingTable[ parseNodeRoot->gs ]);
 
     switch(parseNodeRoot->gRuleIndex + 2) {
 
@@ -414,17 +410,25 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         // <moduleDef> -> START <statements> END 
         case 26:
         {
-            parseNode *parse_child = parseNodeRoot->child;
-            parse_child = parse_child->next;
+            parseNode *parse_child = parseNodeRoot->child->next; // <statements>
 
-            ASTNode *AST_child = buildASTTree(parse_child);
+            ASTNode *AST_grandchild = buildASTTree(parse_child);
 
-            if(AST_child == NULL)
+            if(AST_grandchild == NULL)
                 return NULL;
 
             ASTNode *newNode = createASTNode(parseNodeRoot);
+            parse_child = parseNodeRoot->child; // START
+
+            ASTNode *AST_child = buildASTTree(parse_child);
+
             AST_child->parent = newNode;
             newNode->child = AST_child;
+            AST_child->start_line_no = AST_child->tkinfo->lno;
+            AST_child->end_line_no = parse_child->next->next->tkinfo->lno;
+
+            AST_grandchild->parent = AST_child;
+            AST_child->child = AST_grandchild;
 
             return newNode;
         }
@@ -553,7 +557,8 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             parse_child = parse_child->next; // <whichStmt>
 
             ASTNode *AST_child = buildASTTree(parse_child); // either <lvalueIDStmt> or <lvalueARRStmt>
-            printf("successt");
+            newNode->child = AST_child;
+            AST_child->parent = newNode;
 
             ASTNode* AST_grandgrandchild = AST_child->child->child;
             AST_child->child->child = AST_lhs;
@@ -578,12 +583,10 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
             newNode->child = AST_child;
-            printf("success");
 
             parse_child = parse_child->next; // <expression>
             
             ASTNode *AST_grandchild = buildASTTree(parse_child);
-            printf("success");
 
             AST_child->child = AST_grandchild;
             AST_grandchild->parent = AST_child;
@@ -608,7 +611,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             AST_child->child = AST_grandchild;
             AST_grandchild->parent = AST_child;
 
-            parse_child = parse_child->next->next->next->next; // <expression>
+            parse_child = parse_child->next->next->next; // <expression>
             
             AST_grandchild->next = buildASTTree(parse_child);
             AST_grandchild = AST_grandchild->next;
@@ -755,8 +758,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 70: // <AnyTerm> -> <arithmeticExpr> <N8>
         case 74: // <arithmeticExpr> -> <term> <N4>
         case 77: // <term> -> <factor> <N5>
-            return buildASTTree((parseNodeRoot->child)->next);
-
+            return (parseNodeRoot->child->next->child->gs == g_EPS? buildASTTree(parseNodeRoot->child) : buildASTTree((parseNodeRoot->child)->next));
 
         case 68: // <N7> -> <logicalOp> <AnyTerm> <N71>
             return createASTNodeForRightRecursiveRule(parseNodeRoot, g_anyTerm, g_logicalOp);
@@ -844,19 +846,28 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
-            parse_child = parse_child->next->next->next; // <caseStmts>
+            parse_child = parse_child->next->next; // START
+
             ASTNode *AST_sibling = buildASTTree(parse_child);
-
-            AST_child->next = AST_sibling;
             AST_sibling->parent = newNode;
+            AST_sibling->start_line_no = AST_sibling->tkinfo->lno;
+            AST_sibling->end_line_no = parse_child->next->next->next->tkinfo->lno;
+            AST_child->next = AST_sibling;
 
-            AST_child = AST_sibling;
+            AST_child = AST_child->next;
+
+            parse_child = parse_child->next; // <caseStmts>
+
+            ASTNode *AST_grandchild = buildASTTree(parse_child);
+            AST_grandchild->parent = AST_child;
+            AST_child->child = AST_grandchild;
+
             parse_child = parse_child->next; // <default>
-            AST_sibling = buildASTTree(parse_child);
+            AST_grandchild->next = buildASTTree(parse_child);
 
-            if (AST_sibling) {
-                AST_child->next = AST_sibling;
-                AST_sibling->parent = newNode;
+            if (AST_grandchild->next) {
+                AST_grandchild = AST_grandchild->next;
+                AST_grandchild->parent = AST_child;
             }
 
             return newNode;
@@ -975,6 +986,8 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             AST_sibling = buildASTTree(parse_child);
             AST_sibling->parent = newNode;
+            AST_sibling->start_line_no = AST_sibling->tkinfo->lno;
+            AST_sibling->end_line_no = parse_child->next->next->tkinfo->lno;
             AST_child->next = AST_sibling;
 
             parse_child = parse_child->next; // <statements>
@@ -1008,6 +1021,8 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             AST_sibling = buildASTTree(parse_child);
             AST_sibling->parent = newNode;
+            AST_sibling->start_line_no = AST_sibling->tkinfo->lno;
+            AST_sibling->end_line_no = parse_child->next->next->tkinfo->lno;
             AST_child->next = AST_sibling;
 
             parse_child = parse_child->next; // <statements>
@@ -1084,6 +1099,9 @@ void print_ParseTree(parseNode *parseNodeRoot) {
         printf("NULL\n");
         return;
     }
+
+    if(parseNodeRoot->child == NULL)
+        return;
 
     printf("%s \n", inverseMappingTable[parseNodeRoot->gs]);
 

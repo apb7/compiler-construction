@@ -15,7 +15,9 @@ typedef treeNode parseNode;
 unsigned int number_of_ASTNodes;
 struct ASTNode {
     gSymbol gs;
-    tokenInfo *tkInfo;
+    tokenInfo *tkinfo;
+    int start_line_no; // Only for START Nodes
+    int end_line_no; 
     struct ASTNode *next; // Sibling of the ASTNode.
     struct ASTNode *child; // Child of the ASTNode.
     struct ASTNode *parent; // Parent of the ASTNode.

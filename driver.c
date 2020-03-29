@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                print_ParseTree(root);
+                //print_ParseTree(root);
                 ASTNode *ASTroot =buildASTTree(root);
                 print_ASTTree(ASTroot);
             }
