@@ -174,7 +174,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 25:
             return buildASTTree(parseNodeRoot->child);
 
-        // Doubt(apb7): Do we need a node for <moduleDef> ?
+        // Doubt(apb7): Do we need a node for <moduleDef> ? Yes, according to Ma'am.
         // <moduleDef> -> START <statements> END 
         case 26:
         {
@@ -249,17 +249,22 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return buildASTTree(parseNodeRoot->child);
 
         // For design uniformity in <statement>, create <ioStmt> node.
+        // We retain the GET_VALUE node for ioStmt.
         // <ioStmt> -> GET_VALUE BO ID BC SEMICOL
         case 34:
         {
             ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = parseNodeRoot->child;
-            parse_child = parse_child->next->next;
+            parseNode *parse_child = parseNodeRoot->child; // GET_VALUE
 
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
             newNode->child = AST_child;
+
+            parse_child = parse_child->next->next; // ID
+            AST_child->next = buildASTTree(parse_child);
+            AST_child = AST_child->next;
+            AST_child->parent = newNode;
 
             return newNode;
         }
@@ -269,12 +274,16 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         {
             ASTNode *newNode = createASTNode(parseNodeRoot);
 
-            parseNode *parse_child = parseNodeRoot->child;
-            parse_child = parse_child->next->next;
+            parseNode *parse_child = parseNodeRoot->child; // PRINT
 
             ASTNode *AST_child = buildASTTree(parse_child);
             AST_child->parent = newNode;
             newNode->child = AST_child;
+
+            parse_child = parse_child->next->next; // <var>
+            AST_child->next = buildASTTree(parse_child);
+            AST_child = AST_child->next;
+            AST_child->parent = newNode;
 
             return newNode;
         }
@@ -602,7 +611,7 @@ relationalOp.addr = new Leaf(NE.value)
             ASTNode* AST_N41 = buildASTTree(parseNodeRoot->child->next->next); // <N41>
 
             ASTNode* ASTOp1 = buildASTTree(parseNodeRoot->child);
-            ASTNode* ASTterm1 = parseNodeRoot->parent->child == g_term ? buildASTTree(parseNodeRoot->parent->child) : NULL;
+            ASTNode* ASTterm1 = parseNodeRoot->parent->child->gs == g_term ? buildASTTree(parseNodeRoot->parent->child) : NULL;
             ASTNode* ASTterm2 = buildASTTree(parseNodeRoot->child->next);
 
             if(ASTterm1) {
@@ -621,7 +630,7 @@ relationalOp.addr = new Leaf(NE.value)
 
             ASTNode* cur = AST_N41;
 
-            while(cur->child == g_op1)
+            while(cur->child->gs == g_op1)
                 cur = cur->child;
 
             ASTOp1->next = cur->child;
