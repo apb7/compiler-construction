@@ -35,6 +35,42 @@ ASTNode* create_self_node_with_single_child(parseNode *parseNodeRoot) {
     return newNode;
 }
 
+// Rules of form <elems> -> <elem> <elems> 
+// stop_condition is rule no for rule of form <elems> -> EPS 
+ASTNode* simple_recursive_list_non_empty(parseNode *parseNodeRoot, int stop_condition) {
+
+    parseNode *parse_child = parseNodeRoot->child; // <elem>
+
+    ASTNode *AST_child = buildASTTree(parse_child);
+    
+    // elem exists, can't return NULL 
+    ASTNode *newNode = createASTNode(parseNodeRoot);
+    AST_child->parent = newNode;
+    newNode->child = AST_child;
+
+    parse_child = parse_child->next; // <elems>
+
+    // List of all elems until EPS encountered
+    while(parse_child->gRuleIndex + 2 != stop_condition) {
+
+        parse_child = parse_child->child; // <elem>
+
+        AST_child->next = buildASTTree(parse_child);
+        AST_child = AST_child->next;
+        AST_child->parent = newNode;
+
+        parse_child = parse_child->next; // <elems>
+        
+        // TO REMOVE!!!
+        if(parse_child == NULL) {
+            printf("Error within rule %d\n", stop_condition);
+            return NULL;
+        }
+    }
+
+    return newNode;
+}
+
 
 ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
@@ -76,8 +112,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
-            parse_child = parse_child->next;
-
             while(parse_child != NULL) {
                 ASTNode *AST_sibling = buildASTTree(parse_child);
                 
@@ -93,7 +127,31 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return newNode;
         }
 
-/* 3 .. 7 */
+        // <moduleDeclarations> -> <moduleDeclaration> <moduleDeclarations>
+        // <moduleDeclarations> -> EPS
+        case 3:
+            return simple_recursive_list_non_empty(parseNodeRoot, 4);
+
+        // <moduleDeclarations> -> EPS
+        case 4:
+            return NULL;
+        
+        // <moduleDeclaration> -> DECLARE MODULE ID SEMICOL
+        case 5:
+        {
+            parseNode *parse_child = parseNodeRoot->child->next->next; // <ID>
+
+            return buildASTTree(parse_child);
+        }
+
+        // <otherModules> -> <module> <otherModules>
+        // <otherModules> -> EPS
+        case 6:
+            return simple_recursive_list_non_empty(parseNodeRoot, 7);
+
+        // <otherModules> -> EPS
+        case 7:
+            return NULL;
 
         // <driverModule> -> DRIVERDEF DRIVER PROGRAM DRIVERENDDEF <moduleDef>
         case 8:
@@ -116,7 +174,151 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return newNode;
         }
 
-/* 9 .. 17 */
+        // <module> -> DEF MODULE ID ENDDEF TAKES INPUT SQBO <input_plist> SQBC SEMICOL <ret> <moduleDef>
+        case 9:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child->next->next; // <ID> 1
+
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+
+            parse_child = parse_child->next->next->next->next->next; // <input_plist>
+
+            ASTNode *AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+            AST_child = AST_child->next;
+            
+            parse_child = parse_child->next->next->next; // <ret>
+
+            AST_sibling = buildASTTree(parse_child);
+
+            if(AST_sibling) {
+                AST_sibling->parent = newNode;
+                AST_child->next = AST_sibling;
+                AST_child = AST_child->next;
+            }
+
+            parse_child = parse_child->next; // <moduleDef>
+
+            AST_sibling = buildASTTree(parse_child);
+
+            if(AST_sibling) {
+                AST_sibling->parent = newNode;
+                AST_child->next = AST_sibling;
+                AST_child = AST_child->next;
+            }            
+            
+            return newNode;
+        }
+
+        // <ret> -> RETURNS SQBO <output_plist> SQBC SEMICOL
+        case 10:
+        {
+            parseNode *parse_child = parseNodeRoot->child->next->next; // <output_plist> 
+            return buildASTTree(parse_child);
+        }
+
+        // <ret> -> ε
+        case 11:
+            return NULL;
+
+        // <input_plist> -> ID COLON <dataType> <N1>
+        // <N1> -> COMMA ID COLON <dataType> <N1>
+        // <N1> -> ε
+        case 12:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child; // ID
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+
+            parse_child = parse_child->next->next; // <dataType>
+            ASTNode *AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+            
+            AST_child = AST_child->next;
+
+            parse_child = parse_child->next; // <N1>
+
+            // List of all (ID  <dataType>) pairs until EPS encountered
+            while(parse_child->gRuleIndex + 2 != 14) {
+
+                parse_child = parse_child->child->next; // ID
+
+                AST_child->next = buildASTTree(parse_child);
+                AST_child = AST_child->next;
+                AST_child->parent = newNode;
+
+                parse_child = parse_child->next->next; // <dataType>
+
+                AST_child->next = buildASTTree(parse_child);
+                AST_child = AST_child->next;
+                AST_child->parent = newNode;
+
+                parse_child = parse_child->next; // <N1>
+
+                // TO REMOVE!!!
+                if(parse_child == NULL) {
+                    printf("Error within rule 57\n");
+                    return NULL;
+                }
+            }
+            return newNode;
+        }
+
+        // <output_plist> -> ID COLON <type> <N2>
+        // <N2> -> COMMA ID COLON <type> <N2>
+        // <N2> -> ε
+        case 15:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child; // ID
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+
+            parse_child = parse_child->next->next; // <type>
+            ASTNode *AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+            
+            AST_child = AST_child->next;
+
+            parse_child = parse_child->next; // <N2>
+
+            // List of all (ID  <type>) pairs until EPS encountered
+            while(parse_child->gRuleIndex + 2 != 17) {
+
+                parse_child = parse_child->child->next; // ID
+
+                AST_child->next = buildASTTree(parse_child);
+                AST_child = AST_child->next;
+                AST_child->parent = newNode;
+
+                parse_child = parse_child->next->next; // <type>
+
+                AST_child->next = buildASTTree(parse_child);
+                AST_child = AST_child->next;
+                AST_child->parent = newNode;
+
+                parse_child = parse_child->next; // <N2>
+
+                // TO REMOVE!!!
+                if(parse_child == NULL) {
+                    printf("Error within rule 57\n");
+                    return NULL;
+                }
+            }
+            return newNode;
+        }
 
         // <dataType> -> INTEGER
         case 18:
@@ -194,43 +396,9 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         }
 
         // <statements> -> <statement> <statements>
+        // <statements> -> EPS
         case 27:
-        {
-            parseNode *parse_child = parseNodeRoot->child;
-
-            ASTNode *AST_child = buildASTTree(parse_child);
-            
-            // Statement can't return NULL 
-            ASTNode *newNode = createASTNode(parseNodeRoot);
-            AST_child->parent = newNode;
-            newNode->child = AST_child;
-
-            parse_child = parse_child->next;
-
-            // List of all statements until EPS encountered
-            while(parse_child->gRuleIndex + 2 != 28) {
-
-                //printf("LOOP1 %s %d \n", inverseMappingTable[ parse_child->gs], parse_child->gRuleIndex);
-
-                parse_child = parse_child->child;
-
-                //printf("LOOP2 %s %d \n", inverseMappingTable[ parse_child->gs], parse_child->gRuleIndex);
-
-                AST_child->next = buildASTTree(parse_child);
-                AST_child = AST_child->next;
-                AST_child->parent = newNode;
-
-                parse_child = parse_child->next;
-                
-                // TO REMOVE!!!
-                if(parse_child == NULL) {
-                    printf("Error within rule 27\n");
-                    return NULL;
-                }
-            }
-
-            return newNode;
-        }
+            return simple_recursive_list_non_empty(parseNodeRoot, 28);
 
         // <statements> -> EPS
         case 28:
@@ -779,7 +947,79 @@ relationalOp.addr = new Leaf(NE.value)
         case 103:
             return NULL;
 
-/* 104 105 */
+        // <iterativeStmt> -> FOR BO ID IN <range> BC START <statements> END
+        case 104:
+        // TODO
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child; // FOR
+
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+
+            parse_child = parse_child->next->next; // ID
+
+            ASTNode *AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+
+            AST_child = AST_child->next;
+            parse_child = parse_child->next->next; // <range>
+
+            AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+
+            AST_child = AST_child->next;
+            parse_child = parse_child->next->next; // START
+
+            AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+
+            parse_child = parse_child->next; // <statements>
+
+            ASTNode *AST_grandchild = buildASTTree(parse_child);
+            AST_grandchild->parent = AST_sibling;
+            AST_sibling->child = AST_grandchild;
+
+            return newNode;
+        }
+
+        // <iterativeStmt> -> WHILE BO <arithmeticOrBooleanExpr> BC START <statements> END
+        case 105:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child; // WHILE
+
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+
+            parse_child = parse_child->next->next; // <arithmeticOrBooleanExpr>
+
+            ASTNode *AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+
+            AST_child = AST_child->next;
+            parse_child = parse_child->next->next; // START
+
+            AST_sibling = buildASTTree(parse_child);
+            AST_sibling->parent = newNode;
+            AST_child->next = AST_sibling;
+
+            parse_child = parse_child->next; // <statements>
+
+            ASTNode *AST_grandchild = buildASTTree(parse_child);
+            AST_grandchild->parent = AST_sibling;
+            AST_sibling->child = AST_grandchild;
+
+            return newNode;
+        }
 
         // <range> -> NUM RANGEOP NUM
         case 106:
@@ -801,12 +1041,10 @@ relationalOp.addr = new Leaf(NE.value)
             return newNode;
         }
 
-/* TODO:
-idlist
-*/
         default:
         {
             printf("%d entered here\n", parseNodeRoot->gRuleIndex + 2);
+            printf("E\nE\nE\nE\nE\n");
             return NULL;
         }
     }
