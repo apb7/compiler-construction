@@ -37,12 +37,16 @@ ASTNode* create_self_node_with_single_child(parseNode *parseNodeRoot) {
     return newNode;
 }
 
-// TODO(apb7): Documentation.
-ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot, gSymbol g_t, gSymbol g_op) {
+// Use for the rules of the following format:
+// <N4> -> <op1> <term> <N41>
+ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot) {
+    gSymbol g_t = parseNodeRoot->child->next->gs; // Either g_anyTerm, g_term or g_factor.
+    gSymbol g_op = parseNodeRoot->child->child->gs; // Either AND, OR, PLUS, MINUS, MUL or DIV.
+
     ASTNode* AST_N1 = buildASTTree(parseNodeRoot->child->next->next); // <N1>
 
     ASTNode* ASTOp = buildASTTree(parseNodeRoot->child);
-    ASTNode* ASTt1 = parseNodeRoot->parent->child->gs == g_t ? buildASTTree(parseNodeRoot->parent->child) : NULL;
+    ASTNode* ASTt1 = (parseNodeRoot->parent->child->gs == g_t) ? buildASTTree(parseNodeRoot->parent->child) : NULL;
     ASTNode* ASTt2 = buildASTTree(parseNodeRoot->child->next);
 
     if(ASTt1) {
@@ -758,16 +762,18 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 70: // <AnyTerm> -> <arithmeticExpr> <N8>
         case 74: // <arithmeticExpr> -> <term> <N4>
         case 77: // <term> -> <factor> <N5>
-            return (parseNodeRoot->child->next->child->gs == g_EPS? buildASTTree(parseNodeRoot->child) : buildASTTree((parseNodeRoot->child)->next));
+
+            // Check if AST node of <Nx> is NULL.
+            // If yes, then return AST node of <term>
+        {
+            ASTNode *ASTNx = buildASTTree((parseNodeRoot->child)->next);
+            return ASTNx ? ASTNx : buildASTTree(parseNodeRoot->child);
+        }
 
         case 68: // <N7> -> <logicalOp> <AnyTerm> <N71>
-            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_anyTerm, g_logicalOp);
-
         case 75: // <N4> -> <op1> <term> <N41>
-            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_term, g_op1);
-
         case 78: // <N5> -> <op2> <factor> <N51>
-            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_factor, g_op2);
+            return createASTNodeForRightRecursiveRule(parseNodeRoot);
 
 
         case 69: // <N7> -> ε
