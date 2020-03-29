@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 ASTNode* createASTNode(ASTNode *parent, parseNode *parseNode);
+ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot, gSymbol t, gSymbol op);
 ASTNode* buildASTTree(parseNode *parseNodeRoot);
 
 void print_ASTTree(ASTNode *ASTNoderoot);
