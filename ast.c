@@ -538,15 +538,85 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 46:
             return create_self_node_with_single_child(parseNodeRoot);
 
-// TODO : assignment statements
         // <assignmentStmt> -> ID <whichStmt>
+        // <whichStmt> -> <lvalueIDStmt>
+        // <whichStmt> -> <lvalueARRStmt>
+        // <lvalueIDStmt> -> ASSIGNOP <expression> SEMICOL
+        // <lvalueARRStmt> -> SQBO <index> SQBC ASSIGNOP <expression> SEMICOL
         case 47:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+            parseNode *parse_child = parseNodeRoot->child; // ID
+
+            ASTNode *AST_lhs = buildASTTree(parse_child);
+
+            parse_child = parse_child->next; // <whichStmt>
+
+            ASTNode *AST_child = buildASTTree(parse_child); // either <lvalueIDStmt> or <lvalueARRStmt>
+            printf("successt");
+
+            ASTNode* AST_grandgrandchild = AST_child->child->child;
+            AST_child->child->child = AST_lhs;
+            AST_lhs->next = AST_grandgrandchild;
+            
+            return newNode;
+        }
 
         // <whichStmt> -> <lvalueIDStmt>
         case 48:
         // <whichStmt> -> <lvalueARRStmt>
-        case 49: 
-        
+        case 49:
+            return buildASTTree(parseNodeRoot->child);
+
+        // <lvalueIDStmt> -> ASSIGNOP <expression> SEMICOL
+        case 50:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child; // ASSIGNOP
+
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+            printf("success");
+
+            parse_child = parse_child->next; // <expression>
+            
+            ASTNode *AST_grandchild = buildASTTree(parse_child);
+            printf("success");
+
+            AST_child->child = AST_grandchild;
+            AST_grandchild->parent = AST_child;
+
+            return newNode;
+        }
+
+        // <lvalueARRStmt> -> SQBO <index> SQBC ASSIGNOP <expression> SEMICOL
+        case 51:
+        {
+            ASTNode *newNode = createASTNode(parseNodeRoot);
+
+            parseNode *parse_child = parseNodeRoot->child->next->next->next; // <ASSIGNOP>
+
+            ASTNode *AST_child = buildASTTree(parse_child);
+            AST_child->parent = newNode;
+            newNode->child = AST_child;
+
+            parse_child = parseNodeRoot->child->next; // <index>
+            
+            ASTNode *AST_grandchild = buildASTTree(parse_child);
+            AST_child->child = AST_grandchild;
+            AST_grandchild->parent = AST_child;
+
+            parse_child = parse_child->next->next->next->next; // <expression>
+            
+            AST_grandchild->next = buildASTTree(parse_child);
+            AST_grandchild = AST_grandchild->next;
+            AST_grandchild->parent = AST_child;
+
+            return newNode;
+        }
+
         // <index> -> NUM
         case 52:
         // <index> -> ID
