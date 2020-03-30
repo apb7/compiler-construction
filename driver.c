@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     char userInput;
 
     while(1) {
-        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n");
+        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree\n");
         scanf(" %c", &userInput);
         switch(userInput) {
 
@@ -148,9 +148,11 @@ int main(int argc, char *argv[]) {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                //print_ParseTree(root);
                 ASTNode *ASTroot =buildASTTree(root);
                 print_ASTTree(ASTroot);
+
+                printf("No of nodes in AST Tree : %d \n", count_nodes_ASTTree(ASTroot));
+                printf("No of nodes in parse Tree : %d \n", count_nodes_parseTree(root));
             }
             break;
 
