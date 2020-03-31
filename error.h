@@ -12,7 +12,7 @@
 #include "lexerDef.h"
 
 typedef enum {
-    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY
+    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, SEMANTIC
 } ErrorType;
 
 typedef struct{
