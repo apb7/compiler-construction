@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
     fillHashTable(keywords,keyword_ht);
 
-    populateGrammarStruct("grammar.txt");
+    populateGrammarStruct("../grammar.txt");
 
 //     printGrammar();
 
