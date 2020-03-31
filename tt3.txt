@@ -1,15 +1,5 @@
 
-declare module compute;
-
 <<<driver program>>>
 start
-	a[10]:=5;
-end
-
-<<module compute>>
-takes input[a:integer, b:integer, c:integer];
-returns [res_1:boolean, res_2_a:integer, res_2__b:real];
-start
-
-	b := a <=  b AND c >= a OR  a<0 AND false;
+	b := 5;
 end

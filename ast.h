@@ -12,10 +12,15 @@
 #include <stdbool.h>
 
 ASTNode* createASTNode(ASTNode *parent, parseNode *parseNode);
+
+ASTNode* create_self_node_with_single_child(parseNode *parseNodeRoot);
 ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot);
+ASTNode* simple_recursive_list_non_empty(parseNode *parseNodeRoot, int stop_condition);
+
 ASTNode* buildASTTree(parseNode *parseNodeRoot);
 
 void print_ASTTree(ASTNode *ASTNoderoot);
-
+int count_nodes_ASTTree(ASTNode *root);
+int count_nodes_parseTree(parseNode *root);
 
 #endif
