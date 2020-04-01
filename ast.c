@@ -10,7 +10,7 @@ extern char *inverseMappingTable[];
 ASTNode* buildASTTree(parseNode* parseNodeRoot);
 
 
-ASTNode* createASTNode(parseNode *parseNode){
+ASTNode* createASTNode(parseNode *parseNode) {
     ASTNode *newNode = malloc(sizeof(ASTNode));
 
     newNode->gs = parseNode->gs;
@@ -39,9 +39,8 @@ ASTNode* create_self_node_with_single_child(parseNode *parseNodeRoot) {
 
 // Use for the rules of the following format:
 // <N4> -> <op1> <term> <N41>
-ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot) {
+ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot, gSymbol g_op1, gSymbol g_op2) {
     gSymbol g_t = parseNodeRoot->child->next->gs; // Either g_anyTerm, g_term or g_factor.
-    gSymbol g_op = parseNodeRoot->child->child->gs; // Either AND, OR, PLUS, MINUS, MUL or DIV.
 
     ASTNode* AST_N1 = buildASTTree(parseNodeRoot->child->next->next); // <N1>
 
@@ -65,7 +64,7 @@ ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot) {
 
     ASTNode* cur = AST_N1;
 
-    while(cur->child->gs == g_op)
+    while(cur->child->gs == g_op1 || cur->child->gs == g_op2)
         cur = cur->child;
 
     ASTOp->next = cur->child;
@@ -566,6 +565,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             ASTNode* AST_grandgrandchild = AST_child->child->child;
             AST_child->child->child = AST_lhs;
+            AST_lhs->parent = AST_child->child;
             AST_lhs->next = AST_grandgrandchild;
             
             return newNode;
@@ -771,9 +771,13 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         }
 
         case 68: // <N7> -> <logicalOp> <AnyTerm> <N71>
+            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_PLUS, g_MINUS);
+
         case 75: // <N4> -> <op1> <term> <N41>
+            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_PLUS, g_MINUS);
+
         case 78: // <N5> -> <op2> <factor> <N51>
-            return createASTNodeForRightRecursiveRule(parseNodeRoot);
+            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_MUL, g_DIV);
 
 
         case 69: // <N7> -> ε
@@ -1125,4 +1129,30 @@ void print_ParseTree(parseNode *parseNodeRoot) {
         print_ParseTree(child);
         child = child->next;
     }
+}
+
+int count_nodes_ASTTree(ASTNode *root) {
+    int count = 1;
+
+    ASTNode *child = root->child;
+
+    while(child != NULL) {
+        count += count_nodes_ASTTree(child);
+        child = child->next;
+    }
+
+    return count;
+}
+
+int count_nodes_parseTree(parseNode *root) {
+    int count = 1;
+
+    parseNode *child = root->child;
+
+    while(child != NULL) {
+        count += count_nodes_parseTree(child);
+        child = child->next;
+    }
+
+    return count;
 }
