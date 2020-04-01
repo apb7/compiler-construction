@@ -56,6 +56,7 @@ struct symFuncInfo{
     struct paramOutNode *outPListHead;
     symbolTable *st;
 };
+typedef struct symFuncInfo symFuncInfo;
 
 //symbol table entry for a variable
 struct symVarInfo{
@@ -63,26 +64,27 @@ struct symVarInfo{
     varType vtype;
     int offset;
 };
+typedef struct symVarInfo symVarInfo;
+
+union funvar{
+    struct symFuncInfo func;
+    struct symVarInfo var;
+};
 
 //structure for a symbol table node
 struct symTableNode{
-    bool isEmpty;   //to know if this position is empty in symbol table
     char lexeme[30];    //function or identifier name
-    union{
-        struct symFuncInfo func;
-        struct symVarInfo var;
-    } info;
-
+    union funvar info;
+    struct symTableNode *next;
 };
 typedef struct symTableNode symTableNode;
 
 //a symbol table has an array and a linked list of nested scopes
 struct symbolTable{
-    symTableNode tb[SYMBOL_TABLE_SIZE]; //current scope symbol table
+    symTableNode *tb[SYMBOL_TABLE_SIZE]; //current scope symbol table
     symbolTable *nestedTablesHead;  //linked list of all parallel scope symbol tables
     symbolTable *parentTable;
 };
 
-symbolTable *funcTable;
 
 #endif //SYMBOLTABLEDEF_H

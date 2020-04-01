@@ -42,13 +42,23 @@ void printError(error e){
         case STACK_NON_EMPTY:
             fprintf(stderr, "SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
             break;
+        case E_SEMANTIC:
+            //TODO: MAKE SEMANTIC ERRORS DESCRIPTIVE
+            fprintf(stderr, "SEMANTIC ERROR.\n");
+            break;
     }
 }
 
 void foundNewError(error e){
+
     if(STACK_ENABLED){
         error *newError = (error *)(malloc(sizeof(error)));
         *newError = e;
+        if(e.errType == E_SEMANTIC){
+            //this will only happen if there were no errors of syntax or lexical kind
+            errorPtr_stack_push(errorStack,newError);
+            return;
+        }
         if(errorPtr_stack_isEmpty(errorStack)){
             errorPtr_stack_push(errorStack,newError);
             return;
