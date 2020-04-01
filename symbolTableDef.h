@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "lexerDef.h"
 #include "config.h"
+#include "astDef.h"
 
 #define SYMBOL_TABLE_SIZE 101
 
@@ -24,13 +25,22 @@ struct varType{
 };
 typedef struct varType varType;
 
+//for making a linked list of AST nodes
+struct ASTNodeListNode{
+    ASTNode *astNode;
+    struct ASTNodeListNode *next;
+};
+struct ASTNodeListNode ASTNodeListNode;
+
 //for an input parameter node of a function
 struct paramInpNode{
     char lexeme[30];
     varType vtype;
     unsigned int lno;    //line number
     int offset;
+    struct paramInpNode *next;
 };
+typedef struct paramInpNode paramInpNode;
 
 //for an output parameter node of a function
 struct paramOutNode{
@@ -39,11 +49,13 @@ struct paramOutNode{
     unsigned int lno;
     int offset;
     bool isAssigned;
+    struct paramOutNode *next;
 };
+typedef struct paramOutNode paramOutNode;
 
 //for function's current status
 typedef enum{
-    F_DECLARED, F_DEFINED
+    F_DECLARED, F_DECLARATION_VALID, F_DEFINED
 } funcStatus;
 
 typedef struct symbolTable symbolTable;
@@ -51,12 +63,19 @@ typedef struct symbolTable symbolTable;
 //symbol table entry for a function
 struct symFuncInfo{
     funcStatus status;
+    char funcName[30];
     unsigned int lno;
     struct paramInpNode *inpPListHead;
     struct paramOutNode *outPListHead;
     symbolTable *st;
+    ASTNodeListNode *pendingCallListHead;
 };
 typedef struct symFuncInfo symFuncInfo;
+
+//when a function is only declared and you see a call, then put the moduleReuseStatement Node to the beginning
+//of the pendingCallList after checking all IDs for there validity
+//these pending calls will be fulfilled at the time of processing of function definition
+
 
 //symbol table entry for a variable
 struct symVarInfo{

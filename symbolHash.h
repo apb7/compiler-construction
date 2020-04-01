@@ -6,8 +6,8 @@
 
 
 
-//Add the given function/variable details to the symbol table in st
-void stAdd(char *lexeme, union funvar fvinfo , symbolTable *st);
+//Add the given function/variable details to the symbol table in st and return the address to the entry's union
+union funvar *stAdd(char *lexeme, union funvar fvinfo , symbolTable *st);
 
 //Check if the given key is in the current symbol table or not
 bool stSearchCurrent(char *lexeme, symbolTable *st);
