@@ -5,6 +5,7 @@
 #include "astDef.h"
 #include <stdlib.h>
 #include <string.h>
+#include "util.h"
 
 symbolTable funcTable;
 
@@ -28,6 +29,25 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
 
 varType getVtype(ASTNode *dataTypeNode){
     //TODO: Construct the varType struct and return it
+}
+
+paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
+    //search for this ID in the input list and return pointer to the node if found else return NULL
+    if(idNode == NULL || funcInfo == NULL || idNode->tkinfo == NULL)
+        return NULL;
+    char *lexeme = idNode->tkinfo->lexeme;
+    paramInpNode *ptr = funcInfo->inpPListHead;
+    while(ptr != NULL){
+        if(equals(ptr->lexeme,lexeme))
+            return ptr;
+        ptr = ptr->next;
+    }
+    return NULL;
+}
+
+paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
+    //search for this ID in the output list and return pointer to the node if found else return NULL
+    //TODO: Write code similar to inpListSearchID(..)
 }
 
 paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
@@ -91,8 +111,14 @@ void handleModuleDeclaration(ASTNode *root){
 }
 
 void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo){
+    if(ioStmtNode == NULL){
+        fprintf(stderr,"handleIOStmt: Error, ioStmtNode found NULL.\n");
+        return;
+    }
     //The current scope symbol table
     symbolTable *currSymbolTable = funcInfo->st;
+
+
     //TODO: Handle IO Statement
 }
 
