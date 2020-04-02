@@ -13,6 +13,8 @@ symbolTable funcTable;
 void initSymbolTable(symbolTable *st){
     (st->parentTable) = NULL;
     (st->nestedTablesHead) = NULL;
+    (st->nestedTablesTail) = NULL;
+    (st->next) = NULL;
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         (st->tb)[i] = NULL;
     }
@@ -32,6 +34,27 @@ void setAssignedOutParam(paramOutNode *outNode){
     if(outNode == NULL)
         return;
     outNode->isAssigned = true;
+}
+
+symbolTable *newScope(symbolTable *currST){
+    if(currST == NULL){
+        currST = (symbolTable *) malloc(sizeof(symbolTable));
+        initSymbolTable(currST);
+        return currST;
+    }
+    if(currST->nestedTablesTail == NULL){
+        currST->nestedTablesHead = (symbolTable *) malloc(sizeof(symbolTable));
+        initSymbolTable(currST->nestedTablesHead);
+        currST->nestedTablesTail = currST->nestedTablesHead;
+    }
+    else{
+        symbolTable *tail = currST->nestedTablesTail;
+        tail->next = (symbolTable *) malloc(sizeof(symbolTable));
+        initSymbolTable(tail->next);
+        currST->nestedTablesTail = tail->next;
+    }
+    currST->nestedTablesTail->parentTable = currST;
+    return currST->nestedTablesTail;
 }
 
 varType getVtype(ASTNode *dataTypeNode){
@@ -136,7 +159,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
                         error e;
                         e.errType = E_SEMANTIC;
                         e.lno = idNode->tkinfo->lno;
-                        e.edata.seme.tkinfo = idNode->tkinfo;
+                        strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
                         e.edata.seme.etype = SEME_UNDECLARED;
                         foundNewError(e);
                     }
@@ -170,6 +193,48 @@ void handleIterativeStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbol
     //TODO: Handle Iterative Statement
 }
 
+void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST){
+    ASTNode *ptr = statementsNode->child; //the first statement
+    while(ptr != NULL){
+        switch(ptr->gs){
+            case g_ioStmt:
+                handleIOStmt(ptr,funcInfo,currST);
+                break;
+            case g_simpleStmt:
+                handleSimpleStmt(ptr,funcInfo,currST);
+                break;
+            case g_declareStmt:
+                handleDeclareStmt(ptr,funcInfo,currST);
+                break;
+            case g_condionalStmt:
+                handleConditionalStmt(ptr,funcInfo,currST);
+                break;
+            case g_iterativeStmt:
+                handleIterativeStmt(ptr,funcInfo,currST);
+                break;
+        }
+        ptr = ptr->next;
+    }
+}
+
+
+void handleStartNode(ASTNode *startNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(startNode == NULL || startNode->child == NULL){
+        fprintf(stderr,"handleStartNode: Empty Start Node or its child received.\n");
+        return;
+    }
+    symbolTable *newST = newScope(currST);
+    switch(startNode->child->gs){
+        case g_statements:
+            handleStatements(startNode->child,funcInfo,newST);
+            break;
+        case g_caseStmts:
+            //TODO: Write code for handleCaseStmts(...)
+            break;
+    }
+
+}
+
 void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     if(startNode == NULL){
         fprintf(stderr,"handleModuleDef: Empty Start Node received.\n");
@@ -177,31 +242,23 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     }
     if(startNode->tkinfo)
         funcInfo->lno = startNode->tkinfo->lno;
-    funcInfo->st = (symbolTable *) malloc(sizeof(symbolTable));
+    funcInfo->st = newScope(NULL);
     if(startNode->child == NULL)
         return; //no statements inside
-    ASTNode *ptr = startNode->child->child; //the first statement
-    while(ptr != NULL){
-        switch(ptr->gs){
-            case g_ioStmt:
-                handleIOStmt(ptr,funcInfo,funcInfo->st);
-                break;
-            case g_simpleStmt:
-                handleSimpleStmt(ptr,funcInfo,funcInfo->st);
-                break;
-            case g_declareStmt:
-                handleDeclareStmt(ptr,funcInfo,funcInfo->st);
-                break;
-            case g_condionalStmt:
-                handleConditionalStmt(ptr,funcInfo,funcInfo->st);
-                break;
-            case g_iterativeStmt:
-                handleIterativeStmt(ptr,funcInfo,funcInfo->st);
-                break;
+    handleStatements(startNode->child,funcInfo,funcInfo->st);
+    //In the end check that all variables in output list are assigned
+    paramOutNode *outptr = funcInfo->outPListHead;
+    while(outptr != NULL){
+        if(!(outptr->isAssigned)){
+            error e;
+            e.errType = E_SEMANTIC;
+            e.lno = outptr->lno;
+            strcpy(e.edata.seme.errStr,outptr->lexeme);
+            e.edata.seme.etype = SEME_UNASSIGNED;
+            foundNewError(e);
         }
-        ptr = ptr->next;
+        outptr = outptr->next;
     }
-    //TODO: In the end check that all variables in output list are assigned
 }
 
 void handleOtherModule(ASTNode *moduleNode){

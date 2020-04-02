@@ -102,7 +102,9 @@ typedef struct symTableNode symTableNode;
 struct symbolTable{
     symTableNode *tb[SYMBOL_TABLE_SIZE]; //current scope symbol table
     symbolTable *nestedTablesHead;  //linked list of all parallel scope symbol tables
+    symbolTable *nestedTablesTail;  //last node of the above list (for easy last node insertions)
     symbolTable *parentTable;
+    symbolTable *next;  //parallel scope tables
 };
 
 

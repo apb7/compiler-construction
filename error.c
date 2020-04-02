@@ -47,7 +47,10 @@ void printError(error e){
             fprintf(stderr, "Line %u: SEMANTIC ERROR: ",e.lno);
             switch(e.edata.seme.etype){
                 case SEME_UNDECLARED:
-                    fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.tkinfo)->lexeme);
+                    fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.errStr));
+                    break;
+                case SEME_UNASSIGNED:
+                    fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr);
                     break;
                 default:
                     fprintf(stderr,"\n");
