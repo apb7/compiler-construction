@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util.h"
+#include "error.h"
 
 symbolTable funcTable;
 
@@ -25,6 +26,12 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     funcInfo->outPListHead = NULL;
     funcInfo->pendingCallListHead = NULL;
     strcpy(funcInfo->funcName,funcName);
+}
+
+void setAssignedOutParam(paramOutNode *outNode){
+    if(outNode == NULL)
+        return;
+    outNode->isAssigned = true;
 }
 
 varType getVtype(ASTNode *dataTypeNode){
@@ -110,39 +117,56 @@ void handleModuleDeclaration(ASTNode *root){
 
 }
 
-void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo){
+void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(ioStmtNode == NULL){
         fprintf(stderr,"handleIOStmt: Error, ioStmtNode found NULL.\n");
         return;
     }
-    //The current scope symbol table
-    symbolTable *currSymbolTable = funcInfo->st;
-
-
-    //TODO: Handle IO Statement
+    ASTNode *opNode = ioStmtNode->child;
+    switch(opNode->gs){
+        case g_GET_VALUE:{
+            ASTNode *idNode = opNode->next;
+            if(!stSearch(idNode->tkinfo->lexeme,currST)){
+                //not found in any of the symbol tables
+                if(inpListSearchID(idNode,funcInfo) == NULL){
+                    //not found in the input list as well
+                    paramOutNode *tmp = outListSearchID(idNode,funcInfo);
+                    if(tmp == NULL){
+                        //not found anywhere
+                        error e;
+                        e.errType = E_SEMANTIC;
+                        e.lno = idNode->tkinfo->lno;
+                        e.edata.seme.tkinfo = idNode->tkinfo;
+                        e.edata.seme.etype = SEME_UNDECLARED;
+                        foundNewError(e);
+                    }
+                    else{
+                        //finally found in output parameters list
+                        setAssignedOutParam(tmp);
+                    }
+                }
+            }
+        }
+            break;
+        case g_PRINT:
+            //TODO: Handle this section
+            break;
+    }
 }
 
-void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo){
-    //The current scope symbol table
-    symbolTable *currSymbolTable = funcInfo->st;
+void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Handle Simple Statement
 }
 
-void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo){
-    //The current scope symbol table
-    symbolTable *currSymbolTable = funcInfo->st;
+void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Handle Declare Statement
 }
 
-void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo){
-    //The current scope symbol table
-    symbolTable *currSymbolTable = funcInfo->st;
+void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Handle Conditional Statement
 }
 
-void handleIterativeStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo){
-    //The current scope symbol table
-    symbolTable *currSymbolTable = funcInfo->st;
+void handleIterativeStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Handle Iterative Statement
 }
 
@@ -160,19 +184,19 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     while(ptr != NULL){
         switch(ptr->gs){
             case g_ioStmt:
-                handleIOStmt(ptr,funcInfo);
+                handleIOStmt(ptr,funcInfo,funcInfo->st);
                 break;
             case g_simpleStmt:
-                handleSimpleStmt(ptr,funcInfo);
+                handleSimpleStmt(ptr,funcInfo,funcInfo->st);
                 break;
             case g_declareStmt:
-                handleDeclareStmt(ptr,funcInfo);
+                handleDeclareStmt(ptr,funcInfo,funcInfo->st);
                 break;
             case g_condionalStmt:
-                handleConditionalStmt(ptr,funcInfo);
+                handleConditionalStmt(ptr,funcInfo,funcInfo->st);
                 break;
             case g_iterativeStmt:
-                handleIterativeStmt(ptr,funcInfo);
+                handleIterativeStmt(ptr,funcInfo,funcInfo->st);
                 break;
         }
         ptr = ptr->next;

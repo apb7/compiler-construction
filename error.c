@@ -44,7 +44,15 @@ void printError(error e){
             break;
         case E_SEMANTIC:
             //TODO: MAKE SEMANTIC ERRORS DESCRIPTIVE
-            fprintf(stderr, "SEMANTIC ERROR.\n");
+            fprintf(stderr, "Line %u: SEMANTIC ERROR: ",e.lno);
+            switch(e.edata.seme.etype){
+                case SEME_UNDECLARED:
+                    fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.tkinfo)->lexeme);
+                    break;
+                default:
+                    fprintf(stderr,"\n");
+                    break;
+            }
             break;
     }
 }

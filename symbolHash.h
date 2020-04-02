@@ -13,7 +13,7 @@ union funvar *stAdd(char *lexeme, union funvar fvinfo , symbolTable *st);
 bool stSearchCurrent(char *lexeme, symbolTable *st);
 
 //Check if the given key is in the current scope or not
-// (check current ST and all the parent STs including function input and output params)
+// (check current ST and all the parent STs. Don't search in function input and output params)
 //take help of stSearchCurrent(...)
 bool stSearch(char *lexeme, symbolTable *st);
 
