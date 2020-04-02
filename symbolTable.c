@@ -180,8 +180,31 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
     }
 }
 
+void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
+    //TODO: First check whether called function is declared/defined or not
+    //TODO: Then check all the IDs whether they are already declared
+    //TODO: Then if function already defined, call checkModuleSignature(...) else add node to pendingCallList's head
+
+}
+
+void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
+    //TODO: Handle Assignment Statement
+}
+
 void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Handle Simple Statement
+    if(simpleStmtNode == NULL || simpleStmtNode->child == NULL){
+        fprintf(stderr,"handleSimpleStmt: NULL node found.\n");
+        return;
+    }
+    switch(simpleStmtNode->child->gs){
+        case g_assignmentStmt:
+            handleAssignmentStmt(simpleStmtNode->child,funcInfo,currST);
+            break;
+        case g_moduleReuseStmt:
+            handleModuleReuse(simpleStmtNode->child,funcInfo,currST);
+            break;
+    }
 }
 
 void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -264,9 +287,7 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     }
 }
 
-void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: First check all the IDs whether they are already declared, then if function already defined, call checkModuleSignature(...)
-}
+
 
 void handlePendingCalls(symFuncInfo *funcInfo){
     //this is to handle function calls which occurred in between the function declaration and definition
