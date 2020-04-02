@@ -52,6 +52,9 @@ void printError(error e){
                 case SEME_UNASSIGNED:
                     fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr);
                     break;
+                case SEME_REDUNDANT_DECLARATION:
+                    fprintf(stderr,"Found redundant declaration for module '%s'.\n",e.edata.seme.errStr);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

@@ -30,7 +30,7 @@ struct ASTNodeListNode{
     ASTNode *astNode;
     struct ASTNodeListNode *next;
 };
-struct ASTNodeListNode ASTNodeListNode;
+typedef struct ASTNodeListNode ASTNodeListNode;
 
 //for an input parameter node of a function
 struct paramInpNode{

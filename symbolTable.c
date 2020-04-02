@@ -57,6 +57,10 @@ symbolTable *newScope(symbolTable *currST){
     return currST->nestedTablesTail;
 }
 
+void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo){
+    //TODO: Check whether the type and order of input and output variables match. if not report an error
+}
+
 varType getVtype(ASTNode *dataTypeNode){
     //TODO: Construct the varType struct and return it
 }
@@ -97,7 +101,6 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
 
 paramInpNode *createParamInpList(ASTNode *inputPlistNode){
     if(inputPlistNode == NULL){
-        fprintf(stderr,"createParamInpList: NULL error.\n");
         return NULL;
     }
     ASTNode *curr = inputPlistNode->child;
@@ -261,15 +264,69 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     }
 }
 
+void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
+    //TODO: First check all the IDs whether they are already declared, then if function already defined, call checkModuleSignature(...)
+}
+
+void handlePendingCalls(symFuncInfo *funcInfo){
+    //this is to handle function calls which occurred in between the function declaration and definition
+    if(funcInfo == NULL)
+        return;
+    ASTNodeListNode *pcptr = funcInfo->pendingCallListHead;
+    while(pcptr != NULL){
+        checkModuleSignature(pcptr->astNode,funcInfo);
+        ASTNodeListNode *tmp = pcptr;
+        pcptr = pcptr->next;
+        free(tmp);
+    }
+    funcInfo->pendingCallListHead = NULL;   //handles all pending calls
+}
+
 void handleOtherModule(ASTNode *moduleNode){
     if(moduleNode == NULL){
         fprintf(stderr,"handleOtherModule: Empty module Node received.\n");
         return;
     }
-    //TODO: add this module to symbol table, fill its inputlist using createParamInpList
-    // and outputlist using createParamOutList, call handleModuleDef to do further handling
-
-
+    ASTNode *idNode = moduleNode->child;
+    ASTNode *inpListNode = NULL;
+    ASTNode *outListNode = NULL;
+    ASTNode *moduleDefNode = NULL;
+    ASTNode *tmp = idNode;
+    if(tmp->next != NULL && tmp->next->gs == g_input_plist){
+        inpListNode = tmp->next;
+        tmp = tmp->next;
+    }
+    if(tmp->next != NULL && tmp->next->gs == g_output_plist){
+        outListNode = tmp->next;
+        tmp = tmp->next;
+    }
+    if(tmp->next != NULL && tmp->next->gs == g_moduleDef){
+        moduleDefNode = tmp->next;
+    }
+    symFuncInfo *finfo = stGetFuncInfo(idNode->tkinfo->lexeme,&(funcTable));
+    if(finfo == NULL){
+        //first appearance of this function name
+        union funvar fv;
+        initSymFuncInfo(&(fv.func),idNode->tkinfo->lexeme);
+        fv.func.status = F_DEFINED;
+        union funvar *funcEntry = stAdd(idNode->tkinfo->lexeme,fv,&funcTable);
+        finfo = &(funcEntry->func);
+    }
+    if(finfo->status == F_DECLARED){
+        //Error of a redundant declaration
+        error e;
+        e.errType = E_SEMANTIC;
+        e.lno = finfo->lno;
+        strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+        e.edata.seme.etype = SEME_REDUNDANT_DECLARATION;
+        foundNewError(e);
+    }
+    finfo->lno = idNode->tkinfo->lno;
+    finfo->status = F_DEFINED;
+    finfo->inpPListHead = createParamInpList(inpListNode);
+    finfo->outPListHead = createParamOutList(outListNode);
+    handlePendingCalls(finfo);
+    handleModuleDef(moduleDefNode->child,finfo);
 }
 
 void buildSymbolTable(ASTNode *root){

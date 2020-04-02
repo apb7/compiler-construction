@@ -16,7 +16,7 @@ typedef enum {
 } ErrorType;
 
 typedef enum{
-    SEME_REDECLARATION, SEME_UNDECLARED, SEME_UNASSIGNED //add others here
+    SEME_REDECLARATION, SEME_UNDECLARED, SEME_UNASSIGNED, SEME_REDUNDANT_DECLARATION //add others here
 } SemanticErrorType;
 
 typedef struct{
