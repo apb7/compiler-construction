@@ -9,13 +9,17 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "utils/hash.h"
-#include "parser/parserDef.h"
-#include "parser/parser.h"
-#include "utils/set.h"
+#include "hash.h"
+#include "parserDef.h"
+#include "parser.h"
+#include "set.h"
 #include "config.h"
-#include "lexer/lexer.h"
-#include "utils/errorPtr_stack.h"
+#include "lexer.h"
+#include "errorPtr_stack.h"
+
+#include "astDef.h"
+#include "ast.h"
+#include "symbolHash.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -36,7 +40,7 @@ errorPtr_stack *errorStack;
 
 
 int main(int argc, char *argv[]) {
-
+//    printf("%d",sizeof(symbolTable));
     if(argc != 3) {
         printf("Usage: %s <source code file> <parse tree output file>\n", argv[0]);
         exit(1);
@@ -57,14 +61,14 @@ int main(int argc, char *argv[]) {
 
     char* keywords[] = {
         #define K(a,b,c) c,
-        #include "data/keywords.txt"
+        #include "keywords.txt"
         #undef K
         "#"
     };
 
     fillHashTable(keywords,keyword_ht);
 
-    populateGrammarStruct("../data/grammar.txt");
+    populateGrammarStruct("grammar.txt");
 
 //     printGrammar();
 
@@ -76,9 +80,9 @@ int main(int argc, char *argv[]) {
 //    printParseTable();
 
     char userInput;
-    int x = 0;
+
     while(1) {
-        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n");
+        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree\n");
         scanf(" %c", &userInput);
         switch(userInput) {
 
@@ -136,6 +140,20 @@ int main(int argc, char *argv[]) {
 
                 printf("Total CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
                 destroyTree(root);
+            }
+            break;
+
+            case '5':
+            {
+                // Initialise lexer every time.
+                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
+
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                ASTNode *ASTroot =buildASTTree(root);
+                print_ASTTree(ASTroot);
+
+                printf("No of nodes in AST Tree : %d \n", count_nodes_ASTTree(ASTroot));
+                printf("No of nodes in parse Tree : %d \n", count_nodes_parseTree(root));
             }
             break;
 

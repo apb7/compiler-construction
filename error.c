@@ -6,8 +6,7 @@
 // HASAN NAQVI     2016B5A70452P
 
 #include "error.h"
-#include "utils/errorPtr_stack.h"
-#include "utils/errorPtr_stack_config.h"
+#include "errorPtr_stack.h"
 #include "stdlib.h"
 
 extern errorPtr_stack *errorStack;
@@ -43,13 +42,37 @@ void printError(error e){
         case STACK_NON_EMPTY:
             fprintf(stderr, "SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
             break;
+        case E_SEMANTIC:
+            //TODO: MAKE SEMANTIC ERRORS DESCRIPTIVE
+            fprintf(stderr, "Line %u: SEMANTIC ERROR: ",e.lno);
+            switch(e.edata.seme.etype){
+                case SEME_UNDECLARED:
+                    fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.errStr));
+                    break;
+                case SEME_UNASSIGNED:
+                    fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr);
+                    break;
+                case SEME_REDUNDANT_DECLARATION:
+                    fprintf(stderr,"Found redundant declaration for module '%s'.\n",e.edata.seme.errStr);
+                    break;
+                default:
+                    fprintf(stderr,"\n");
+                    break;
+            }
+            break;
     }
 }
 
 void foundNewError(error e){
+
     if(STACK_ENABLED){
         error *newError = (error *)(malloc(sizeof(error)));
         *newError = e;
+        if(e.errType == E_SEMANTIC){
+            //this will only happen if there were no errors of syntax or lexical kind
+            errorPtr_stack_push(errorStack,newError);
+            return;
+        }
         if(errorPtr_stack_isEmpty(errorStack)){
             errorPtr_stack_push(errorStack,newError);
             return;
@@ -87,9 +110,14 @@ void foundNewError(error e){
     }
     else{
            printError(e);
+           if(e.errType == LEXICAL){
+               free(e.edata.le.errTk);
+           }
+           else if(e.errType == SYNTAX_NTT || e.errType == SYNTAX_TT){
+               free(e.edata.se.tkinfo);
+           }
     }
 }
-
 
 
 void printAllErrors() {
