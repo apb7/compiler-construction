@@ -85,7 +85,7 @@ struct symVarInfo{
 };
 typedef struct symVarInfo symVarInfo;
 
-union funvar{
+union funcVar{
     struct symFuncInfo func;
     struct symVarInfo var;
 };
@@ -93,7 +93,7 @@ union funvar{
 //structure for a symbol table node
 struct symTableNode{
     char lexeme[30];    //function or identifier name
-    union funvar info;
+    union funcVar info;
     struct symTableNode *next;
 };
 typedef struct symTableNode symTableNode;
@@ -101,9 +101,9 @@ typedef struct symTableNode symTableNode;
 //a symbol table has an array and a linked list of nested scopes
 struct symbolTable{
     symTableNode *tb[SYMBOL_TABLE_SIZE]; //current scope symbol table
-    symbolTable *nestedTablesHead;  //linked list of all parallel scope symbol tables
-    symbolTable *nestedTablesTail;  //last node of the above list (for easy last node insertions)
-    symbolTable *parentTable;
+    symbolTable *children;  //nestedTablesHead --linked list of all parallel scope symbol tables
+    symbolTable *lastChild;  //nestedTablesTail --last node of the above list (for easy last node insertions)
+    symbolTable *parent; //parentTable
     symbolTable *next;  //parallel scope tables
 };
 

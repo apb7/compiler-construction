@@ -10,15 +10,6 @@
 
 symbolTable funcTable;
 
-void initSymbolTable(symbolTable *st){
-    (st->parentTable) = NULL;
-    (st->nestedTablesHead) = NULL;
-    (st->nestedTablesTail) = NULL;
-    (st->next) = NULL;
-    for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
-        (st->tb)[i] = NULL;
-    }
-}
 
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     funcInfo->status = F_DECLARED;
@@ -42,19 +33,19 @@ symbolTable *newScope(symbolTable *currST){
         initSymbolTable(currST);
         return currST;
     }
-    if(currST->nestedTablesTail == NULL){
-        currST->nestedTablesHead = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(currST->nestedTablesHead);
-        currST->nestedTablesTail = currST->nestedTablesHead;
+    if(currST->lastChild == NULL){
+        currST->children = (symbolTable *) malloc(sizeof(symbolTable));
+        initSymbolTable(currST->children);
+        currST->lastChild = currST->children;
     }
     else{
-        symbolTable *tail = currST->nestedTablesTail;
+        symbolTable *tail = currST->lastChild;
         tail->next = (symbolTable *) malloc(sizeof(symbolTable));
         initSymbolTable(tail->next);
-        currST->nestedTablesTail = tail->next;
+        currST->lastChild = tail->next;
     }
-    currST->nestedTablesTail->parentTable = currST;
-    return currST->nestedTablesTail;
+    currST->lastChild->parent = currST;
+    return currST->lastChild;
 }
 
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo){
@@ -327,10 +318,10 @@ void handleOtherModule(ASTNode *moduleNode){
     symFuncInfo *finfo = stGetFuncInfo(idNode->tkinfo->lexeme,&(funcTable));
     if(finfo == NULL){
         //first appearance of this function name
-        union funvar fv;
+        union funcVar fv;
         initSymFuncInfo(&(fv.func),idNode->tkinfo->lexeme);
         fv.func.status = F_DEFINED;
-        union funvar *funcEntry = stAdd(idNode->tkinfo->lexeme,fv,&funcTable);
+        union funcVar *funcEntry = stAdd(idNode->tkinfo->lexeme, fv, &funcTable);
         finfo = &(funcEntry->func);
     }
     if(finfo->status == F_DECLARED){
@@ -374,11 +365,11 @@ void buildSymbolTable(ASTNode *root){
             break;
         case g_driverModule:
         {
-            union funvar fv;
+            union funcVar fv;
             initSymFuncInfo(&(fv.func),"@driver");
             fv.func.status = F_DEFINED;
             //@driver is the special name for driver function
-            union funvar *funcEntry = stAdd("@driver",fv,&funcTable);
+            union funcVar *funcEntry = stAdd("@driver", fv, &funcTable);
             handleModuleDef(root->child,&(funcEntry->func));
         }
             break;

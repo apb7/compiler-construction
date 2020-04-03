@@ -39,6 +39,7 @@ void addSymbol(char *symbol, int index, hashTable *mt); // add 'symbol' to mappi
 bool searchSymbol(char *symbol, hashTable *mt); // check if 'symbol' is present in mapping table or not
 gSymbol getEnumValue(char *symbol, hashTable *mt); // get the Enum value (viz. stored index) of the 'symbol'
 int symbolHashFunction(char *symbol, hashTable *mt); // returns the slot value in the mapping table where 'symbol' is to be hashed
+int symbolTableHashFunction(char *lexeme); // returns the slot value in the symbol table where 'lexeme' is to be hashed
 struct hashTable* createHashTable(int size); // creates an empty mapping table and returns a pointer to the structure
 void printHashTable(hashTable *mt); // prints the mapping table
 void fillHashTable(char *tokenList[], hashTable *mt);
