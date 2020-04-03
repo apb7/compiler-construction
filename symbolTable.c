@@ -192,7 +192,6 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
 }
 
 void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Simple Statement
     if(simpleStmtNode == NULL || simpleStmtNode->child == NULL){
         fprintf(stderr,"handleSimpleStmt: NULL node found.\n");
         return;
