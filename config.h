@@ -10,8 +10,9 @@
 
 //This file will contain all the defined constant values, so that it is easy to change them from here whenever required
 
-#include "parserDef.h"
+#include "parser/parserDef.h"
 
+#define TREE_PRINT_FILE_PATH "parse-tree.txt"
 #define ERROR_RECOVERY_VERBOSE 0
 
 /*

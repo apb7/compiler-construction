@@ -8,16 +8,12 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include "parserDef.h"
-#include "lexerDef.h"
+#include "parser/parserDef.h"
+#include "lexer/lexerDef.h"
 
 typedef enum {
-    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, E_SEMANTIC
+    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY
 } ErrorType;
-
-typedef enum{
-    SEME_REDECLARATION, SEME_UNDECLARED, SEME_UNASSIGNED, SEME_REDUNDANT_DECLARATION //add others here
-} SemanticErrorType;
 
 typedef struct{
     tokenInfo *tkinfo;
@@ -28,10 +24,6 @@ typedef struct{
     char *errTk;
 } lexicalError;
 
-typedef struct{
-    SemanticErrorType etype;
-    char errStr[30];
-} semanticError;
 
 typedef struct{
     ErrorType errType;
@@ -39,7 +31,6 @@ typedef struct{
     union {
         syntaxError se;
         lexicalError le;
-        semanticError seme;
     } edata;
 
 } error;

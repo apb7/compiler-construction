@@ -1,0 +1,320 @@
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end
+declare module mod1;
+<<driver Program>>
+start **comment 1**a=b*c**comment 2**
+declare v, w, r :integer;
+get_value(v); **comment 1**a=b**c**comment 2**
+w:=5;**comment 1**a=b**c**comment 2**
+declare m:real;
+[r,m] := use mod1 with parameters v, w;
+print(r);
+print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+declare c: real;
+c:=10.4;
+x:=a+b-10;
+abc:=b/5+c;
+end

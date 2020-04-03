@@ -1,5 +1,0 @@
-
-<<<driver program>>>
-start
-	b := 5;
-end
