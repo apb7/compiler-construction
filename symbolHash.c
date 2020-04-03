@@ -87,7 +87,7 @@ symVarInfo *stGetVarInfo(char *lexeme, symbolTable *st){
 
 void initSymbolTable(symbolTable *st){
     (st->parent) = NULL;
-    (st->children) = NULL;
+    (st->headChild) = NULL;
     (st->lastChild) = NULL;
     (st->next) = NULL;
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){

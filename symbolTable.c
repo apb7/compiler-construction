@@ -28,15 +28,16 @@ void setAssignedOutParam(paramOutNode *outNode){
 }
 
 symbolTable *newScope(symbolTable *currST){
+//    TODO: use createSymbolTable()
     if(currST == NULL){
         currST = (symbolTable *) malloc(sizeof(symbolTable));
         initSymbolTable(currST);
         return currST;
     }
     if(currST->lastChild == NULL){
-        currST->children = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(currST->children);
-        currST->lastChild = currST->children;
+        currST->headChild = (symbolTable *) malloc(sizeof(symbolTable));
+        initSymbolTable(currST->headChild);
+        currST->lastChild = currST->headChild;
     }
     else{
         symbolTable *tail = currST->lastChild;
@@ -143,7 +144,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
     switch(opNode->gs){
         case g_GET_VALUE:{
             ASTNode *idNode = opNode->next;
-            if(!stSearch(idNode->tkinfo->lexeme,currST)){
+            if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
                 //not found in any of the symbol tables
                 if(inpListSearchID(idNode,funcInfo) == NULL){
                     //not found in the input list as well
@@ -183,7 +184,6 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
 }
 
 void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Simple Statement
     if(simpleStmtNode == NULL || simpleStmtNode->child == NULL){
         fprintf(stderr,"handleSimpleStmt: NULL node found.\n");
         return;
@@ -223,7 +223,7 @@ void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTabl
             case g_declareStmt:
                 handleDeclareStmt(ptr,funcInfo,currST);
                 break;
-            case g_condionalStmt:
+            case g_conditionalStmt:
                 handleConditionalStmt(ptr,funcInfo,currST);
                 break;
             case g_iterativeStmt:
@@ -333,6 +333,10 @@ void handleOtherModule(ASTNode *moduleNode){
         e.edata.seme.etype = SEME_REDUNDANT_DECLARATION;
         foundNewError(e);
     }
+    if(finfo->status == F_DECLARED) {
+//        TODO: ...
+    }
+
     finfo->lno = idNode->tkinfo->lno;
     finfo->status = F_DEFINED;
     finfo->inpPListHead = createParamInpList(inpListNode);

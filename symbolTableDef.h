@@ -17,10 +17,28 @@
 
 //this will store the type of the variable
 //sidx and eidx will be valid only when isArray is true
+
+typedef struct symTableNode symTableNode;
+
+struct boundIndixes{
+    int sidx;
+    int eidx;
+};
+typedef struct boundIndixes boundIndices;
+
+typedef enum{
+    VARIABLE, STAT_ARR, DYN_ARR
+}varOrArr;
+
+union indexOrTable {
+    struct boundIndixes bi;
+    symTableNode *stn;
+};
+
 struct varType{
     gSymbol baseType;
-    bool isArray;
-    int sidx, eidx;
+    varOrArr va;
+    union indexOrTable it;
     int bytes;
 };
 typedef struct varType varType;
@@ -96,12 +114,11 @@ struct symTableNode{
     union funcVar info;
     struct symTableNode *next;
 };
-typedef struct symTableNode symTableNode;
 
 //a symbol table has an array and a linked list of nested scopes
 struct symbolTable{
     symTableNode *tb[SYMBOL_TABLE_SIZE]; //current scope symbol table
-    symbolTable *children;  //nestedTablesHead --linked list of all parallel scope symbol tables
+    symbolTable *headChild;  //nestedTablesHead --linked list of all parallel scope symbol tables
     symbolTable *lastChild;  //nestedTablesTail --last node of the above list (for easy last node insertions)
     symbolTable *parent; //parentTable
     symbolTable *next;  //parallel scope tables
