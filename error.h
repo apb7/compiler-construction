@@ -12,8 +12,12 @@
 #include "lexerDef.h"
 
 typedef enum {
-    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, SEMANTIC
+    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, E_SEMANTIC
 } ErrorType;
+
+typedef enum{
+    SEME_REDECLARATION, SEME_UNDECLARED, SEME_UNASSIGNED, SEME_REDUNDANT_DECLARATION //add others here
+} SemanticErrorType;
 
 typedef struct{
     tokenInfo *tkinfo;
@@ -24,6 +28,10 @@ typedef struct{
     char *errTk;
 } lexicalError;
 
+typedef struct{
+    SemanticErrorType etype;
+    char errStr[30];
+} semanticError;
 
 typedef struct{
     ErrorType errType;
@@ -31,6 +39,7 @@ typedef struct{
     union {
         syntaxError se;
         lexicalError le;
+        semanticError seme;
     } edata;
 
 } error;
