@@ -14,7 +14,7 @@
 <type> -> INTEGER | REAL | BOOLEAN
 <moduleDef> -> START <statements> END
 <statements> -> <statement> <statements> | ε
-<statement> -> <ioStmt> | <simpleStmt> | <declareStmt> | <condionalStmt> | <iterativeStmt>
+<statement> -> <ioStmt> | <simpleStmt> | <declareStmt> | <conditionalStmt> | <iterativeStmt>
 <ioStmt> -> GET_VALUE BO ID BC SEMICOL | PRINT BO <var> BC SEMICOL
 <boolConstt> -> TRUE | FALSE
 <var_id_num> -> ID <whichId> | NUM | RNUM
@@ -48,7 +48,7 @@
 <logicalOp> -> AND | OR
 <relationalOp> -> LT | LE | GT | GE | EQ | NE
 <declareStmt> -> DECLARE <idList> COLON <dataType> SEMICOL
-<condionalStmt> -> SWITCH BO ID BC START <caseStmts> <default> END
+<conditionalStmt> -> SWITCH BO ID BC START <caseStmts> <default> END
 <caseStmts> -> CASE <value> COLON <statements> BREAK SEMICOL <N9>
 <N9> -> CASE <value> COLON <statements> BREAK SEMICOL <N9> | ε
 <value> -> NUM | TRUE | FALSE

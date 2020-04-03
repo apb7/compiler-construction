@@ -19,6 +19,7 @@
 
 #include "astDef.h"
 #include "ast.h"
+#include "symbolHash.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -39,7 +40,7 @@ errorPtr_stack *errorStack;
 
 
 int main(int argc, char *argv[]) {
-
+//    printf("%d",sizeof(symbolTable));
     if(argc != 3) {
         printf("Usage: %s <source code file> <parse tree output file>\n", argv[0]);
         exit(1);

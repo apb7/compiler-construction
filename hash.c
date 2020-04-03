@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include "hash.h"
 #include "util.h"
-
+#include "symbolHash.h"
 
 #define MAX_SYMBOL_LENGTH 30
 
@@ -104,6 +104,18 @@ int symbolHashFunction(char *symbol, hashTable *mt){
 
     return hash % m;
 }
+
+int symbolTableHashFunction(char *lexeme){
+//    need only lexeme 'cause fixed size
+    unsigned long hash = 5381;
+    char c;
+
+    while( c = *lexeme++)
+        hash = hash * 33 + c; //djb2 hash function
+
+    return hash % SYMBOL_TABLE_SIZE;
+}
+
 
 struct hashTable* createHashTable(int size){ // creates and returns an empty mapping table
     struct hashTable *mt = malloc(sizeof(struct hashTable));

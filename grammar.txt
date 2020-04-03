@@ -29,7 +29,7 @@ statements,EPS
 statement,ioStmt
 statement,simpleStmt
 statement,declareStmt
-statement,condionalStmt
+statement,conditionalStmt
 statement,iterativeStmt
 ioStmt,GET_VALUE,BO,ID,BC,SEMICOL
 ioStmt,PRINT,BO,var,BC,SEMICOL
@@ -92,7 +92,7 @@ relationalOp,GE
 relationalOp,EQ
 relationalOp,NE
 declareStmt,DECLARE,idList,COLON,dataType,SEMICOL
-condionalStmt,SWITCH,BO,ID,BC,START,caseStmts,default,END
+conditionalStmt,SWITCH,BO,ID,BC,START,caseStmts,default,END
 caseStmts,CASE,value,COLON,statements,BREAK,SEMICOL,n9
 n9,CASE,value,COLON,statements,BREAK,SEMICOL,n9
 n9,EPS
