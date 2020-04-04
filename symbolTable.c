@@ -28,29 +28,87 @@ void setAssignedOutParam(paramOutNode *outNode){
 }
 
 symbolTable *newScope(symbolTable *currST){
-//    TODO: use createSymbolTable()
     if(currST == NULL){
-        currST = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(currST);
+        currST = createSymbolTable();
         return currST;
     }
     if(currST->lastChild == NULL){
-        currST->headChild = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(currST->headChild);
+        currST->headChild = createSymbolTable();
         currST->lastChild = currST->headChild;
     }
     else{
         symbolTable *tail = currST->lastChild;
-        tail->next = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(tail->next);
+        tail->next = createSymbolTable();
         currST->lastChild = tail->next;
     }
     currST->lastChild->parent = currST;
     return currST->lastChild;
 }
 
-void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo){
-    //TODO: Check whether the type and order of input and output variables match. if not report an error
+void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
+    //TODO: Check whether the type, number and order of input and output variables match. if not report an error
+    paramInpNode *currInpListNode = funcInfo->inpPListHead;
+    paramOutNode *currOutListNode = funcInfo->outPListHead;
+    ASTNode *idOrList = moduleReuseNode->child;
+    ASTNode *currListNode = NULL;
+    char *currlexeme;
+    symTableNode *currSymNode;
+
+    if(idOrList->child != NULL){
+        //idOrList is actually idList
+        //match LHS list with outPList
+        currListNode = idOrList->child;
+        do{
+            // match LHS list i.e. currListNode's type with currOutListNode
+            currlexeme = currListNode->tkinfo->lexeme;
+            currSymNode = stSearch(currlexeme, currST);
+            // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
+
+            if(currOutListNode == NULL){
+//                TODO: ERROR: too many return values expected from function
+                    return;
+            }
+            //match the type of nodes
+            if(currSymNode->info.var.vtype.baseType != currOutListNode->vtype.baseType){
+//                TODO: ERROR; throw typeMismatchError
+                    return;
+            }
+            currOutListNode = currOutListNode->next;
+            currListNode = currListNode->next;
+        }while(currListNode != NULL);
+        if(currOutListNode != NULL){
+//            TODO: ERROR; too few retuen values expected from the function
+                return;
+        }
+        idOrList = idOrList->next; // now points to function name AST node i.e. ID after idList
+    }
+    //skip module name and go to RHS list
+    idOrList = idOrList->next; // points to RHS List
+
+    //match RHS List with InpPlist
+    currListNode = idOrList->child;
+    do{
+        // match RHS list i.e. currListNode's type with currInpListNode
+        currlexeme = currListNode->tkinfo->lexeme;
+        currSymNode = stSearch(currlexeme, currST);
+        // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
+
+        if(currInpListNode == NULL){
+//                TODO: ERROR: too many arguments passed to the function
+            return;
+        }
+        //match the type of nodes
+        if(currSymNode->info.var.vtype.baseType != currInpListNode->vtype.baseType){
+//                TODO: ERROR; throw typeMismatchError
+            return;
+        }
+        currInpListNode = currInpListNode->next;
+        currListNode = currListNode->next;
+    }while(currListNode != NULL);
+    if(currInpListNode != NULL){
+//            TODO: ERROR; too few arguments passed to the function
+        return;
+    }
 }
 
 varType getVtype(ASTNode *dataTypeNode){
@@ -73,7 +131,16 @@ paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
 
 paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
     //search for this ID in the output list and return pointer to the node if found else return NULL
-    //TODO: Write code similar to inpListSearchID(..)
+    if(idNode == NULL || funcInfo == NULL || idNode->tkinfo == NULL)
+        return NULL;
+    char *lexeme = idNode->tkinfo->lexeme;
+    paramOutNode *ptr = funcInfo->outPListHead;
+    while(ptr != NULL){
+        if(equals(ptr->lexeme,lexeme))
+            return ptr;
+        ptr = ptr->next;
+    }
+    return NULL;
 }
 
 paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
@@ -116,11 +183,42 @@ paramInpNode *createParamInpList(ASTNode *inputPlistNode){
 }
 
 paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
-    //TODO: Write code similar to createParamInpNode
+    if(idNode == NULL || dataTypeNode == NULL){
+        fprintf(stderr,"createParamOutNode: NULL error.\n");
+        return NULL;
+    }
+    paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
+    if(idNode->tkinfo)
+        ptr->lno = idNode->tkinfo->lno;
+    strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
+    ptr->vtype = getVtype(dataTypeNode);
+    //TODO: Offset computation
+    ptr->next = NULL;
+    return ptr;
 }
 
 paramOutNode *createParamOutList(ASTNode *outputPlistNode){
-    //TODO: Write code similar to createParamInpList
+    if(outputPlistNode == NULL){
+        return NULL;
+    }
+    ASTNode *curr = outputPlistNode->child;
+    paramOutNode *head = NULL;
+    paramOutNode *currOut = NULL;
+    while(curr != NULL){
+        if(head == NULL){
+            head = createParamOutNode(curr, curr->next);
+            currOut = head;
+        }
+        else{
+            currOut->next = createParamOutNode(curr,curr->next);
+            currOut = currOut->next;
+        }
+        if(curr->next)
+            curr = curr->next->next;
+        else
+            curr = NULL;
+    }
+    return head;
 }
 
 
@@ -285,8 +383,15 @@ void handlePendingCalls(symFuncInfo *funcInfo){
     if(funcInfo == NULL)
         return;
     ASTNodeListNode *pcptr = funcInfo->pendingCallListHead;
+//    __________________________________________
+
+//    useless code just to compile
+    symbolTable *currST = NULL;
+//    ___________________________________________
+
+
     while(pcptr != NULL){
-        checkModuleSignature(pcptr->astNode,funcInfo);
+        checkModuleSignature(pcptr->astNode,funcInfo, currST);
         ASTNodeListNode *tmp = pcptr;
         pcptr = pcptr->next;
         free(tmp);

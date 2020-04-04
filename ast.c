@@ -451,7 +451,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         case 30:
         // <statement> -> <declareStmt>
         case 31:
-        // <statement> -> <condionalStmt>
+        // <statement> -> <conditionalStmt>
         case 32:
         // <statement> -> <iterativeStmt>
         case 33:
@@ -844,7 +844,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             return newNode;
         }
 
-        // <condionalStmt> -> SWITCH BO ID BC START <caseStmts> <default> END
+        // <conditionalStmt> -> SWITCH BO ID BC START <caseStmts> <default> END
         case 95:
         {
             ASTNode *newNode = createASTNode(parseNodeRoot);
