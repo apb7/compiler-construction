@@ -9,7 +9,7 @@
 #include "error.h"
 
 symbolTable funcTable;
-
+void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
 
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     funcInfo->status = F_DECLARED;
@@ -202,13 +202,101 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
     //TODO: Handle Declare Statement
 
 }
-
+int findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
+     if(stSearch(node->tkinfo->lexeme,currST)!=NULL) {
+        symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);
+        *ty = varNode->info.var.vtype.baseType;
+        if(varNode->info.var.vtype.vaType==VARIABLE)
+            *isVar=1;
+        return 1;
+    }
+    else if(inpListSearchID(node,funcInfo)!=NULL) {
+        paramInpNode* varNode = inpListSearchID(node,funcInfo);
+        *ty=varNode->vtype.baseType;
+        if(varNode->vtype.vaType==VARIABLE)
+            *isVar=1;
+        return 1;
+    }
+    else if(outListSearchID(node,funcInfo)!=NULL) {
+        paramOutNode* varNode = outListSearchID(node,funcInfo);
+        *ty=varNode->vtype.baseType;
+        if(varNode->vtype.vaType==VARIABLE)
+            *isVar=1;
+        return 1;
+    }
+    return 0;
+}
 void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Conditional Statement
+    if(conditionalStmtNode==NULL || conditionalStmtNode->child==NULL) {
+        fprintf(stderr,"handleConditionalStmt: NULL node found.\n");
+        return;
+    }
+    gSymbol ty;
+    int isVar=0;
+    ASTNode *ptr = conditionalStmtNode->child; //on ID
+    int found = findType(ptr,currST,funcInfo,&isVar,&ty);
+    if(!found) {
+        // TODO: ERROR handle undeclared case statement var error
+        return;
+    }
+    if((ty!=g_BOOLEAN && ty!=g_INTEGER) || !isVar) {
+        // TODO: ERROR handle not valid data type
+        return;
+    }
+    if(ptr->next->gs==g_START)
+        currST = newScope(currST);
+    ptr=ptr->next->child; //on casestmts
+    if(ty==g_BOOLEAN) {
+        if(ptr->next!=NULL) {
+            // TODO: ERROR handle default in g_BOOLEAN
+            return;
+        }
+        int true_count=0, false_count=0;
+        ptr=ptr->child; //on TRUE/FALSE
+        ASTNode* it = ptr;
+        while(it!=NULL) {
+            if(it->gs==g_TRUE)
+                true_count++;
+            else if(it->gs==g_FALSE)
+                false_count++;
+            else {
+                // TODO: ERROR handle non boolean
+                return;
+            }
+            it=it->next;
+        }
+        if(true_count*false_count!=1) {
+            // TODO: ERROR both T/F don't occur
+        }
+        while(ptr!=NULL) {
+            handleStatements(ptr->child,funcInfo,currST);
+            ptr=ptr->next;
+        }
+    } else {
+        if(ptr->next==NULL) {
+             // TODO: ERROR handle no default in g_INTEGER
+            return;
+        }
+        ptr=ptr->child; //on NUM
+        ASTNode* it=ptr;
+        while(it!=NULL) {
+            if(it->gs!=g_NUM) {
+                // TODO: ERROR not NUM
+                return;
+            }
+            it=it->next;
+        }
+        while(ptr!=NULL) {
+            handleStatements(ptr->child,funcInfo,currST);
+            ptr=ptr->next;
+        }
+        ptr=ptr->parent->next; //on default
+        handleStatements(ptr->child,funcInfo,currST);
+    }
 }
 
 void handleIterativeStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Iterative Statement
+    
 }
 
 void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST){
