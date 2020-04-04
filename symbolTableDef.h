@@ -20,25 +20,20 @@
 
 typedef struct symTableNode symTableNode;
 
-struct boundIndixes{
-    int sidx;
-    int eidx;
-};
-typedef struct boundIndixes boundIndices;
-
 typedef enum{
-    VARIABLE, STAT_ARR, DYN_ARR
+    VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
 }varOrArr;
 
-union indexOrTable {
-    struct boundIndixes bi;
-    symTableNode *stn;
+union numOrId {
+    int vt_num;
+    symTableNode *vt_id;
 };
 
 struct varType{
     gSymbol baseType;
-    varOrArr va;
-    union indexOrTable it;
+    varOrArr vaType;
+    union numOrId si;
+    union numOrId ei;
     int bytes;
 };
 typedef struct varType varType;

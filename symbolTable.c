@@ -200,6 +200,7 @@ void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTabl
 
 void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Handle Declare Statement
+
 }
 
 void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
