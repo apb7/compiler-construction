@@ -55,6 +55,12 @@ void printError(error e){
                 case SEME_REDUNDANT_DECLARATION:
                     fprintf(stderr,"Found redundant declaration for module '%s'.\n",e.edata.seme.errStr);
                     break;
+                case SEME_REDECLARATION:
+                    fprintf(stderr,"'%s' was already declared above.\n",e.edata.seme.errStr);
+                    break;
+                case SEME_OUT_OF_BOUNDS:
+                    fprintf(stderr,"Array index out of bounds for array '%s'.\n",e.edata.seme.errStr);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

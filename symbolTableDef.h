@@ -19,6 +19,7 @@
 //sidx and eidx will be valid only when isArray is true
 
 typedef struct symTableNode symTableNode;
+typedef struct symbolTable symbolTable;
 
 typedef enum{
     VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
@@ -41,6 +42,7 @@ typedef struct varType varType;
 //for making a linked list of AST nodes
 struct ASTNodeListNode{
     ASTNode *astNode;
+    symbolTable *currST;
     struct ASTNodeListNode *next;
 };
 typedef struct ASTNodeListNode ASTNodeListNode;
@@ -71,7 +73,7 @@ typedef enum{
     F_DECLARED, F_DECLARATION_VALID, F_DEFINED
 } funcStatus;
 
-typedef struct symbolTable symbolTable;
+
 
 //symbol table entry for a function
 struct symFuncInfo{

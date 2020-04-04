@@ -1,6 +1,7 @@
 ** This testcase demonstrates the syntactic correctness of the constructs such as modules, simple and declaration statements, and expressions**
 
 declare module compute;
+declare module hello;
 <<<driver program>>>
 start
 	declare var_1_, var_2_, var_3_:integer;
@@ -10,8 +11,15 @@ start
 	get_value(var_1_);
 	var_2_:=10;
 	var_3_:= -(6);
+	use module hello with parameters var_2;
 	[R1_abc, r2_ABC, R3_abc] := use module compute with parameters var_1_, var_2_, var_34;
 	** do not bother that the last variable is not declared. It will be taken care of later in the semantic analysis phase**
+end
+<<module hello>>
+takes input[v:integer];
+start
+	declare c:integer;
+	c := v;
 end
 <<module compute>>
 takes input[a:integer, b:integer, c:integer];

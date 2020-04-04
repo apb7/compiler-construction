@@ -7,6 +7,7 @@
 #include <string.h>
 #include "util.h"
 #include "error.h"
+#include "lexerDef.h"
 
 symbolTable funcTable;
 
@@ -49,7 +50,7 @@ symbolTable *newScope(symbolTable *currST){
     return currST->lastChild;
 }
 
-void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo){
+void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Check whether the type and order of input and output variables match. if not report an error
 }
 
@@ -123,7 +124,51 @@ paramOutNode *createParamOutList(ASTNode *outputPlistNode){
     //TODO: Write code similar to createParamInpList
 }
 
+bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
+        //not found in any of the symbol tables
+        if(inpListSearchID(idNode,funcInfo) == NULL){
+            //not found in the input list as well
+            paramOutNode *tmp = outListSearchID(idNode,funcInfo);
+            if(tmp == NULL){
+                //not found anywhere
+                error e;
+                e.errType = E_SEMANTIC;
+                e.lno = idNode->tkinfo->lno;
+                strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+                e.edata.seme.etype = SEME_UNDECLARED;
+                foundNewError(e);
+                return false;
+            }
+            else{
+                //finally found in output parameters list
+                setAssignedOutParam(tmp);
+            }
+        }
+    }
+    return true;
+}
 
+bool checkIDinScopeUse(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
+        //not found in any of the symbol tables
+        if(inpListSearchID(idNode,funcInfo) == NULL){
+            //not found in the input list as well
+            paramOutNode *tmp = outListSearchID(idNode,funcInfo);
+            if(tmp == NULL){
+                //not found anywhere
+                error e;
+                e.errType = E_SEMANTIC;
+                e.lno = idNode->tkinfo->lno;
+                strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+                e.edata.seme.etype = SEME_UNDECLARED;
+                foundNewError(e);
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 //handles single module declaration
 void handleModuleDeclaration(ASTNode *root){
@@ -144,26 +189,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
     switch(opNode->gs){
         case g_GET_VALUE:{
             ASTNode *idNode = opNode->next;
-            if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
-                //not found in any of the symbol tables
-                if(inpListSearchID(idNode,funcInfo) == NULL){
-                    //not found in the input list as well
-                    paramOutNode *tmp = outListSearchID(idNode,funcInfo);
-                    if(tmp == NULL){
-                        //not found anywhere
-                        error e;
-                        e.errType = E_SEMANTIC;
-                        e.lno = idNode->tkinfo->lno;
-                        strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-                        e.edata.seme.etype = SEME_UNDECLARED;
-                        foundNewError(e);
-                    }
-                    else{
-                        //finally found in output parameters list
-                        setAssignedOutParam(tmp);
-                    }
-                }
-            }
+            checkIDinScopeAssign(idNode, funcInfo, currST);
         }
             break;
         case g_PRINT:
@@ -172,15 +198,126 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
     }
 }
 
-void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: First check whether called function is declared/defined or not
-    //TODO: Then check all the IDs whether they are already declared
-    //TODO: Then if function already defined, call checkModuleSignature(...) else add node to pendingCallList's head
 
+
+void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(moduleReuseNode == NULL || moduleReuseNode->child == NULL){
+        fprintf(stderr,"handleModuleReuse: NULL node found.\n");
+        return;
+    }
+    ASTNode *idListNode1 = NULL;
+    ASTNode *moduleIdNode = NULL;
+    ASTNode *idListNode2 = NULL;
+    if(moduleReuseNode->child->gs == g_ASSIGNOP){
+        idListNode1 = moduleReuseNode->child->child;
+        moduleIdNode = idListNode1->next;
+        idListNode2 = moduleIdNode->next;
+    }
+    else{
+        moduleIdNode = moduleReuseNode->child->child;
+        idListNode2 = moduleIdNode->next;
+    }
+    symFuncInfo * finfo = stGetFuncInfo(moduleIdNode->tkinfo->lexeme,&funcTable);
+    if(finfo == NULL){
+        //No such function
+        error e;
+        e.lno = moduleIdNode->tkinfo->lno;
+        e.errType = E_SEMANTIC;
+        e.edata.seme.etype = SEME_UNDECLARED;
+        strcpy(e.edata.seme.errStr,moduleIdNode->tkinfo->lexeme);
+        foundNewError(e);
+        return;
+    }
+    if(finfo->status == F_DECLARED){
+        finfo->status = F_DECLARATION_VALID;
+        finfo->pendingCallListHead = (ASTNodeListNode *) malloc(sizeof(ASTNodeListNode));
+        finfo->pendingCallListHead->next = NULL;
+        finfo->pendingCallListHead->astNode = moduleReuseNode;
+        finfo->pendingCallListHead->currST = currST;
+    }
+    else if(finfo->status == F_DECLARATION_VALID){
+        ASTNodeListNode *anode = (ASTNodeListNode *) malloc(sizeof(ASTNodeListNode));
+        anode->next = finfo->pendingCallListHead;
+        anode->astNode = moduleReuseNode;
+        anode->currST = currST;
+        finfo->pendingCallListHead = anode;
+    }
+    if(idListNode1){
+        ASTNode *idNode = idListNode1->child;
+        while(idNode != NULL){
+            checkIDinScopeAssign(idNode, funcInfo, currST);
+            idNode = idNode->next;
+        }
+    }
+    if(idListNode2){
+        ASTNode *idNode = idListNode2->child;
+        while(idNode != NULL){
+            checkIDinScopeUse(idNode, funcInfo, currST);
+            idNode = idNode->next;
+        }
+    }
+    if(finfo->status == F_DEFINED){
+        checkModuleSignature(moduleReuseNode,funcInfo,currST);
+    }
+}
+
+void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
+    symVarInfo *arrinfo = stGetVarInfo(idNode->tkinfo->lexeme,currST);
+    if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
+            //out of bounds
+            error e;
+            e.errType = E_SEMANTIC;
+            e.lno = idNode->tkinfo->lno;
+            e.edata.seme.etype = SEME_OUT_OF_BOUNDS;
+            strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+            foundNewError(e);
+        }
+    }
+}
+
+void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(someNode == NULL){
+        return;
+    }
+    if(someNode->gs == g_var_id_num){
+        if(someNode->child->gs == g_ID){
+            ASTNode *idNode = someNode->child;
+            checkIDinScopeUse(idNode,funcInfo,currST);
+            if(idNode->next != NULL){
+                //array
+                boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
+            }
+        }
+        handleExpression(someNode->next,funcInfo,currST);
+    }
+    else{
+        handleExpression(someNode->child,funcInfo,currST);
+        handleExpression(someNode->next,funcInfo,currST);
+    }
 }
 
 void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Assignment Statement
+    if(assignmentStmtNode == NULL || assignmentStmtNode->child == NULL){
+        fprintf(stderr,"handleAssignmentStmt: NULL node found.\n");
+        return;
+    }
+    switch(assignmentStmtNode->child->gs){
+        case g_lvalueIDStmt:{
+            ASTNode *idNode = assignmentStmtNode->child->child;
+            checkIDinScopeAssign(idNode,funcInfo,currST);
+            handleExpression(idNode->next,funcInfo,currST);
+        }
+            break;
+        case g_lvalueARRStmt:{
+            ASTNode *idNode = assignmentStmtNode->child->child;
+            checkIDinScopeUse(idNode,funcInfo,currST);
+            boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
+            handleExpression(idNode->next->next,funcInfo,currST);
+        }
+            break;
+    }
 }
 
 void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -199,8 +336,47 @@ void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTabl
 }
 
 void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Declare Statement
-
+    if(declareStmtNode == NULL || declareStmtNode->child == NULL){
+        fprintf(stderr,"handleDeclareStmt: NULL node found.\n");
+        return;
+    }
+    ASTNode *idListNode = declareStmtNode->child;
+    ASTNode *dataTypeNode = idListNode->next;
+    ASTNode *idNode = idListNode->child;
+    varType vtype = getVtype(dataTypeNode);
+    while(idNode != NULL){
+        //check for already existing definition in current scope
+        symVarInfo *vinfo = stGetVarInfoCurrent(idNode->tkinfo->lexeme,currST);
+        if(vinfo == NULL){
+            if(currST->parent == NULL && (outListSearchID(idNode,funcInfo)) != NULL){
+                //highest scope & redeclaration
+                error e;
+                e.errType = E_SEMANTIC;
+                e.lno = idNode->tkinfo->lno;
+                e.edata.seme.etype = SEME_REDECLARATION;
+                strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+                foundNewError(e);
+            }
+            else{
+                //safe for declaration
+                union funcVar fv;
+                fv.var.lno = idNode->tkinfo->lno;
+                fv.var.vtype = vtype;
+                //TODO: Offset Calculation
+                stAdd(idNode->tkinfo->lexeme,fv,currST);
+            }
+        }
+        else{
+            //redeclaration
+            error e;
+            e.errType = E_SEMANTIC;
+            e.lno = idNode->tkinfo->lno;
+            e.edata.seme.etype = SEME_REDECLARATION;
+            strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+            foundNewError(e);
+        }
+        idNode = idNode->next;
+    }
 }
 
 void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -287,7 +463,7 @@ void handlePendingCalls(symFuncInfo *funcInfo){
         return;
     ASTNodeListNode *pcptr = funcInfo->pendingCallListHead;
     while(pcptr != NULL){
-        checkModuleSignature(pcptr->astNode,funcInfo);
+        checkModuleSignature(pcptr->astNode,funcInfo,pcptr->currST);
         ASTNodeListNode *tmp = pcptr;
         pcptr = pcptr->next;
         free(tmp);
