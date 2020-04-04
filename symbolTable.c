@@ -10,7 +10,7 @@
 #include "lexerDef.h"
 
 symbolTable funcTable;
-
+void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
 
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     funcInfo->status = F_DECLARED;
@@ -29,21 +29,17 @@ void setAssignedOutParam(paramOutNode *outNode){
 }
 
 symbolTable *newScope(symbolTable *currST){
-//    TODO: use createSymbolTable()
     if(currST == NULL){
-        currST = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(currST);
+        currST = createSymbolTable();
         return currST;
     }
     if(currST->lastChild == NULL){
-        currST->headChild = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(currST->headChild);
+        currST->headChild = createSymbolTable();
         currST->lastChild = currST->headChild;
     }
     else{
         symbolTable *tail = currST->lastChild;
-        tail->next = (symbolTable *) malloc(sizeof(symbolTable));
-        initSymbolTable(tail->next);
+        tail->next = createSymbolTable();
         currST->lastChild = tail->next;
     }
     currST->lastChild->parent = currST;
@@ -51,7 +47,69 @@ symbolTable *newScope(symbolTable *currST){
 }
 
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Check whether the type and order of input and output variables match. if not report an error
+    //TODO: Check whether the type, number and order of input and output variables match. if not report an error
+    paramInpNode *currInpListNode = funcInfo->inpPListHead;
+    paramOutNode *currOutListNode = funcInfo->outPListHead;
+    ASTNode *idOrList = moduleReuseNode->child;
+    ASTNode *currListNode = NULL;
+    char *currlexeme;
+    symTableNode *currSymNode;
+
+    if(idOrList->child != NULL){
+        //idOrList is actually idList
+        //match LHS list with outPList
+        currListNode = idOrList->child;
+        do{
+            // match LHS list i.e. currListNode's type with currOutListNode
+            currlexeme = currListNode->tkinfo->lexeme;
+            currSymNode = stSearch(currlexeme, currST);
+            // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
+
+            if(currOutListNode == NULL){
+//                TODO: ERROR: too many return values expected from function
+                    return;
+            }
+            //match the type of nodes
+            if(currSymNode->info.var.vtype.baseType != currOutListNode->vtype.baseType){
+//                TODO: ERROR; throw typeMismatchError
+                    return;
+            }
+            currOutListNode = currOutListNode->next;
+            currListNode = currListNode->next;
+        }while(currListNode != NULL);
+        if(currOutListNode != NULL){
+//            TODO: ERROR; too few retuen values expected from the function
+                return;
+        }
+        idOrList = idOrList->next; // now points to function name AST node i.e. ID after idList
+    }
+    //skip module name and go to RHS list
+    idOrList = idOrList->next; // points to RHS List
+
+    //match RHS List with InpPlist
+    currListNode = idOrList->child;
+    do{
+        // match RHS list i.e. currListNode's type with currInpListNode
+        currlexeme = currListNode->tkinfo->lexeme;
+        currSymNode = stSearch(currlexeme, currST);
+        // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
+
+        if(currInpListNode == NULL){
+//                TODO: ERROR: too many arguments passed to the function
+            return;
+        }
+        //match the type of nodes
+        if(currSymNode->info.var.vtype.baseType != currInpListNode->vtype.baseType){
+//                TODO: ERROR; throw typeMismatchError
+            return;
+        }
+        currInpListNode = currInpListNode->next;
+        currListNode = currListNode->next;
+    }while(currListNode != NULL);
+    if(currInpListNode != NULL){
+//            TODO: ERROR; too few arguments passed to the function
+        return;
+    }
 }
 
 varType getVtype(ASTNode *dataTypeNode){
@@ -74,7 +132,16 @@ paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
 
 paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
     //search for this ID in the output list and return pointer to the node if found else return NULL
-    //TODO: Write code similar to inpListSearchID(..)
+    if(idNode == NULL || funcInfo == NULL || idNode->tkinfo == NULL)
+        return NULL;
+    char *lexeme = idNode->tkinfo->lexeme;
+    paramOutNode *ptr = funcInfo->outPListHead;
+    while(ptr != NULL){
+        if(equals(ptr->lexeme,lexeme))
+            return ptr;
+        ptr = ptr->next;
+    }
+    return NULL;
 }
 
 paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
@@ -117,11 +184,42 @@ paramInpNode *createParamInpList(ASTNode *inputPlistNode){
 }
 
 paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
-    //TODO: Write code similar to createParamInpNode
+    if(idNode == NULL || dataTypeNode == NULL){
+        fprintf(stderr,"createParamOutNode: NULL error.\n");
+        return NULL;
+    }
+    paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
+    if(idNode->tkinfo)
+        ptr->lno = idNode->tkinfo->lno;
+    strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
+    ptr->vtype = getVtype(dataTypeNode);
+    //TODO: Offset computation
+    ptr->next = NULL;
+    return ptr;
 }
 
 paramOutNode *createParamOutList(ASTNode *outputPlistNode){
-    //TODO: Write code similar to createParamInpList
+    if(outputPlistNode == NULL){
+        return NULL;
+    }
+    ASTNode *curr = outputPlistNode->child;
+    paramOutNode *head = NULL;
+    paramOutNode *currOut = NULL;
+    while(curr != NULL){
+        if(head == NULL){
+            head = createParamOutNode(curr, curr->next);
+            currOut = head;
+        }
+        else{
+            currOut->next = createParamOutNode(curr,curr->next);
+            currOut = currOut->next;
+        }
+        if(curr->next)
+            curr = curr->next->next;
+        else
+            curr = NULL;
+    }
+    return head;
 }
 
 bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -378,9 +476,97 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
         idNode = idNode->next;
     }
 }
-
+int findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
+     if(stSearch(node->tkinfo->lexeme,currST)!=NULL) {
+        symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);
+        *ty = varNode->info.var.vtype.baseType;
+        if(varNode->info.var.vtype.vaType==VARIABLE)
+            *isVar=1;
+        return 1;
+    }
+    else if(inpListSearchID(node,funcInfo)!=NULL) {
+        paramInpNode* varNode = inpListSearchID(node,funcInfo);
+        *ty=varNode->vtype.baseType;
+        if(varNode->vtype.vaType==VARIABLE)
+            *isVar=1;
+        return 1;
+    }
+    else if(outListSearchID(node,funcInfo)!=NULL) {
+        paramOutNode* varNode = outListSearchID(node,funcInfo);
+        *ty=varNode->vtype.baseType;
+        if(varNode->vtype.vaType==VARIABLE)
+            *isVar=1;
+        return 1;
+    }
+    return 0;
+}
 void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Conditional Statement
+    if(conditionalStmtNode==NULL || conditionalStmtNode->child==NULL) {
+        fprintf(stderr,"handleConditionalStmt: NULL node found.\n");
+        return;
+    }
+    gSymbol ty;
+    int isVar=0;
+    ASTNode *ptr = conditionalStmtNode->child; //on ID
+    int found = findType(ptr,currST,funcInfo,&isVar,&ty);
+    if(!found) {
+        // TODO: ERROR handle undeclared case statement var error
+        return;
+    }
+    if((ty!=g_BOOLEAN && ty!=g_INTEGER) || !isVar) {
+        // TODO: ERROR handle not valid data type
+        return;
+    }
+    if(ptr->next->gs==g_START)
+        currST = newScope(currST);
+    ptr=ptr->next->child; //on casestmts
+    if(ty==g_BOOLEAN) {
+        if(ptr->next!=NULL) {
+            // TODO: ERROR handle default in g_BOOLEAN
+            return;
+        }
+        int true_count=0, false_count=0;
+        ptr=ptr->child; //on TRUE/FALSE
+        ASTNode* it = ptr;
+        while(it!=NULL) {
+            if(it->gs==g_TRUE)
+                true_count++;
+            else if(it->gs==g_FALSE)
+                false_count++;
+            else {
+                // TODO: ERROR handle non boolean
+                return;
+            }
+            it=it->next;
+        }
+        if(true_count*false_count!=1) {
+            // TODO: ERROR both T/F don't occur
+        }
+        while(ptr!=NULL) {
+            handleStatements(ptr->child,funcInfo,currST);
+            ptr=ptr->next;
+        }
+    } else {
+        if(ptr->next==NULL) {
+             // TODO: ERROR handle no default in g_INTEGER
+            return;
+        }
+        ptr=ptr->child; //on NUM
+        ASTNode* it=ptr;
+        while(it!=NULL) {
+            if(it->gs!=g_NUM) {
+                // TODO: ERROR not NUM
+                return;
+            }
+            it=it->next;
+        }
+        while(ptr!=NULL) {
+            handleStatements(ptr->child,funcInfo,currST);
+            ptr=ptr->next;
+        }
+        ptr=ptr->parent->next; //on default
+        handleStatements(ptr->child,funcInfo,currST);
+    }
 }
 
 void handleIterativeStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){

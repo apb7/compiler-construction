@@ -1,4 +1,4 @@
-// <ioStmt> | <simpleStmt> | <declareStmt> | <condionalStmt> | <iterativeStmt>
+// <ioStmt> | <simpleStmt> | <declareStmt> | <conditionalStmt> | <iterativeStmt>
 
 bool checkIDinScope(/*the 'lexeme' of identifier*/){
 	/*check the presence of ID 'lexeme' from current scope (*st)

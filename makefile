@@ -1,2 +1,2 @@
-all:    lexer.c lexer.h lexerDef.h parser.c parser.h parserDef.h set.c set.h hash.h hash.c driver.c util.c util.h config.h treeNodePtr_stack.c treeNodePtr_stack.h error.c error.h errorPtr_stack.c errorPtr_stack.h ast.c ast.h astDef.h
-	gcc lexer.c parser.c set.c hash.c driver.c util.c treeNodePtr_stack.c error.c errorPtr_stack.c ast.c -o test
+all:    driver.c parserDef.h parser.h parser.c treeNodePtr_stack.c treeNodePtr_stack.h set.c set.h lexerDef.h lexer.c lexer.h hash.c hash.h util.c util.h astDef.h ast.h ast.c error.c error.h errorPtr_stack.h errorPtr_stack.c symbolTableDef.h symbolHash.h symbolHash.c symbolTable.h symbolTable.c
+	gcc driver.c parser.c treeNodePtr_stack.c set.c lexer.c  hash.c util.c ast.c error.c errorPtr_stack.c  symbolHash.c symbolTable.c -o test
