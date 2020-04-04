@@ -8,6 +8,7 @@
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
+//TODO: put all the declarations here once symbolTable.c is done
 
 
 #endif //SYMBOLTABLE_H

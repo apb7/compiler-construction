@@ -20,6 +20,7 @@
 
 typedef struct symTableNode symTableNode;
 
+
 typedef enum{
     VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
 }varOrArr;
@@ -37,6 +38,7 @@ struct varType{
     int bytes;
 };
 typedef struct varType varType;
+
 
 //for making a linked list of AST nodes
 struct ASTNodeListNode{

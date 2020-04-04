@@ -32,4 +32,3 @@ end
 **verify the output of the lexical analyzer as well**
 **check the correctness of the parse tree**
 
-
