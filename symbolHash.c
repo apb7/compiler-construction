@@ -75,9 +75,9 @@ symVarInfo *stGetVarInfoCurrent(char *lexeme, symbolTable *st){
 }
 
 
-symFuncInfo *stGetFuncInfo(char *lexeme, symbolTable *st){
-// assumption: 'st' is the funcTable declared globally in symbolTable.c
-    symTableNode *symInfoNode = stSearchCurrent(lexeme, st);
+symFuncInfo *stGetFuncInfo(char *lexeme, symbolTable *funcTable){
+// assumption: 'funcTable' is the funcTable declared globally in symbolTable.c
+    symTableNode *symInfoNode = stSearchCurrent(lexeme, funcTable);
     if(symInfoNode){
         return &(symInfoNode->info.func);
     }

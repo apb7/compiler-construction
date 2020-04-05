@@ -9,6 +9,8 @@
 #include "error.h"
 #include "lexerDef.h"
 
+//TODO: when the scope of the function ends, check if all its output parameters have been assigned.
+//TODO: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
 symbolTable funcTable;
 void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
 
@@ -48,6 +50,10 @@ symbolTable *newScope(symbolTable *currST){
 
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Check whether the type, number and order of input and output variables match. if not report an error
+    if(moduleReuseNode == NULL || currST == NULL){
+        fprintf(stderr,"checkModuleSignature: NULL error.\n");
+        return;
+    }
     paramInpNode *currInpListNode = funcInfo->inpPListHead;
     paramOutNode *currOutListNode = funcInfo->outPListHead;
     ASTNode *idOrList = moduleReuseNode->child;
@@ -112,8 +118,57 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
 }
 
+int getSizeByType(gSymbol gs){
+    switch(gs){
+        case g_INTEGER:
+            return SIZE_INTEGER;
+            break;
+        case g_REAL:
+            return SIZE_REAL;
+            break;
+        case g_BOOLEAN:
+            return SIZE_BOOLEAN;
+            break;
+        default: return SIZE_INTEGER;
+    }
+
+}
+
 varType getVtype(ASTNode *dataTypeNode){
     //TODO: Construct the varType struct and return it
+//    typedef enum{
+//        VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
+//    }varOrArr;
+//
+//    union numOrId {
+//        int vt_num;
+//        symTableNode *vt_id;
+//    };
+//
+//    struct varType{
+//        gSymbol baseType;
+//        varOrArr vaType;
+//        union numOrId si;
+//        union numOrId ei;
+//        int bytes;
+//    };
+//    typedef struct varType varType;
+    varType vt;
+    ASTNode *rangeArrOrBType = dataTypeNode->child;
+    ASTNode *bTypeOrNull = dataTypeNode->child->next;
+    if(bTypeOrNull == NULL){
+        // we're dealing with a variable
+        vt.baseType = rangeArrOrBType->gs;
+        vt.bytes = getSizeByType(vt.baseType);
+        vt.vaType = VARIABLE;
+    }
+    else{
+        // we're dealing with an array
+
+    }
+    vt.baseType = dataTypeNode->gs;
+
+
 }
 
 paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
@@ -269,13 +324,55 @@ bool checkIDinScopeUse(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *curr
 }
 
 //handles single module declaration
-void handleModuleDeclaration(ASTNode *root){
-    if(root == NULL){
+void handleModuleDeclaration(ASTNode *moduleIDNode){
+    if(moduleIDNode == NULL){
         fprintf(stderr,"handleModuleDeclaration: Empty node received.\n");
         return;
     }
-    //TODO: add root to the funcTable
+    //TODO: add moduleIDNode to the funcTable
+    symFuncInfo *finfo = stGetFuncInfo(moduleIDNode->tkinfo->lexeme,&(funcTable));
+    if(finfo == NULL){
+        union funcVar fv;
+        initSymFuncInfo(&(fv.func),moduleIDNode->tkinfo->lexeme);
+        union funcVar *funcEntry = stAdd(moduleIDNode->tkinfo->lexeme, fv, &funcTable);
+    }
+    else{
+        // ERROR: Redeclaration Error
+        if(finfo->status == F_DECLARED){
+            // no need to check this if condition but just for consistency
+//            TODO: throw Redeclaration error
+        }
+    }
+}
 
+void throwSemanticError(unsigned int lno, char* errStr, SemanticErrorType errorType){
+    error e;
+    e.errType = E_SEMANTIC;
+    e.lno = lno;
+    strcpy(e.edata.seme.errStr, errStr);
+    e.edata.seme.etype = errorType;
+    foundNewError(e);
+}
+
+bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
+    if(stSearch(idNode->tkinfo->lexeme,currST) == NULL) {
+        //not found in any of the symbol tables
+        if (inpListSearchID(idNode, funcInfo) == NULL) {
+            //not found in the input list as well
+            paramOutNode *tmp = outListSearchID(idNode, funcInfo);
+            if (tmp == NULL) {
+                //not found anywhere
+                return false;
+            }
+            else {
+                if(assign) {
+                    //finally found in output parameters list
+                    setAssignedOutParam(tmp);
+                }
+            }
+        }
+    }
+    return true;
 }
 
 void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -287,16 +384,59 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
     switch(opNode->gs){
         case g_GET_VALUE:{
             ASTNode *idNode = opNode->next;
-            checkIDinScopeAssign(idNode, funcInfo, currST);
+            if(checkIDInScopesAndLists(idNode, funcInfo, currST, true) == false){
+             //not found anywhere
+             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_UNDECLARED);
+             }
         }
-            break;
-        case g_PRINT:
+        break;
+        case g_PRINT: {
             //TODO: Handle this section
-            break;
+//                PRINT TRUE
+//                PRINT FALSE
+//                PRINT var_id_num->ID // print(k); ID can be array also i.e. print(arr);
+//                PRINT var_id_num->ID, NUM // print(a[5]);
+//                PRINT var_id_num->ID, ID // print(a[b]);
+//                PRINT var_id_num->NUM // print(4);
+//                PRINT var_id_num->RNUM // print(2.58E-25);
+
+            ASTNode *varOrBoolConst = opNode->next;
+            if (varOrBoolConst->child != NULL) {
+//                PRINT TRUE -- nothing to handle
+//                PRINT FALSE -- nothing to handle
+                // varOrBoolConst is actually var_id_num
+                ASTNode *idOrConst = varOrBoolConst->child;
+                if(idOrConst->gs == g_ID) {
+//                PRINT var_id_num->NUM -- nothing to handle
+//                PRINT var_id_num->RNUM -- nothing to handle
+//                    PRINT var_id_num->ID
+                    // idOrConst is actually ID
+                    if (checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == false) {
+//                      TODO: will this checkIDInScopesAndLists check suffice if ID is array; handle array index bound checking
+                        throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, SEME_UNDECLARED);
+                        return;
+                    }
+                    if(idOrConst->next != NULL){
+                        // if idOrConst->next is NUM, the following will do static bound checking
+                        boundsCheckIfStatic(idOrConst, idOrConst->next, funcInfo, currST);
+//                        PRINT var_id_num->ID, NUM -- handled upto last line
+                        idOrConst = idOrConst->next;
+                        if(idOrConst->gs == g_ID){
+//                      PRINT var_id_num->ID, ID
+                            if(checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == false){
+//                            TODO: dynamic bounds check on array in previous if and index given by this ID
+                                throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, SEME_UNDECLARED);
+                                return;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        break;
     }
 }
-
-
 
 void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(moduleReuseNode == NULL || moduleReuseNode->child == NULL){
@@ -630,12 +770,7 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     paramOutNode *outptr = funcInfo->outPListHead;
     while(outptr != NULL){
         if(!(outptr->isAssigned)){
-            error e;
-            e.errType = E_SEMANTIC;
-            e.lno = outptr->lno;
-            strcpy(e.edata.seme.errStr,outptr->lexeme);
-            e.edata.seme.etype = SEME_UNASSIGNED;
-            foundNewError(e);
+            throwSemanticError(outptr->lno, outptr->lexeme, SEME_UNASSIGNED);
         }
         outptr = outptr->next;
     }
@@ -689,12 +824,7 @@ void handleOtherModule(ASTNode *moduleNode){
     }
     if(finfo->status == F_DECLARED){
         //Error of a redundant declaration
-        error e;
-        e.errType = E_SEMANTIC;
-        e.lno = finfo->lno;
-        strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-        e.edata.seme.etype = SEME_REDUNDANT_DECLARATION;
-        foundNewError(e);
+        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, SEME_REDUNDANT_DECLARATION);
     }
     if(finfo->status == F_DEFINED) {
         //redefinition

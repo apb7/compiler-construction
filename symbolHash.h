@@ -18,7 +18,7 @@ symTableNode *stSearch(char *lexeme, symbolTable *st);
 
 //return the address of the data element after finding the required entry in the table
 // return NULL if not found
-symFuncInfo *stGetFuncInfo(char *lexeme, symbolTable *st);
+symFuncInfo *stGetFuncInfo(char *lexeme, symbolTable *funcTable);
 symVarInfo *stGetVarInfoCurrent(char *lexeme, symbolTable *st);
 symVarInfo *stGetVarInfo(char *lexeme, symbolTable *st);
 
