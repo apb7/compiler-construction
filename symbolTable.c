@@ -82,6 +82,43 @@ symbolTable *newScope(symbolTable *currST){
     return currST->lastChild;
 }
 
+bool matchDataType(symTableNode *s1, unsigned int lno, symTableNode *s2, pListType pt){
+    // s2 must be of type paramInpNode or paramOutNode
+    //inpOrOut: whether s2 is input plist (false) or output plist (true)
+
+    if(s1->info.var.vtype.vaType == VARIABLE && s2->info.var.vtype.vaType == VARIABLE){
+        // variables are being matched; check basetype and be done
+        if(s1->info.var.vtype.baseType != s2->info.var.vtype.baseType){
+            //        TODO: throw VariableBaseTypeMismatchError
+
+        }
+    }
+    else if(s1->info.var.vtype.vaType == s2->info.var.vtype.vaType){
+        // both are arrays
+        if(s1->info.var.vtype.vaType == STAT_ARR){
+
+        }
+        else if(s1->info.var.vtype.vaType == DYN_L_ARR){
+
+        }
+    }
+    else{
+        if(s1->info.var.vtype.vaType == VARIABLE){
+            //        TODO: throw ExpectedArrayTypeFoundVariable; s1 was expected to be of type s2
+            return false;
+        }
+        else if(s2->info.var.vtype.vaType == VARIABLE){
+            //        TODO: throw ExpectedVariableTypeFoundArray; s1 was expected to be of type s2
+            return false;
+        }
+        else{
+//            TODO: handle checking s1 and s2 when they are both different array types
+        }
+//
+
+    }
+}
+
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Check whether the type, number and order of input and output variables match. if not report an error
     if(moduleReuseNode == NULL || currST == NULL){
@@ -110,15 +147,20 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
                     return;
             }
             //match the type of nodes
-            if(currSymNode->info.var.vtype.baseType != (currOutListNode->info).var.vtype.baseType){
-//                TODO: ERROR; throw typeMismatchError
+            if((currSymNode->info).var.vtype.baseType != (currOutListNode->info).var.vtype.baseType){
+//                TODO: ERROR; throw VariableTypeMismatchError
                     return;
             }
+            if(!matchDataType(currSymNode, currListNode->tkinfo->lno, currOutListNode, OUT_PLIST)){
+                    return;
+
+            }
+
             currOutListNode = currOutListNode->next;
             currListNode = currListNode->next;
         }while(currListNode != NULL);
         if(currOutListNode != NULL){
-//            TODO: ERROR; too few retuen values expected from the function
+//            TODO: ERROR; too few return values expected from the function
                 return;
         }
         idOrList = idOrList->next; // now points to function name AST node i.e. ID after idList
@@ -153,7 +195,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
 }
 
 
-varType getVtype(ASTNode *dataTypeNode){
+varType getVtype(ASTNode *dataTypeNode, symFuncInfo *funcInfo, symbolTable *currST){
     //TODO: Construct the varType struct and return it
 //    typedef enum{
 //        VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
@@ -172,14 +214,18 @@ varType getVtype(ASTNode *dataTypeNode){
 //        int bytes;
 //    };
 //    typedef struct varType varType;
+
     varType vt;
     ASTNode *rangeArrOrBType = dataTypeNode->child;
     ASTNode *bTypeOrNull = dataTypeNode->child->next;
+
     if(bTypeOrNull == NULL){
         // we're dealing with a variable
         vt.baseType = rangeArrOrBType->gs;
         vt.bytes = getSizeByType(vt.baseType);
         vt.vaType = VARIABLE;
+        vt.si.vt_id = NULL;
+        vt.ei.vt_id = NULL;
     }
     else{
         // we're dealing with an array
@@ -228,7 +274,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
     if(idNode->tkinfo)
         (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    (ptr->info).var.vtype = getVtype(dataTypeNode);
+    (ptr->info).var.vtype = getVtype(dataTypeNode, NULL, NULL);
     //TODO: check Offset computation
     (ptr->info).var.offset = nextGlobalOffset;
     nextGlobalOffset += (ptr->info).var.vtype.bytes;
@@ -270,7 +316,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
     if(idNode->tkinfo)
         (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    (ptr->info).var.vtype = getVtype(dataTypeNode);
+    (ptr->info).var.vtype = getVtype(dataTypeNode,NULL, NULL);
     (ptr->info).var.isAssigned = false;
     //TODO: check Offset computation
     (ptr->info).var.offset = nextGlobalOffset;
@@ -338,7 +384,7 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
     symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
     if(varNode->info.var.isLoopVar) {
         // TODO: ERROR loop var redefined
-        return false; 
+        return false;
     }
     return true;
 }
@@ -536,12 +582,7 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
         int idx = (idOrNumNode->tkinfo->value).num;
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
             //out of bounds
-            error e;
-            e.errType = E_SEMANTIC;
-            e.lno = idNode->tkinfo->lno;
-            e.edata.seme.etype = SEME_OUT_OF_BOUNDS;
-            strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-            foundNewError(e);
+            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_OUT_OF_BOUNDS);
         }
     }
 }
@@ -612,7 +653,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
     ASTNode *idListNode = declareStmtNode->child;
     ASTNode *dataTypeNode = idListNode->next;
     ASTNode *idNode = idListNode->child;
-    varType vtype = getVtype(dataTypeNode);
+    varType vtype = getVtype(dataTypeNode, funcInfo, currST);
     while(idNode != NULL){
         //check for already existing definition in current scope
 
@@ -751,7 +792,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             // TODO: ERROR handle not valid data type
             return;
         }
-        
+
         varNode->info.var.isLoopVar=true;
         ptr=ptr->next->next;
         if(ptr->gs==g_START)
@@ -870,12 +911,7 @@ void handleOtherModule(ASTNode *moduleNode){
     }
     else if(finfo->status == F_DEFINED) {
         //redefinition
-        error e;
-        e.errType = E_SEMANTIC;
-        e.lno = finfo->lno;
-        strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-        e.edata.seme.etype = SEME_REDEFINITION;
-        foundNewError(e);
+        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, SEME_REDEFINITION);
         return;
     }
 
