@@ -709,8 +709,44 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     }
 }
 
-void handleIterativeStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
-    //TODO: Handle Iterative Statement
+void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(iterativeStmtNode==NULL || iterativeStmtNode->child==NULL) {
+        fprintf(stderr,"handleIterativeStmt: NULL node found.\n");
+        return;
+    }
+    ASTNode* ptr = iterativeStmtNode;
+    ptr=ptr->child; //on FOR/WHILE
+    if(ptr->gs==g_FOR) {
+        ptr=ptr->next; //on ID
+        gSymbol ty;
+        int isVar=0;
+        int found = findType(ptr,currST,funcInfo,&isVar,&ty);
+        if(!found) {
+            // TODO: ERROR handle undeclared case statement var error
+            return;
+        }
+        // handle integer
+        if(ty!=g_INTEGER || !isVar) {
+            // TODO: ERROR handle not valid data type
+            return;
+        }
+        ptr=ptr->next->next;
+        if(ptr->gs==g_START)
+            currST=newScope(currST);
+        ptr=ptr->child;
+        handleStatements(ptr,funcInfo,currST);
+        return;
+    }
+    if(ptr->gs==g_WHILE) {
+        ptr=ptr->next;
+        // TODO: verify typeof(ptr)
+        ptr=ptr->next;
+        if(ptr->gs==g_START)
+            currST=newScope(currST);
+        ptr=ptr->child;
+        handleStatements(ptr,funcInfo,currST);
+        return;
+    }
 }
 
 void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST){
