@@ -63,6 +63,10 @@ void printError(error e){
                     break;
                 case SEME_REDEFINITION:
                     fprintf(stderr,"Previous definition was here. Found redefinition of the module '%s'.\n",e.edata.seme.errStr);
+                    break;
+                case SEME_RECURSION:
+                    fprintf(stderr,"The module '%s' cannot call itself.\n",e.edata.seme.errStr);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

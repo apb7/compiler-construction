@@ -24,6 +24,25 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     strcpy(funcInfo->funcName,funcName);
 }
 
+void initSymVarInfo(symVarInfo *varInfo){
+
+}
+
+int getSizeByType(gSymbol gs){
+    switch(gs){
+        case g_INTEGER:
+            return SIZE_INTEGER;
+            break;
+        case g_REAL:
+            return SIZE_REAL;
+            break;
+        case g_BOOLEAN:
+            return SIZE_BOOLEAN;
+            break;
+        default: return SIZE_INTEGER;
+    }
+}
+
 void setAssignedOutParam(paramOutNode *outNode){
     if(outNode == NULL)
         return;
@@ -118,21 +137,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
 }
 
-int getSizeByType(gSymbol gs){
-    switch(gs){
-        case g_INTEGER:
-            return SIZE_INTEGER;
-            break;
-        case g_REAL:
-            return SIZE_REAL;
-            break;
-        case g_BOOLEAN:
-            return SIZE_BOOLEAN;
-            break;
-        default: return SIZE_INTEGER;
-    }
-
-}
 
 varType getVtype(ASTNode *dataTypeNode){
     //TODO: Construct the varType struct and return it
@@ -248,6 +252,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
         (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
     (ptr->info).var.vtype = getVtype(dataTypeNode);
+    (ptr->info).var.isAssigned = false;
     //TODO: Offset computation
     ptr->next = NULL;
     return ptr;
@@ -479,6 +484,13 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         anode->astNode = moduleReuseNode;
         anode->currST = currST;
         finfo->pendingCallListHead = anode;
+    }
+    if(finfo->status == F_DEFINED){
+        if(equals(funcInfo->funcName,finfo->funcName)){
+            //report recursion error
+            throwSemanticError(moduleIdNode->tkinfo->lno,moduleIdNode->tkinfo->lexeme,SEME_RECURSION);
+            return;
+        }
     }
     if(idListNode1){
         ASTNode *idNode = idListNode1->child;
