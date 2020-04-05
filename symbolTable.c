@@ -773,24 +773,6 @@ void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTabl
     }
 }
 
-
-void handleStartNode(ASTNode *startNode, symFuncInfo *funcInfo, symbolTable *currST){
-    if(startNode == NULL || startNode->child == NULL){
-        fprintf(stderr,"handleStartNode: Empty Start Node or its child received.\n");
-        return;
-    }
-    symbolTable *newST = newScope(currST);
-    switch(startNode->child->gs){
-        case g_statements:
-            handleStatements(startNode->child,funcInfo,newST);
-            break;
-        case g_caseStmts:
-            //TODO: Write code for handleCaseStmts(...)
-            break;
-    }
-
-}
-
 void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     if(startNode == NULL){
         fprintf(stderr,"handleModuleDef: Empty Start Node received.\n");
@@ -910,7 +892,7 @@ void buildSymbolTable(ASTNode *root){
             fv.func.status = F_DEFINED;
             //@driver is the special name for driver function
             union funcVar *funcEntry = stAdd("@driver", fv, &funcTable);
-            handleModuleDef(root->child,&(funcEntry->func));
+            handleModuleDef(root->child->child,&(funcEntry->func));
         }
             break;
         case g_otherModules:
