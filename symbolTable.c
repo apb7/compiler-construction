@@ -27,7 +27,7 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
 void setAssignedOutParam(paramOutNode *outNode){
     if(outNode == NULL)
         return;
-    outNode->isAssigned = true;
+    (outNode->info).var.isAssigned = true;
 }
 
 symbolTable *newScope(symbolTable *currST){
@@ -76,7 +76,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
                     return;
             }
             //match the type of nodes
-            if(currSymNode->info.var.vtype.baseType != currOutListNode->vtype.baseType){
+            if(currSymNode->info.var.vtype.baseType != (currOutListNode->info).var.vtype.baseType){
 //                TODO: ERROR; throw typeMismatchError
                     return;
             }
@@ -105,7 +105,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
             return;
         }
         //match the type of nodes
-        if(currSymNode->info.var.vtype.baseType != currInpListNode->vtype.baseType){
+        if(currSymNode->info.var.vtype.baseType != (currInpListNode->info).var.vtype.baseType){
 //                TODO: ERROR; throw typeMismatchError
             return;
         }
@@ -206,9 +206,9 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
     }
     paramInpNode *ptr = (paramInpNode *) (malloc(sizeof(paramInpNode)));
     if(idNode->tkinfo)
-        ptr->lno = idNode->tkinfo->lno;
+        (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    ptr->vtype = getVtype(dataTypeNode);
+    (ptr->info).var.vtype = getVtype(dataTypeNode);
     //TODO: Offset computation
     ptr->next = NULL;
     return ptr;
@@ -245,9 +245,9 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
     }
     paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
     if(idNode->tkinfo)
-        ptr->lno = idNode->tkinfo->lno;
+        (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    ptr->vtype = getVtype(dataTypeNode);
+    (ptr->info).var.vtype = getVtype(dataTypeNode);
     //TODO: Offset computation
     ptr->next = NULL;
     return ptr;
@@ -626,15 +626,15 @@ int findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isV
     }
     else if(inpListSearchID(node,funcInfo)!=NULL) {
         paramInpNode* varNode = inpListSearchID(node,funcInfo);
-        *ty=varNode->vtype.baseType;
-        if(varNode->vtype.vaType==VARIABLE)
+        *ty=(varNode->info).var.vtype.baseType;
+        if((varNode->info).var.vtype.vaType==VARIABLE)
             *isVar=1;
         return 1;
     }
     else if(outListSearchID(node,funcInfo)!=NULL) {
         paramOutNode* varNode = outListSearchID(node,funcInfo);
-        *ty=varNode->vtype.baseType;
-        if(varNode->vtype.vaType==VARIABLE)
+        *ty=(varNode->info).var.vtype.baseType;
+        if((varNode->info).var.vtype.vaType==VARIABLE)
             *isVar=1;
         return 1;
     }
@@ -769,8 +769,8 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     //In the end check that all variables in output list are assigned
     paramOutNode *outptr = funcInfo->outPListHead;
     while(outptr != NULL){
-        if(!(outptr->isAssigned)){
-            throwSemanticError(outptr->lno, outptr->lexeme, SEME_UNASSIGNED);
+        if(!((outptr->info).var.isAssigned)){
+            throwSemanticError((outptr->info).var.lno, outptr->lexeme, SEME_UNASSIGNED);
         }
         outptr = outptr->next;
     }

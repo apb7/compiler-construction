@@ -53,25 +53,28 @@ struct ASTNodeListNode{
 typedef struct ASTNodeListNode ASTNodeListNode;
 
 //for an input parameter node of a function
-struct paramInpNode{
-    char lexeme[30];
-    varType vtype;
-    unsigned int lno;    //line number
-    int offset;
-    struct paramInpNode *next;
-};
-typedef struct paramInpNode paramInpNode;
+//struct paramInpNode{
+//    char lexeme[30];
+//    varType vtype;
+//    unsigned int lno;    //line number
+//    int offset;
+//    struct paramInpNode *next;
+//};
+//typedef struct paramInpNode paramInpNode;
 
 //for an output parameter node of a function
-struct paramOutNode{
-    char lexeme[30];
-    varType vtype;
-    unsigned int lno;
-    int offset;
-    bool isAssigned;
-    struct paramOutNode *next;
-};
-typedef struct paramOutNode paramOutNode;
+//struct paramOutNode{
+//    char lexeme[30];
+//    varType vtype;
+//    unsigned int lno;
+//    int offset;
+//    bool isAssigned;
+//    struct paramOutNode *next;
+//};
+//typedef struct paramOutNode paramOutNode;
+
+typedef symTableNode paramInpNode;
+typedef symTableNode paramOutNode;
 
 //for function's current status
 typedef enum{
@@ -85,8 +88,8 @@ struct symFuncInfo{
     funcStatus status;
     char funcName[30];
     unsigned int lno;
-    struct paramInpNode *inpPListHead;
-    struct paramOutNode *outPListHead;
+    paramInpNode *inpPListHead;
+    paramOutNode *outPListHead;
     symbolTable *st;
     ASTNodeListNode *pendingCallListHead;
 };
@@ -102,6 +105,7 @@ struct symVarInfo{
     unsigned int lno;
     varType vtype;
     int offset;
+    bool isAssigned;
 };
 typedef struct symVarInfo symVarInfo;
 
