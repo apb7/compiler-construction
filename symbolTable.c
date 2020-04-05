@@ -11,7 +11,10 @@
 
 //TODO: when the scope of the function ends, check if all its output parameters have been assigned.
 //TODO: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
+
 symbolTable funcTable;
+int nextGlobalOffset;
+
 void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
 
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
@@ -25,7 +28,10 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
 }
 
 void initSymVarInfo(symVarInfo *varInfo){
-
+    varInfo->isAssigned = false;
+    varInfo->lno = -1;
+    varInfo->isLoopVar = false;
+    varInfo->offset = -1;
 }
 
 int getSizeByType(gSymbol gs){
@@ -41,6 +47,15 @@ int getSizeByType(gSymbol gs){
             break;
         default: return SIZE_INTEGER;
     }
+}
+
+void throwSemanticError(unsigned int lno, char* errStr, SemanticErrorType errorType){
+    error e;
+    e.errType = E_SEMANTIC;
+    e.lno = lno;
+    strcpy(e.edata.seme.errStr, errStr);
+    e.edata.seme.etype = errorType;
+    foundNewError(e);
 }
 
 void setAssignedOutParam(paramOutNode *outNode){
@@ -209,11 +224,14 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
         return NULL;
     }
     paramInpNode *ptr = (paramInpNode *) (malloc(sizeof(paramInpNode)));
+    initSymVarInfo(&((ptr->info).var));
     if(idNode->tkinfo)
         (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
     (ptr->info).var.vtype = getVtype(dataTypeNode);
-    //TODO: Offset computation
+    //TODO: check Offset computation
+    (ptr->info).var.offset = nextGlobalOffset;
+    nextGlobalOffset += (ptr->info).var.vtype.bytes;
     ptr->next = NULL;
     return ptr;
 }
@@ -248,12 +266,15 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
         return NULL;
     }
     paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
+    initSymVarInfo(&((ptr->info).var));
     if(idNode->tkinfo)
         (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
     (ptr->info).var.vtype = getVtype(dataTypeNode);
     (ptr->info).var.isAssigned = false;
-    //TODO: Offset computation
+    //TODO: check Offset computation
+    (ptr->info).var.offset = nextGlobalOffset;
+    nextGlobalOffset += (ptr->info).var.vtype.bytes;
     ptr->next = NULL;
     return ptr;
 }
@@ -296,7 +317,7 @@ symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo
     return varNode;
 }
 
-bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
+bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
         if(inpListSearchID(idNode,funcInfo) == NULL){
@@ -304,12 +325,7 @@ bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *c
             paramOutNode *tmp = outListSearchID(idNode,funcInfo);
             if(tmp == NULL){
                 //not found anywhere
-                error e;
-                e.errType = E_SEMANTIC;
-                e.lno = idNode->tkinfo->lno;
-                strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-                e.edata.seme.etype = SEME_UNDECLARED;
-                foundNewError(e);
+                throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_UNDECLARED);
                 return false;
             }
             else{
@@ -327,7 +343,7 @@ bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *c
     return true;
 }
 
-bool checkIDinScopeUse(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
+bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
         if(inpListSearchID(idNode,funcInfo) == NULL){
@@ -335,12 +351,7 @@ bool checkIDinScopeUse(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *curr
             paramOutNode *tmp = outListSearchID(idNode,funcInfo);
             if(tmp == NULL){
                 //not found anywhere
-                error e;
-                e.errType = E_SEMANTIC;
-                e.lno = idNode->tkinfo->lno;
-                strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-                e.edata.seme.etype = SEME_UNDECLARED;
-                foundNewError(e);
+                throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_UNDECLARED);
                 return false;
             }
         }
@@ -354,7 +365,6 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
         fprintf(stderr,"handleModuleDeclaration: Empty node received.\n");
         return;
     }
-    //TODO: add moduleIDNode to the funcTable
     symFuncInfo *finfo = stGetFuncInfo(moduleIDNode->tkinfo->lexeme,&(funcTable));
     if(finfo == NULL){
         union funcVar fv;
@@ -370,15 +380,6 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
     }
 }
 
-void throwSemanticError(unsigned int lno, char* errStr, SemanticErrorType errorType){
-    error e;
-    e.errType = E_SEMANTIC;
-    e.lno = lno;
-    strcpy(e.edata.seme.errStr, errStr);
-    e.edata.seme.etype = errorType;
-    foundNewError(e);
-}
-
 bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL) {
         //not found in any of the symbol tables
@@ -387,6 +388,7 @@ bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable
             paramOutNode *tmp = outListSearchID(idNode, funcInfo);
             if (tmp == NULL) {
                 //not found anywhere
+
                 return false;
             }
             else {
@@ -409,10 +411,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
     switch(opNode->gs){
         case g_GET_VALUE:{
             ASTNode *idNode = opNode->next;
-            if(checkIDInScopesAndLists(idNode, funcInfo, currST, true) == false){
-             //not found anywhere
-             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_UNDECLARED);
-             }
+            assignIDinScope(idNode,funcInfo,currST);
         }
         break;
         case g_PRINT: {
@@ -515,14 +514,14 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
     if(idListNode1){
         ASTNode *idNode = idListNode1->child;
         while(idNode != NULL){
-            checkIDinScopeAssign(idNode, funcInfo, currST);
+            assignIDinScope(idNode, funcInfo, currST);
             idNode = idNode->next;
         }
     }
     if(idListNode2){
         ASTNode *idNode = idListNode2->child;
         while(idNode != NULL){
-            checkIDinScopeUse(idNode, funcInfo, currST);
+            useIDinScope(idNode, funcInfo, currST);
             idNode = idNode->next;
         }
     }
@@ -554,7 +553,7 @@ void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *cur
     if(someNode->gs == g_var_id_num){
         if(someNode->child->gs == g_ID){
             ASTNode *idNode = someNode->child;
-            checkIDinScopeUse(idNode,funcInfo,currST);
+            useIDinScope(idNode, funcInfo, currST);
             if(idNode->next != NULL){
                 //array
                 boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
@@ -576,13 +575,13 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
     switch(assignmentStmtNode->child->gs){
         case g_lvalueIDStmt:{
             ASTNode *idNode = assignmentStmtNode->child->child;
-            checkIDinScopeAssign(idNode,funcInfo,currST);
+            assignIDinScope(idNode, funcInfo, currST);
             handleExpression(idNode->next,funcInfo,currST);
         }
             break;
         case g_lvalueARRStmt:{
             ASTNode *idNode = assignmentStmtNode->child->child;
-            checkIDinScopeUse(idNode,funcInfo,currST);
+            useIDinScope(idNode, funcInfo, currST);
             boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
             handleExpression(idNode->next->next,funcInfo,currST);
         }
@@ -623,11 +622,33 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
         if(varNode!=NULL && varNode->info.var.isLoopVar) {
             // TODO: ERROR Loop variable redeclared
         }
-
-        symVarInfo *vinfo = stGetVarInfoCurrent(idNode->tkinfo->lexeme,currST);
-        if(vinfo == NULL){
-            if(currST->parent == NULL && (outListSearchID(idNode,funcInfo)) != NULL){
-                //highest scope & redeclaration
+        else{
+            symVarInfo *vinfo = stGetVarInfoCurrent(idNode->tkinfo->lexeme,currST);
+            if(vinfo == NULL){
+                if(currST->parent == NULL && (outListSearchID(idNode,funcInfo)) != NULL){
+                    //highest scope & redeclaration
+                    error e;
+                    e.errType = E_SEMANTIC;
+                    e.lno = idNode->tkinfo->lno;
+                    e.edata.seme.etype = SEME_REDECLARATION;
+                    strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+                    foundNewError(e);
+                }
+                else{
+                    //safe for declaration
+                    union funcVar fv;
+                    initSymVarInfo(&(fv.var));
+                    fv.var.lno = idNode->tkinfo->lno;
+                    fv.var.vtype = vtype;
+                    fv.var.isLoopVar=false;
+                    //TODO: check Offset Calculation
+                    fv.var.offset = nextGlobalOffset;
+                    nextGlobalOffset += fv.var.vtype.bytes;
+                    stAdd(idNode->tkinfo->lexeme,fv,currST);
+                }
+            }
+            else{
+                //redeclaration
                 error e;
                 e.errType = E_SEMANTIC;
                 e.lno = idNode->tkinfo->lno;
@@ -635,24 +656,6 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                 strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
                 foundNewError(e);
             }
-            else{
-                //safe for declaration
-                union funcVar fv;
-                fv.var.lno = idNode->tkinfo->lno;
-                fv.var.vtype = vtype;
-                fv.var.isLoopVar=false;
-                //TODO: Offset Calculation
-                stAdd(idNode->tkinfo->lexeme,fv,currST);
-            }
-        }
-        else{
-            //redeclaration
-            error e;
-            e.errType = E_SEMANTIC;
-            e.lno = idNode->tkinfo->lno;
-            e.edata.seme.etype = SEME_REDECLARATION;
-            strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
-            foundNewError(e);
         }
         idNode = idNode->next;
     }
@@ -885,6 +888,7 @@ void handleOtherModule(ASTNode *moduleNode){
 }
 
 void buildSymbolTable(ASTNode *root){
+    nextGlobalOffset = 0;
     if(root == NULL)
         return;
     switch(root->gs){
@@ -913,6 +917,7 @@ void buildSymbolTable(ASTNode *root){
             fv.func.status = F_DEFINED;
             //@driver is the special name for driver function
             union funcVar *funcEntry = stAdd("@driver", fv, &funcTable);
+            nextGlobalOffset = 0;
             handleModuleDef(root->child->child,&(funcEntry->func));
         }
             break;
@@ -921,6 +926,7 @@ void buildSymbolTable(ASTNode *root){
         {
             ASTNode *ptr = root->child;
             while(ptr != NULL){
+                nextGlobalOffset = 0;
                 handleOtherModule(root->child);
                 ptr = ptr->next;
             }
