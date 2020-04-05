@@ -282,6 +282,20 @@ paramOutNode *createParamOutList(ASTNode *outputPlistNode){
     return head;
 }
 
+symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
+    symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);;
+    if(varNode == NULL)
+        varNode = inpListSearchID(node,funcInfo);
+    if(varNode == NULL)
+        varNode = outListSearchID(node,funcInfo);
+    if(varNode!=NULL) {
+        *ty = varNode->info.var.vtype.baseType;
+        if(varNode->info.var.vtype.vaType==VARIABLE)
+            *isVar=1;
+    }
+    return varNode;
+}
+
 bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
@@ -303,6 +317,12 @@ bool checkIDinScopeAssign(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *c
                 setAssignedOutParam(tmp);
             }
         }
+    }
+    gSymbol ty; int isVar=0;
+    symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
+    if(varNode->info.var.isLoopVar) {
+        // TODO: ERROR loop var redefined
+        return false; 
     }
     return true;
 }
@@ -596,6 +616,14 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
     varType vtype = getVtype(dataTypeNode);
     while(idNode != NULL){
         //check for already existing definition in current scope
+
+        //loop variable redeclare check
+        gSymbol ty; int isVar=0;
+        symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
+        if(varNode!=NULL && varNode->info.var.isLoopVar) {
+            // TODO: ERROR Loop variable redeclared
+        }
+
         symVarInfo *vinfo = stGetVarInfoCurrent(idNode->tkinfo->lexeme,currST);
         if(vinfo == NULL){
             if(currST->parent == NULL && (outListSearchID(idNode,funcInfo)) != NULL){
@@ -612,6 +640,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                 union funcVar fv;
                 fv.var.lno = idNode->tkinfo->lno;
                 fv.var.vtype = vtype;
+                fv.var.isLoopVar=false;
                 //TODO: Offset Calculation
                 stAdd(idNode->tkinfo->lexeme,fv,currST);
             }
@@ -628,30 +657,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
         idNode = idNode->next;
     }
 }
-int findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
-     if(stSearch(node->tkinfo->lexeme,currST)!=NULL) {
-        symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);
-        *ty = varNode->info.var.vtype.baseType;
-        if(varNode->info.var.vtype.vaType==VARIABLE)
-            *isVar=1;
-        return 1;
-    }
-    else if(inpListSearchID(node,funcInfo)!=NULL) {
-        paramInpNode* varNode = inpListSearchID(node,funcInfo);
-        *ty=(varNode->info).var.vtype.baseType;
-        if((varNode->info).var.vtype.vaType==VARIABLE)
-            *isVar=1;
-        return 1;
-    }
-    else if(outListSearchID(node,funcInfo)!=NULL) {
-        paramOutNode* varNode = outListSearchID(node,funcInfo);
-        *ty=(varNode->info).var.vtype.baseType;
-        if((varNode->info).var.vtype.vaType==VARIABLE)
-            *isVar=1;
-        return 1;
-    }
-    return 0;
-}
+
 void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(conditionalStmtNode==NULL || conditionalStmtNode->child==NULL) {
         fprintf(stderr,"handleConditionalStmt: NULL node found.\n");
@@ -660,8 +666,8 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     gSymbol ty;
     int isVar=0;
     ASTNode *ptr = conditionalStmtNode->child; //on ID
-    int found = findType(ptr,currST,funcInfo,&isVar,&ty);
-    if(!found) {
+    symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
+    if(varNode == NULL) {
         // TODO: ERROR handle undeclared case statement var error
         return;
     }
@@ -732,21 +738,24 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         ptr=ptr->next; //on ID
         gSymbol ty;
         int isVar=0;
-        int found = findType(ptr,currST,funcInfo,&isVar,&ty);
-        if(!found) {
-            // TODO: ERROR handle undeclared case statement var error
+        symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
+        if(varNode == NULL) {
+            // TODO: ERROR handle undeclared iterative statement var error
             return;
         }
-        // handle integer
+
         if(ty!=g_INTEGER || !isVar) {
             // TODO: ERROR handle not valid data type
             return;
         }
+        
+        varNode->info.var.isLoopVar=true;
         ptr=ptr->next->next;
         if(ptr->gs==g_START)
             currST=newScope(currST);
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
+        varNode->info.var.isLoopVar=false;
         return;
     }
     if(ptr->gs==g_WHILE) {
