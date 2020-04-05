@@ -6,10 +6,12 @@
 // HASAN NAQVI     2016B5A70452P
 #include "astDef.h"
 #include "symbolTableDef.h"
+#include "error.h"
+
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
 //TODO: put all the declarations here once symbolTable.c is done
 void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST);
-
+void throwSemanticError(unsigned int lno, char* errStr, SemanticErrorType errorType);
 #endif //SYMBOLTABLE_H

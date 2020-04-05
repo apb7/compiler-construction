@@ -81,7 +81,9 @@ typedef enum{
     F_DECLARED, F_DECLARATION_VALID, F_DEFINED
 } funcStatus;
 
-
+typedef enum{
+    INP_PLIST, OUT_PLIST
+}pListType;
 
 //symbol table entry for a function
 struct symFuncInfo{
