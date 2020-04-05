@@ -106,6 +106,7 @@ struct symVarInfo{
     varType vtype;
     int offset;
     bool isAssigned;
+    bool isLoopVar;
 };
 typedef struct symVarInfo symVarInfo;
 
