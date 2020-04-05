@@ -728,19 +728,22 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         int isVar=0;
         symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
         if(varNode == NULL) {
-            // TODO: ERROR handle undeclared case statement var error
+            // TODO: ERROR handle undeclared iterative statement var error
             return;
         }
-        varNode->info.var.isLoopVar=true;
+
         if(ty!=g_INTEGER || !isVar) {
             // TODO: ERROR handle not valid data type
             return;
         }
+        
+        varNode->info.var.isLoopVar=true;
         ptr=ptr->next->next;
         if(ptr->gs==g_START)
             currST=newScope(currST);
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
+        varNode->info.var.isLoopVar=false;
         return;
     }
     if(ptr->gs==g_WHILE) {
