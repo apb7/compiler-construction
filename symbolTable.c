@@ -864,11 +864,11 @@ void handleOtherModule(ASTNode *moduleNode){
         union funcVar *funcEntry = stAdd(idNode->tkinfo->lexeme, fv, &funcTable);
         finfo = &(funcEntry->func);
     }
-    if(finfo->status == F_DECLARED){
+    else if(finfo->status == F_DECLARED){
         //Error of a redundant declaration
         throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, SEME_REDUNDANT_DECLARATION);
     }
-    if(finfo->status == F_DEFINED) {
+    else if(finfo->status == F_DEFINED) {
         //redefinition
         error e;
         e.errType = E_SEMANTIC;
