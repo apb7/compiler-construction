@@ -61,6 +61,8 @@ void printError(error e){
                 case SEME_OUT_OF_BOUNDS:
                     fprintf(stderr,"Array index out of bounds for array '%s'.\n",e.edata.seme.errStr);
                     break;
+                case SEME_REDEFINITION:
+                    fprintf(stderr,"Previous definition was here. Found redefinition of the module '%s'.\n",e.edata.seme.errStr);
                 default:
                     fprintf(stderr,"\n");
                     break;

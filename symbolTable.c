@@ -696,8 +696,15 @@ void handleOtherModule(ASTNode *moduleNode){
         e.edata.seme.etype = SEME_REDUNDANT_DECLARATION;
         foundNewError(e);
     }
-    if(finfo->status == F_DECLARED) {
-//        TODO: ...
+    if(finfo->status == F_DEFINED) {
+        //redefinition
+        error e;
+        e.errType = E_SEMANTIC;
+        e.lno = finfo->lno;
+        strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+        e.edata.seme.etype = SEME_REDEFINITION;
+        foundNewError(e);
+        return;
     }
 
     finfo->lno = idNode->tkinfo->lno;
