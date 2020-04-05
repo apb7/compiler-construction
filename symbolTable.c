@@ -574,13 +574,13 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
     }
     switch(assignmentStmtNode->child->gs){
         case g_lvalueIDStmt:{
-            ASTNode *idNode = assignmentStmtNode->child->child;
+            ASTNode *idNode = assignmentStmtNode->child->child->child;
             assignIDinScope(idNode, funcInfo, currST);
             handleExpression(idNode->next,funcInfo,currST);
         }
             break;
         case g_lvalueARRStmt:{
-            ASTNode *idNode = assignmentStmtNode->child->child;
+            ASTNode *idNode = assignmentStmtNode->child->child->child;
             useIDinScope(idNode, funcInfo, currST);
             boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
             handleExpression(idNode->next->next,funcInfo,currST);
