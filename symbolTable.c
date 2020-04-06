@@ -319,7 +319,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
     varType vt;
     initVarType(&vt);
 
-    if(typeOrDataTypeNode == NULL || funcInfo == NULL || currST == NULL){
+    if(typeOrDataTypeNode == NULL){
         fprintf(stderr, "getVType: Received a NULL Node.\n");
         return vt;
     }

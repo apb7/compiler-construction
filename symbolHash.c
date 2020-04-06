@@ -1,4 +1,5 @@
 #include "symbolHash.h"
+#include "util.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,7 +38,7 @@ symTableNode *stSearchCurrent(char *lexeme, symbolTable *st){
     int slot = symbolTableHashFunction(lexeme);
     symTableNode *curr_node = (st->tb)[slot];
     while(curr_node != NULL){
-        if(strcmp(curr_node->lexeme, lexeme) == 0){
+        if(equals(curr_node->lexeme, lexeme)){
             return curr_node;
         }
         curr_node = curr_node->next;
