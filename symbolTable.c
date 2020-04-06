@@ -15,7 +15,9 @@
 symbolTable funcTable;
 int nextGlobalOffset;
 
-void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
+
+
+void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     funcInfo->status = F_DECLARED;
     funcInfo->lno = -1;
     funcInfo->st = NULL;
@@ -25,14 +27,14 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     strcpy(funcInfo->funcName,funcName);
 }
 
-void initSymVarInfo(symVarInfo *varInfo) {
+void initSymVarInfo(symVarInfo *varInfo){
     varInfo->isAssigned = false;
     varInfo->lno = -1;
     varInfo->isLoopVar = false;
     varInfo->offset = -1;
 }
 
-int getSizeByType(gSymbol gs) {
+int getSizeByType(gSymbol gs){
     switch(gs){
         case g_INTEGER:
             return SIZE_INTEGER;
@@ -47,7 +49,7 @@ int getSizeByType(gSymbol gs) {
     }
 }
 
-void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, SemanticErrorType errorType) {
+void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, SemanticErrorType errorType){
     error e;
     e.errType = E_SEMANTIC;
     e.lno = lno;
@@ -57,13 +59,13 @@ void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, Semantic
     foundNewError(e);
 }
 
-void setAssignedOutParam(paramOutNode *outNode) {
+void setAssignedOutParam(paramOutNode *outNode){
     if(outNode == NULL)
         return;
     (outNode->info).var.isAssigned = true;
 }
 
-symbolTable *newScope(symbolTable *currST) {
+symbolTable *newScope(symbolTable *currST){
     if(currST == NULL){
         currST = createSymbolTable();
         return currST;
@@ -81,7 +83,7 @@ symbolTable *newScope(symbolTable *currST) {
     return currST->lastChild;
 }
 
-bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode) {
+bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode){
     // match the static bounds between inplistNode and passedParam
     // inplist is assumed to be STAT_ARR type
     // passedParam is assumed to be an array type
@@ -136,7 +138,7 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode) {
     }
 }
 
-bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt) {
+bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt){
     // plistNode must be of type paramInpNode or paramOutNode
     // cannot get an array returned from a function
     // can pass an array to a function
@@ -161,7 +163,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                         case VARIABLE: // passed a variable
                             if(passedOrGot->info.var.vtype.baseType != plistNode->info.var.vtype.baseType){
 //                                TODO: throw FuncVariableBaseTypeMismatchError
-                                return false;
+                                    return false;
                             }
                             return true;
                             break;
@@ -195,7 +197,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
             if(!(passedOrGot->info.var.vtype.vaType == VARIABLE && plistNode->info.var.vtype.vaType == VARIABLE && \
             passedOrGot->info.var.vtype.baseType == plistNode->info.var.vtype.baseType)){
 //                TODO throw FuncVariableBaseTypeMismatchError
-                return false;
+                    return false;
             }
             return true;
             break;
@@ -204,7 +206,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
 
 }
 
-void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(moduleReuseNode == NULL || funcInfo == NULL || currST == NULL){
         fprintf(stderr, "checkModuleSignature: Received a NULL Node.\n");
     }
@@ -277,7 +279,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
 }
 
-void initVarType(varType *vt) {
+void initVarType(varType *vt){
     // these are just randomly chosen values since we don't have a default and ned to initialise it with something
     vt->baseType = g_INTEGER;
     vt->vaType = VARIABLE;
@@ -286,7 +288,7 @@ void initVarType(varType *vt) {
     vt->bytes = SIZE_INTEGER;
 }
 
-varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST) {
+varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(typeOrDataTypeNode == NULL || funcInfo == NULL || currST == NULL){
         fprintf(stderr, "getVType: Received a NULL Node.\n");
     }
@@ -328,46 +330,6 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                 vt.ei.vt_id = NULL;
             } else {
                 // we're dealing with an array
-                // for a dynamic array, vt.bytes will store the size occupied by single element of its base type
-                vt.baseType = baseTypeOrNull->gs;
-                vt.bytes = getSizeByType(vt.baseType); // size occupied by single element
-                ASTNode *numOrId = rangeArrOrBaseType->child;
-                switch(numOrId->gs)
-                {   // check the left bound
-                    case g_NUM:
-                    {
-                        unsigned int lb = numOrId->tkinfo->value.num;
-                        switch(numOrId->next->gs)
-                        {   // check the right bound
-                            case g_NUM:{
-                                unsigned int rb = numOrId->next->tkinfo->value.num;
-
-                                break;
-                            }
-                            case g_ID:
-                                break;
-                            default:
-                                fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
-                        }
-
-                        break;
-                    }
-                    case g_ID:
-                        switch(numOrId->next->gs)
-                        {   // check the right bound
-                            case g_NUM:
-                                break;
-                            case g_ID:
-                                break;
-                            default:
-                                fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
-                        }
-                        break;
-                    default:
-                        fprintf(stderr, "getVType: Unexpected ASTNode found representing left bound of array.\n");
-
-                }
-
 
             }
             vt.baseType = typeOrDataTypeNode->gs;
@@ -376,11 +338,11 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
         default:
             // can't handle this node
             fprintf(stderr, "getVType: Invoked on invalid node.\n");
+            return vt;
     }
-    return vt;
 }
 
-paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo) {
+paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
     //search for this ID in the input list and return pointer to the node if found else return NULL
     if(idNode == NULL || funcInfo == NULL || idNode->tkinfo == NULL)
         return NULL;
@@ -394,7 +356,7 @@ paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo) {
     return NULL;
 }
 
-paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo) {
+paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
     //search for this ID in the output list and return pointer to the node if found else return NULL
     if(idNode == NULL || funcInfo == NULL || idNode->tkinfo == NULL)
         return NULL;
@@ -408,7 +370,7 @@ paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo) {
     return NULL;
 }
 
-paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode) {
+paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
     if(idNode == NULL || dataTypeNode == NULL){
         fprintf(stderr,"createParamInpNode: NULL error.\n");
         return NULL;
@@ -426,7 +388,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode) {
     return ptr;
 }
 
-paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
+paramInpNode *createParamInpList(ASTNode *inputPlistNode){
     if(inputPlistNode == NULL){
         return NULL;
     }
@@ -450,7 +412,7 @@ paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
     return head;
 }
 
-paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode) {
+paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
     if(idNode == NULL || dataTypeNode == NULL){
         fprintf(stderr,"createParamOutNode: NULL error.\n");
         return NULL;
@@ -469,7 +431,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode) {
     return ptr;
 }
 
-paramOutNode *createParamOutList(ASTNode *outputPlistNode) {
+paramOutNode *createParamOutList(ASTNode *outputPlistNode){
     if(outputPlistNode == NULL){
         return NULL;
     }
@@ -493,7 +455,7 @@ paramOutNode *createParamOutList(ASTNode *outputPlistNode) {
     return head;
 }
 
-symTableNode *findType(ASTNode *node, symbolTable *currST, symFuncInfo *funcInfo, int *isVar, gSymbol *ty) {
+symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
     symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);;
     if(varNode == NULL)
         varNode = inpListSearchID(node,funcInfo);
@@ -507,7 +469,7 @@ symTableNode *findType(ASTNode *node, symbolTable *currST, symFuncInfo *funcInfo
     return varNode;
 }
 
-bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST) {
+bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
         if(inpListSearchID(idNode,funcInfo) == NULL){
@@ -533,7 +495,7 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
     return true;
 }
 
-bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST) {
+bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
         if(inpListSearchID(idNode,funcInfo) == NULL){
@@ -549,7 +511,8 @@ bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST) {
     return true;
 }
 
-void handleModuleDeclaration(ASTNode *moduleIDNode) {
+//handles single module declaration
+void handleModuleDeclaration(ASTNode *moduleIDNode){
     if(moduleIDNode == NULL){
         fprintf(stderr,"handleModuleDeclaration: Empty node received.\n");
         return;
@@ -569,7 +532,7 @@ void handleModuleDeclaration(ASTNode *moduleIDNode) {
     }
 }
 
-bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign) {
+bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL) {
         //not found in any of the symbol tables
         if (inpListSearchID(idNode, funcInfo) == NULL) {
@@ -591,7 +554,7 @@ bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable
     return true;
 }
 
-void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(ioStmtNode == NULL){
         fprintf(stderr,"handleIOStmt: Error, ioStmtNode found NULL.\n");
         return;
@@ -602,7 +565,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
             ASTNode *idNode = opNode->next;
             assignIDinScope(idNode,funcInfo,currST);
         }
-            break;
+        break;
         case g_PRINT: {
             //TODO: Handle this section
 //                PRINT TRUE
@@ -647,11 +610,11 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
                 }
             }
         }
-            break;
+        break;
     }
 }
 
-void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(moduleReuseNode == NULL || moduleReuseNode->child == NULL){
         fprintf(stderr,"handleModuleReuse: NULL node found.\n");
         return;
@@ -719,7 +682,7 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
     }
 }
 
-void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
     symVarInfo *arrinfo = stGetVarInfo(idNode->tkinfo->lexeme,currST);
     if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
         int idx = (idOrNumNode->tkinfo->value).num;
@@ -730,7 +693,7 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
     }
 }
 
-void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(someNode == NULL){
         return;
     }
@@ -751,7 +714,7 @@ void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *cur
     }
 }
 
-void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(assignmentStmtNode == NULL || assignmentStmtNode->child == NULL){
         fprintf(stderr,"handleAssignmentStmt: NULL node found.\n");
         return;
@@ -773,7 +736,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
     }
 }
 
-void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(simpleStmtNode == NULL || simpleStmtNode->child == NULL){
         fprintf(stderr,"handleSimpleStmt: NULL node found.\n");
         return;
@@ -788,7 +751,7 @@ void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTabl
     }
 }
 
-void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(declareStmtNode == NULL || declareStmtNode->child == NULL){
         fprintf(stderr,"handleDeclareStmt: NULL node found.\n");
         return;
@@ -845,7 +808,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
     }
 }
 
-void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(conditionalStmtNode==NULL || conditionalStmtNode->child==NULL) {
         fprintf(stderr,"handleConditionalStmt: NULL node found.\n");
         return;
@@ -893,7 +856,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         }
     } else {
         if(ptr->next==NULL) {
-            // TODO: ERROR handle no default in g_INTEGER
+             // TODO: ERROR handle no default in g_INTEGER
             return;
         }
         ptr=ptr->child; //on NUM
@@ -914,7 +877,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     }
 }
 
-void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(iterativeStmtNode==NULL || iterativeStmtNode->child==NULL) {
         fprintf(stderr,"handleIterativeStmt: NULL node found.\n");
         return;
@@ -957,7 +920,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     }
 }
 
-void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST) {
+void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST){
     ASTNode *ptr = statementsNode->child; //the first statement
     while(ptr != NULL){
         switch(ptr->gs){
@@ -981,7 +944,7 @@ void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTabl
     }
 }
 
-void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo) {
+void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     if(startNode == NULL){
         fprintf(stderr,"handleModuleDef: Empty Start Node received.\n");
         return;
@@ -1002,7 +965,9 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo) {
     }
 }
 
-void handlePendingCalls(symFuncInfo *funcInfo) {
+
+
+void handlePendingCalls(symFuncInfo *funcInfo){
     //this is to handle function calls which occurred in between the function declaration and definition
     if(funcInfo == NULL)
         return;
@@ -1016,7 +981,7 @@ void handlePendingCalls(symFuncInfo *funcInfo) {
     funcInfo->pendingCallListHead = NULL;   //handles all pending calls
 }
 
-void handleOtherModule(ASTNode *moduleNode) {
+void handleOtherModule(ASTNode *moduleNode){
     if(moduleNode == NULL){
         fprintf(stderr,"handleOtherModule: Empty module Node received.\n");
         return;
@@ -1064,7 +1029,7 @@ void handleOtherModule(ASTNode *moduleNode) {
     handleModuleDef(moduleDefNode->child,finfo);
 }
 
-void buildSymbolTable(ASTNode *root) {
+void buildSymbolTable(ASTNode *root){
     nextGlobalOffset = 0;
     if(root == NULL)
         return;
