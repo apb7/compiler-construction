@@ -67,6 +67,9 @@ void printError(error e){
                 case SEME_RECURSION:
                     fprintf(stderr,"The module '%s' cannot call itself.\n",e.edata.seme.errStr1);
                     break;
+                case SEME_INVALID_BOUNDS:
+                    fprintf(stderr,"The start index of the array '%s' should not be greater than the end index.\n",e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;
