@@ -151,6 +151,9 @@ void printError(error e){
                 case SEME_FOR_VAR_TYPE_INVALID:
                     fprintf(stderr, "The for loop counter variable %s has invalid primitive type ('integer' type expected).\n", e.edata.seme.errStr1);
                     break;
+                case SEME_RETURN_VALUES_NOT_CAPTURED:
+                    fprintf(stderr, "Return value(s) of the module %s must be captured while calling it.\n", e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

@@ -11,7 +11,7 @@
 
 //DONE: when the scope of the function ends, check if all its output parameters have been assigned.
 //DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
-//TODO: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
+//DONE: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
 symbolTable funcTable;
 int nextGlobalOffset;
 
@@ -274,6 +274,14 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
     if(idOrAssOp->child == NULL){
         // idOrAssOp is actually ID
+        // if function returns values but they are not received then it is an error
+        // we are here means, we haven't captured any values
+        // now we must check if they were returned or not
+        // Note that this is not necessary to be checked in case of input list, because syntactically it is enforced that the parameter list
+        // passed while calling a function cannot be empty
+        if(currOutListNode != NULL){
+            throwSemanticError(idOrAssOp->tkinfo->lno, idOrAssOp->tkinfo->lexeme, NULL, SEME_RETURN_VALUES_NOT_CAPTURED);
+        }
         idOrList = idOrAssOp; // now points to function name AST node i.e. ID after idOrList
     }
     //skip module name and go to RHS list
@@ -621,7 +629,7 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
 }
 
 symTableNode *checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
-    symTableNode* st;
+    symTableNode* st = NULL;
     st = stSearch(idNode->tkinfo->lexeme,currST);
     if(st == NULL) {
         //not found in any of the symbol tables
