@@ -17,7 +17,7 @@ int nextGlobalOffset;
 
 
 
-void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
+void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     funcInfo->status = F_DECLARED;
     funcInfo->lno = -1;
     funcInfo->st = NULL;
@@ -388,7 +388,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
     return ptr;
 }
 
-paramInpNode *createParamInpList(ASTNode *inputPlistNode){
+paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
     if(inputPlistNode == NULL){
         return NULL;
     }
@@ -782,16 +782,25 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                     foundNewError(e);
                 }
                 else{
-                    //safe for declaration
-                    union funcVar fv;
-                    initSymVarInfo(&(fv.var));
-                    fv.var.lno = idNode->tkinfo->lno;
-                    fv.var.vtype = vtype;
-                    fv.var.isLoopVar=false;
-                    //TODO: check Offset Calculation
-                    fv.var.offset = nextGlobalOffset;
-                    nextGlobalOffset += fv.var.vtype.bytes;
-                    stAdd(idNode->tkinfo->lexeme,fv,currST);
+                    if(vtype.vaType == STAT_ARR && vtype.si.vt_num > vtype.ei.vt_num){
+                       //invalid si and ei
+                       throwSemanticError(idNode->tkinfo->lno,idNode->tkinfo->lexeme,NULL,SEME_INVALID_BOUNDS);
+                    }
+                    else{
+                        //safe for declaration
+                        union funcVar fv;
+                        initSymVarInfo(&(fv.var));
+                        fv.var.lno = idNode->tkinfo->lno;
+                        fv.var.vtype = vtype;
+                        fv.var.isLoopVar=false;
+                        //TODO: check Offset Calculation
+                        if(vtype.vaType == VARIABLE || vtype.vaType == STAT_ARR){
+                            fv.var.offset = nextGlobalOffset;
+                            nextGlobalOffset += fv.var.vtype.bytes;
+                        }
+                        stAdd(idNode->tkinfo->lexeme,fv,currST);
+                    }
+
                 }
             }
             else{
