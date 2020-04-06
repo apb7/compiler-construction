@@ -22,8 +22,7 @@ typedef enum{
     SEME_REDUNDANT_DECLARATION,
     SEME_OUT_OF_BOUNDS,
     SEME_REDEFINITION,
-    SEME_RECURSION,
-    SEME_INVALID_BOUNDS//add others here
+    SEME_RECURSION//add others here
 } SemanticErrorType;
 
 typedef struct{
