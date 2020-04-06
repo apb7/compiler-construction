@@ -47,25 +47,25 @@ void printError(error e){
             fprintf(stderr, "Line %u: SEMANTIC ERROR: ",e.lno);
             switch(e.edata.seme.etype){
                 case SEME_UNDECLARED:
-                    fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.errStr));
+                    fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.errStr1));
                     break;
                 case SEME_UNASSIGNED:
-                    fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr);
+                    fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_REDUNDANT_DECLARATION:
-                    fprintf(stderr,"Found redundant declaration for module '%s'.\n",e.edata.seme.errStr);
+                    fprintf(stderr,"Found redundant declaration for module '%s'.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_REDECLARATION:
-                    fprintf(stderr,"'%s' was already declared above.\n",e.edata.seme.errStr);
+                    fprintf(stderr,"'%s' was already declared above.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_OUT_OF_BOUNDS:
-                    fprintf(stderr,"Array index out of bounds for array '%s'.\n",e.edata.seme.errStr);
+                    fprintf(stderr,"Array index out of bounds for array '%s'.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_REDEFINITION:
-                    fprintf(stderr,"Previous definition was here. Found redefinition of the module '%s'.\n",e.edata.seme.errStr);
+                    fprintf(stderr,"Previous definition was here. Found redefinition of the module '%s'.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_RECURSION:
-                    fprintf(stderr,"The module '%s' cannot call itself.\n",e.edata.seme.errStr);
+                    fprintf(stderr,"The module '%s' cannot call itself.\n",e.edata.seme.errStr1);
                     break;
                 default:
                     fprintf(stderr,"\n");

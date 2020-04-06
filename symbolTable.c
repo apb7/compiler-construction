@@ -15,7 +15,7 @@
 symbolTable funcTable;
 int nextGlobalOffset;
 
-void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
+
 
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName){
     funcInfo->status = F_DECLARED;
@@ -49,11 +49,12 @@ int getSizeByType(gSymbol gs){
     }
 }
 
-void throwSemanticError(unsigned int lno, char* errStr, SemanticErrorType errorType){
+void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, SemanticErrorType errorType){
     error e;
     e.errType = E_SEMANTIC;
     e.lno = lno;
-    strcpy(e.edata.seme.errStr, errStr);
+    strcpy(e.edata.seme.errStr1, errStr1);
+    strcpy(e.edata.seme.errStr2, errStr2);
     e.edata.seme.etype = errorType;
     foundNewError(e);
 }
@@ -82,44 +83,133 @@ symbolTable *newScope(symbolTable *currST){
     return currST->lastChild;
 }
 
-bool matchDataType(symTableNode *s1, unsigned int lno, symTableNode *s2, pListType pt){
-    // s2 must be of type paramInpNode or paramOutNode
-    //inpOrOut: whether s2 is input plist (false) or output plist (true)
-
-    if(s1->info.var.vtype.vaType == VARIABLE && s2->info.var.vtype.vaType == VARIABLE){
-        // variables are being matched; check basetype and be done
-        if(s1->info.var.vtype.baseType != s2->info.var.vtype.baseType){
-            //        TODO: throw VariableBaseTypeMismatchError
-
-        }
+bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode){
+    // match the static bounds between inplistNode and passedParam
+    // inplist is assumed to be STAT_ARR type
+    // passedParam is assumed to be an array type
+    // if passedParam is DYN_ARR, nothing is to be done, else one or both of the static types have to be matched
+    if(passedParam == NULL || inplistNode == NULL){
+        fprintf(stderr, "matchStaticBounds: Received a NULL Node.\n");
+        return false;
     }
-    else if(s1->info.var.vtype.vaType == s2->info.var.vtype.vaType){
-        // both are arrays
-        if(s1->info.var.vtype.vaType == STAT_ARR){
-
+    switch(inplistNode->info.var.vtype.vaType){
+        case STAT_ARR: {
+            unsigned int lb = (inplistNode->info).var.vtype.si.vt_num;
+            unsigned int rb = (inplistNode->info).var.vtype.ei.vt_num;
+            switch(passedParam->info.var.vtype.vaType){
+                case STAT_ARR:
+                    if(passedParam->info.var.vtype.si.vt_num != lb){
+//                        TODO: throw arrayLeftRangeMismatchError
+                        return false;
+                    }
+                    if(passedParam->info.var.vtype.ei.vt_num != rb){
+//                        TODO: throw arrayRightRangeMismatchError
+                        return false;
+                    }
+                    return true;
+                    break;
+                case DYN_L_ARR:
+                    if(passedParam->info.var.vtype.ei.vt_num != rb){
+//                        TODO: throw arrayRightRangeMismatchError
+                        return false;
+                    }
+                    return true;
+                    break;
+                case DYN_R_ARR:
+                    if(passedParam->info.var.vtype.si.vt_num != lb){
+//                        TODO: throw arrayLeftRangeMismatchError
+                        return false;
+                    }
+                    return true;
+                    break;
+                case DYN_ARR:
+                    // can't do anything here
+                    return true;
+                    break;
+                default:
+                    fprintf(stderr, "matchStaticBounds: Received a non array type passedParam Node.\n");
+                    return false;
+            }
+            break;
         }
-        else if(s1->info.var.vtype.vaType == DYN_L_ARR){
-
-        }
-    }
-    else{
-        if(s1->info.var.vtype.vaType == VARIABLE){
-            //        TODO: throw ExpectedArrayTypeFoundVariable; s1 was expected to be of type s2
+        default:
+            fprintf(stderr, "matchStaticBounds: Received a non STAT_ARR type paramInpNode.\n");
             return false;
-        }
-        else if(s2->info.var.vtype.vaType == VARIABLE){
-            //        TODO: throw ExpectedVariableTypeFoundArray; s1 was expected to be of type s2
-            return false;
-        }
-        else{
-//            TODO: handle checking s1 and s2 when they are both different array types
-        }
-//
-
     }
 }
 
+bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt){
+    // plistNode must be of type paramInpNode or paramOutNode
+    // cannot get an array returned from a function
+    // can pass an array to a function
+    // inputPlist can have only static arrays
+    /* implications:
+     * checks that all nodes of outPlist must be primitive types
+     * while dealing with inpPlist nodes, match all available indices of the array with the statically available ones in the input list array
+     *
+     */
+    if(passedOrGot == NULL || plistNode == NULL){
+        fprintf(stderr, "matchDataType: Received a NULL Node.\n");
+        return false;
+    }
+    switch(pt)
+    {
+        case INP_PLIST:
+            switch(plistNode->info.var.vtype.vaType)
+            {
+                case VARIABLE: // inplist has variable
+                    switch(passedOrGot->info.var.vtype.vaType)
+                    {
+                        case VARIABLE: // passed a variable
+                            if(passedOrGot->info.var.vtype.baseType != plistNode->info.var.vtype.baseType){
+//                                TODO: throw FuncVariableBaseTypeMismatchError
+                                    return false;
+                            }
+                            return true;
+                            break;
+                        default: // passed an array
+//                          TODO: throw PasssedArrayToAVariable
+                            return false;
+                    }
+                    break;
+                case STAT_ARR:
+                    switch(passedOrGot->info.var.vtype.vaType){
+                        case VARIABLE:
+//                          TODO: throw PasssedVariableToAnArray
+                            return false;
+                            break;
+                        default:
+                            // passedOrGot is an array; gotta match static bounds
+                            if(!matchStaticBounds(passedOrGot, plistNode)){
+//                                TODO: staticBoundsMismatchError
+                                return false;
+                            }
+                            return true;
+                    }
+                    break;
+                default:
+//                TODO: throw UnExpectedDynamicArrayTypeInInputList
+                    return false;
+            }
+            break;
+        case OUT_PLIST:
+            // match the base type of out list node with the type of node that the value is assigned to; no arrays allowed
+            if(!(passedOrGot->info.var.vtype.vaType == VARIABLE && plistNode->info.var.vtype.vaType == VARIABLE && \
+            passedOrGot->info.var.vtype.baseType == plistNode->info.var.vtype.baseType)){
+//                TODO throw FuncVariableBaseTypeMismatchError
+                    return false;
+            }
+            return true;
+            break;
+        default: return false;
+    }
+
+}
+
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(moduleReuseNode == NULL || funcInfo == NULL || currST == NULL){
+        fprintf(stderr, "checkModuleSignature: Received a NULL Node.\n");
+    }
     //TODO: Check whether the type, number and order of input and output variables match. if not report an error
     if(moduleReuseNode == NULL || currST == NULL){
         fprintf(stderr,"checkModuleSignature: NULL error.\n");
@@ -144,15 +234,11 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
 
             if(currOutListNode == NULL){
 //                TODO: ERROR: too many return values expected from function
-                    return;
+                return;
             }
             //match the type of nodes
-            if((currSymNode->info).var.vtype.baseType != (currOutListNode->info).var.vtype.baseType){
-//                TODO: ERROR; throw VariableTypeMismatchError
-                    return;
-            }
             if(!matchDataType(currSymNode, currListNode->tkinfo->lno, currOutListNode, OUT_PLIST)){
-                    return;
+                return;
 
             }
 
@@ -161,7 +247,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         }while(currListNode != NULL);
         if(currOutListNode != NULL){
 //            TODO: ERROR; too few return values expected from the function
-                return;
+            return;
         }
         idOrList = idOrList->next; // now points to function name AST node i.e. ID after idList
     }
@@ -181,8 +267,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
             return;
         }
         //match the type of nodes
-        if(currSymNode->info.var.vtype.baseType != (currInpListNode->info).var.vtype.baseType){
-//                TODO: ERROR; throw typeMismatchError
+        if(!matchDataType(currSymNode, currListNode->tkinfo->lno, currInpListNode, INP_PLIST)){
             return;
         }
         currInpListNode = currInpListNode->next;
@@ -194,15 +279,26 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
 }
 
+void initVarType(varType *vt){
+    // these are just randomly chosen values since we don't have a default and ned to initialise it with something
+    vt->baseType = g_INTEGER;
+    vt->vaType = VARIABLE;
+    vt->si.vt_id = NULL;
+    vt->ei.vt_id = NULL;
+    vt->bytes = SIZE_INTEGER;
+}
 
-varType getVtype(ASTNode *dataTypeNode, symFuncInfo *funcInfo, symbolTable *currST){
+varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(typeOrDataTypeNode == NULL || funcInfo == NULL || currST == NULL){
+        fprintf(stderr, "getVType: Received a NULL Node.\n");
+    }
     //TODO: Construct the varType struct and return it
 //    typedef enum{
 //        VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
 //    }varOrArr;
 //
 //    union numOrId {
-//        int vt_num;
+//        unsigned int vt_num;
 //        symTableNode *vt_id;
 //    };
 //
@@ -214,26 +310,36 @@ varType getVtype(ASTNode *dataTypeNode, symFuncInfo *funcInfo, symbolTable *curr
 //        int bytes;
 //    };
 //    typedef struct varType varType;
-
     varType vt;
-    ASTNode *rangeArrOrBType = dataTypeNode->child;
-    ASTNode *bTypeOrNull = dataTypeNode->child->next;
+    initVarType(&vt);
+    switch(typeOrDataTypeNode->gs)
+    {
+        case g_type:// actually a 'type' node
+            break;
+        case g_dataType:
+        {   // actually a 'dataType' node
+            ASTNode *rangeArrOrBaseType = typeOrDataTypeNode->child;
+            ASTNode *baseTypeOrNull = rangeArrOrBaseType->next;
 
-    if(bTypeOrNull == NULL){
-        // we're dealing with a variable
-        vt.baseType = rangeArrOrBType->gs;
-        vt.bytes = getSizeByType(vt.baseType);
-        vt.vaType = VARIABLE;
-        vt.si.vt_id = NULL;
-        vt.ei.vt_id = NULL;
+            if (baseTypeOrNull == NULL) {
+                // we're dealing with a variable
+                vt.baseType = rangeArrOrBaseType->gs;
+                vt.bytes = getSizeByType(vt.baseType);
+                vt.vaType = VARIABLE;
+                vt.si.vt_id = NULL;
+                vt.ei.vt_id = NULL;
+            } else {
+                // we're dealing with an array
+
+            }
+            vt.baseType = typeOrDataTypeNode->gs;
+            break;
+        }
+        default:
+            // can't handle this node
+            fprintf(stderr, "getVType: Invoked on invalid node.\n");
+            return vt;
     }
-    else{
-        // we're dealing with an array
-
-    }
-    vt.baseType = dataTypeNode->gs;
-
-
 }
 
 paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
@@ -371,7 +477,7 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
             paramOutNode *tmp = outListSearchID(idNode,funcInfo);
             if(tmp == NULL){
                 //not found anywhere
-                throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_UNDECLARED);
+                throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                 return false;
             }
             else{
@@ -397,7 +503,7 @@ bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
             paramOutNode *tmp = outListSearchID(idNode,funcInfo);
             if(tmp == NULL){
                 //not found anywhere
-                throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_UNDECLARED);
+                throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                 return false;
             }
         }
@@ -483,7 +589,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
                     // idOrConst is actually ID
                     if (checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == false) {
 //                      TODO: will this checkIDInScopesAndLists check suffice if ID is array; handle array index bound checking
-                        throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, SEME_UNDECLARED);
+                        throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                         return;
                     }
                     if(idOrConst->next != NULL){
@@ -495,7 +601,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
 //                      PRINT var_id_num->ID, ID
                             if(checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == false){
 //                            TODO: dynamic bounds check on array in previous if and index given by this ID
-                                throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, SEME_UNDECLARED);
+                                throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                                 return;
                             }
                         }
@@ -532,7 +638,7 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         e.lno = moduleIdNode->tkinfo->lno;
         e.errType = E_SEMANTIC;
         e.edata.seme.etype = SEME_UNDECLARED;
-        strcpy(e.edata.seme.errStr,moduleIdNode->tkinfo->lexeme);
+        strcpy(e.edata.seme.errStr1, moduleIdNode->tkinfo->lexeme);
         foundNewError(e);
         return;
     }
@@ -553,7 +659,7 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
     if(finfo->status == F_DEFINED){
         if(equals(funcInfo->funcName,finfo->funcName)){
             //report recursion error
-            throwSemanticError(moduleIdNode->tkinfo->lno,moduleIdNode->tkinfo->lexeme,SEME_RECURSION);
+            throwSemanticError(moduleIdNode->tkinfo->lno,moduleIdNode->tkinfo->lexeme,NULL, SEME_RECURSION);
             return;
         }
     }
@@ -582,7 +688,7 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
         int idx = (idOrNumNode->tkinfo->value).num;
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
             //out of bounds
-            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, SEME_OUT_OF_BOUNDS);
+            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
         }
     }
 }
@@ -672,7 +778,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                     e.errType = E_SEMANTIC;
                     e.lno = idNode->tkinfo->lno;
                     e.edata.seme.etype = SEME_REDECLARATION;
-                    strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+                    strcpy(e.edata.seme.errStr1, idNode->tkinfo->lexeme);
                     foundNewError(e);
                 }
                 else{
@@ -694,7 +800,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                 e.errType = E_SEMANTIC;
                 e.lno = idNode->tkinfo->lno;
                 e.edata.seme.etype = SEME_REDECLARATION;
-                strcpy(e.edata.seme.errStr,idNode->tkinfo->lexeme);
+                strcpy(e.edata.seme.errStr1, idNode->tkinfo->lexeme);
                 foundNewError(e);
             }
         }
@@ -853,7 +959,7 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
     paramOutNode *outptr = funcInfo->outPListHead;
     while(outptr != NULL){
         if(!((outptr->info).var.isAssigned)){
-            throwSemanticError((outptr->info).var.lno, outptr->lexeme, SEME_UNASSIGNED);
+            throwSemanticError((outptr->info).var.lno, outptr->lexeme, NULL, SEME_UNASSIGNED);
         }
         outptr = outptr->next;
     }
@@ -907,11 +1013,11 @@ void handleOtherModule(ASTNode *moduleNode){
     }
     else if(finfo->status == F_DECLARED){
         //Error of a redundant declaration
-        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, SEME_REDUNDANT_DECLARATION);
+        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, NULL, SEME_REDUNDANT_DECLARATION);
     }
     else if(finfo->status == F_DEFINED) {
         //redefinition
-        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, SEME_REDEFINITION);
+        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, NULL, SEME_REDEFINITION);
         return;
     }
 

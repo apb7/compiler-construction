@@ -36,7 +36,8 @@ typedef struct{
 
 typedef struct{
     SemanticErrorType etype;
-    char errStr[42];
+    char errStr1[30];
+    char errStr2[30];
 } semanticError;
 
 typedef struct{

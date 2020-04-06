@@ -3,7 +3,7 @@
 declare module compute;
 <<<driver program>>>
 start
-	declare var_1_, var_2_, var_3_: array [2..k] of integer;
+	declare var_1_, var_2_, var_3_: array [2..5] of integer;
 	declare R1_abc: boolean;
 	declare r2_ABC: integer;
 	declare R3_abc: real;

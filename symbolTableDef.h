@@ -30,7 +30,7 @@ typedef enum{
 }varOrArr;
 
 union numOrId {
-    int vt_num;
+    unsigned int vt_num;
     symTableNode *vt_id;
 };
 
