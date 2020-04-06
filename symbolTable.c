@@ -15,8 +15,6 @@
 symbolTable funcTable;
 int nextGlobalOffset;
 
-
-
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     funcInfo->status = F_DECLARED;
     funcInfo->lno = -1;
@@ -27,14 +25,14 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     strcpy(funcInfo->funcName,funcName);
 }
 
-void initSymVarInfo(symVarInfo *varInfo){
+void initSymVarInfo(symVarInfo *varInfo) {
     varInfo->isAssigned = false;
     varInfo->lno = -1;
     varInfo->isLoopVar = false;
     varInfo->offset = -1;
 }
 
-int getSizeByType(gSymbol gs){
+int getSizeByType(gSymbol gs) {
     switch(gs){
         case g_INTEGER:
             return SIZE_INTEGER;
@@ -49,7 +47,7 @@ int getSizeByType(gSymbol gs){
     }
 }
 
-void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, SemanticErrorType errorType){
+void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, SemanticErrorType errorType) {
     error e;
     e.errType = E_SEMANTIC;
     e.lno = lno;
@@ -59,13 +57,13 @@ void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, Semantic
     foundNewError(e);
 }
 
-void setAssignedOutParam(paramOutNode *outNode){
+void setAssignedOutParam(paramOutNode *outNode) {
     if(outNode == NULL)
         return;
     (outNode->info).var.isAssigned = true;
 }
 
-symbolTable *newScope(symbolTable *currST){
+symbolTable *newScope(symbolTable *currST) {
     if(currST == NULL){
         currST = createSymbolTable();
         return currST;
@@ -83,7 +81,7 @@ symbolTable *newScope(symbolTable *currST){
     return currST->lastChild;
 }
 
-bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode){
+bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode) {
     // match the static bounds between inplistNode and passedParam
     // inplist is assumed to be STAT_ARR type
     // passedParam is assumed to be an array type
@@ -138,7 +136,7 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode){
     }
 }
 
-bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt){
+bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt) {
     // plistNode must be of type paramInpNode or paramOutNode
     // cannot get an array returned from a function
     // can pass an array to a function
@@ -163,7 +161,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                         case VARIABLE: // passed a variable
                             if(passedOrGot->info.var.vtype.baseType != plistNode->info.var.vtype.baseType){
 //                                TODO: throw FuncVariableBaseTypeMismatchError
-                                    return false;
+                                return false;
                             }
                             return true;
                             break;
@@ -197,7 +195,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
             if(!(passedOrGot->info.var.vtype.vaType == VARIABLE && plistNode->info.var.vtype.vaType == VARIABLE && \
             passedOrGot->info.var.vtype.baseType == plistNode->info.var.vtype.baseType)){
 //                TODO throw FuncVariableBaseTypeMismatchError
-                    return false;
+                return false;
             }
             return true;
             break;
@@ -206,7 +204,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
 
 }
 
-void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST){
+void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST) {
     if(moduleReuseNode == NULL || funcInfo == NULL || currST == NULL){
         fprintf(stderr, "checkModuleSignature: Received a NULL Node.\n");
     }
@@ -279,7 +277,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
 }
 
-void initVarType(varType *vt){
+void initVarType(varType *vt) {
     // these are just randomly chosen values since we don't have a default and ned to initialise it with something
     vt->baseType = g_INTEGER;
     vt->vaType = VARIABLE;
@@ -288,7 +286,7 @@ void initVarType(varType *vt){
     vt->bytes = SIZE_INTEGER;
 }
 
-varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST){
+varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST) {
     if(typeOrDataTypeNode == NULL || funcInfo == NULL || currST == NULL){
         fprintf(stderr, "getVType: Received a NULL Node.\n");
     }
@@ -330,6 +328,46 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                 vt.ei.vt_id = NULL;
             } else {
                 // we're dealing with an array
+                // for a dynamic array, vt.bytes will store the size occupied by single element of its base type
+                vt.baseType = baseTypeOrNull->gs;
+                vt.bytes = getSizeByType(vt.baseType); // size occupied by single element
+                ASTNode *numOrId = rangeArrOrBaseType->child;
+                switch(numOrId->gs)
+                {   // check the left bound
+                    case g_NUM:
+                    {
+                        unsigned int lb = numOrId->tkinfo->value.num;
+                        switch(numOrId->next->gs)
+                        {   // check the right bound
+                            case g_NUM:{
+                                unsigned int rb = numOrId->next->tkinfo->value.num;
+
+                                break;
+                            }
+                            case g_ID:
+                                break;
+                            default:
+                                fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
+                        }
+
+                        break;
+                    }
+                    case g_ID:
+                        switch(numOrId->next->gs)
+                        {   // check the right bound
+                            case g_NUM:
+                                break;
+                            case g_ID:
+                                break;
+                            default:
+                                fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
+                        }
+                        break;
+                    default:
+                        fprintf(stderr, "getVType: Unexpected ASTNode found representing left bound of array.\n");
+
+                }
+
 
             }
             vt.baseType = typeOrDataTypeNode->gs;
@@ -338,8 +376,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
         default:
             // can't handle this node
             fprintf(stderr, "getVType: Invoked on invalid node.\n");
-            return vt;
     }
+    return vt;
 }
 
 paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){

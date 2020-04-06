@@ -12,7 +12,41 @@
 #define SYMBOLTABLE_H
 
 //TODO: put all the declarations here once symbolTable.c is done
-void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
-void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST);
+void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName);
+void initSymVarInfo(symVarInfo *varInfo);
+int getSizeByType(gSymbol gs);
 void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, SemanticErrorType errorType);
+void setAssignedOutParam(paramOutNode *outNode);
+symbolTable *newScope(symbolTable *currST);
+bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode);
+bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt);
+void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST);
+void initVarType(varType *vt);
+varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST);
+paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo);
+paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo);
+paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode);
+paramInpNode *createParamInpList(ASTNode *inputPlistNode);
+paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode);
+paramOutNode *createParamOutList(ASTNode *outputPlistNode);
+symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty);
+bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
+bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleModuleDeclaration(ASTNode *moduleIDNode);
+bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign);
+void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST);
+void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
+void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo);
+void handlePendingCalls(symFuncInfo *funcInfo);
+void handleOtherModule(ASTNode *moduleNode);
+void buildSymbolTable(ASTNode *root);
+
 #endif //SYMBOLTABLE_H
