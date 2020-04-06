@@ -287,46 +287,41 @@ void initVarType(varType *vt) {
 }
 
 varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST) {
-    if(typeOrDataTypeNode == NULL || funcInfo == NULL || currST == NULL){
-        fprintf(stderr, "getVType: Received a NULL Node.\n");
-    }
-    //TODO: Construct the varType struct and return it
-//    typedef enum{
-//        VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
-//    }varOrArr;
-//
-//    union numOrId {
-//        unsigned int vt_num;
-//        symTableNode *vt_id;
-//    };
-//
-//    struct varType{
-//        gSymbol baseType;
-//        varOrArr vaType;
-//        union numOrId si;
-//        union numOrId ei;
-//        int bytes;
-//    };
-//    typedef struct varType varType;
     varType vt;
     initVarType(&vt);
+
+    if(typeOrDataTypeNode == NULL || funcInfo == NULL || currST == NULL){
+        fprintf(stderr, "getVType: Received a NULL Node.\n");
+        return vt;
+    }
+    //TODO: Construct the varType struct and return it
     switch(typeOrDataTypeNode->gs)
     {
         case g_type:// actually a 'type' node
+        {
+            vt.baseType = typeOrDataTypeNode->gs;
+            vt.bytes = getSizeByType(vt.baseType);
+            vt.vaType = VARIABLE;
+            vt.si.vt_id = NULL;
+            vt.ei.vt_id = NULL;
             break;
+        }
         case g_dataType:
         {   // actually a 'dataType' node
             ASTNode *rangeArrOrBaseType = typeOrDataTypeNode->child;
             ASTNode *baseTypeOrNull = rangeArrOrBaseType->next;
 
-            if (baseTypeOrNull == NULL) {
+            if (baseTypeOrNull == NULL)
+            {
                 // we're dealing with a variable
                 vt.baseType = rangeArrOrBaseType->gs;
                 vt.bytes = getSizeByType(vt.baseType);
                 vt.vaType = VARIABLE;
                 vt.si.vt_id = NULL;
                 vt.ei.vt_id = NULL;
-            } else {
+            }
+            else
+            {
                 // we're dealing with an array
                 // for a dynamic array, vt.bytes will store the size occupied by single element of its base type
                 vt.baseType = baseTypeOrNull->gs;
@@ -341,10 +336,17 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                         {   // check the right bound
                             case g_NUM:{
                                 unsigned int rb = numOrId->next->tkinfo->value.num;
-
+                                vt.vaType = STAT_ARR;
+                                vt.si.vt_num = lb;
+                                vt.ei.vt_num = rb;
+                                vt.bytes = vt.bytes*(rb - lb + 1);
                                 break;
                             }
                             case g_ID:
+                                vt.vaType = DYN_R_ARR;
+                                vt.si.vt_num = lb;
+                                vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
+                                // can't statically get 'bytes' and 'ei.vt_num' (as NUM) fields
                                 break;
                             default:
                                 fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
@@ -355,9 +357,19 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                     case g_ID:
                         switch(numOrId->next->gs)
                         {   // check the right bound
-                            case g_NUM:
+                            case g_NUM: {
+                                unsigned int rb = numOrId->next->tkinfo->value.num;
+                                vt.vaType = DYN_L_ARR;
+                                vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
+                                vt.ei.vt_num = rb;
+                                // can't statically get 'bytes' and 'si.vt_num' fields
                                 break;
+                            }
                             case g_ID:
+                                vt.vaType = DYN_ARR;
+                                vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
+                                vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
+                                // can't statically get 'bytes', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
                                 fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
@@ -365,10 +377,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                         break;
                     default:
                         fprintf(stderr, "getVType: Unexpected ASTNode found representing left bound of array.\n");
-
                 }
-
-
             }
             vt.baseType = typeOrDataTypeNode->gs;
             break;
@@ -570,26 +579,28 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
     }
 }
 
-bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
-    if(stSearch(idNode->tkinfo->lexeme,currST) == NULL) {
+symTableNode *checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
+    symTableNode* st;
+    st = stSearch(idNode->tkinfo->lexeme,currST);
+    if(st == NULL) {
         //not found in any of the symbol tables
-        if (inpListSearchID(idNode, funcInfo) == NULL) {
+        st = inpListSearchID(idNode, funcInfo);
+        if (st == NULL) {
             //not found in the input list as well
-            paramOutNode *tmp = outListSearchID(idNode, funcInfo);
-            if (tmp == NULL) {
+            st = outListSearchID(idNode, funcInfo);
+            if (st == NULL) {
                 //not found anywhere
-
-                return false;
+                return NULL;
             }
             else {
                 if(assign) {
                     //finally found in output parameters list
-                    setAssignedOutParam(tmp);
+                    setAssignedOutParam(st);
                 }
             }
         }
     }
-    return true;
+    return st;
 }
 
 void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -625,7 +636,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
 //                PRINT var_id_num->RNUM -- nothing to handle
 //                    PRINT var_id_num->ID
                     // idOrConst is actually ID
-                    if (checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == false) {
+                    if (checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == NULL) {
 //                      TODO: will this checkIDInScopesAndLists check suffice if ID is array; handle array index bound checking
                         throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                         return;
@@ -637,7 +648,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
                         idOrConst = idOrConst->next;
                         if(idOrConst->gs == g_ID){
 //                      PRINT var_id_num->ID, ID
-                            if(checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == false){
+                            if(checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == NULL){
 //                            TODO: dynamic bounds check on array in previous if and index given by this ID
                                 throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                                 return;

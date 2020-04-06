@@ -33,7 +33,7 @@ symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo
 bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
 bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleModuleDeclaration(ASTNode *moduleIDNode);
-bool checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign);
+symTableNode *checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign);
 void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST);
 void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST);
