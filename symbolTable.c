@@ -9,8 +9,8 @@
 #include "error.h"
 #include "lexerDef.h"
 
-//TODO: when the scope of the function ends, check if all its output parameters have been assigned.
-//TODO: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
+//DONE: when the scope of the function ends, check if all its output parameters have been assigned.
+//DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
 //TODO: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
 symbolTable funcTable;
 int nextGlobalOffset;
@@ -326,15 +326,17 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
     //TODO: Construct the varType struct and return it
     switch(typeOrDataTypeNode->gs)
     {
-        case g_type:// actually a 'type' node
+        case g_INTEGER:
+        case g_BOOLEAN:
+        case g_REAL:
         {
             vt.baseType = typeOrDataTypeNode->gs;
             vt.bytes = getSizeByType(vt.baseType);
             vt.vaType = VARIABLE;
             vt.si.vt_id = NULL;
             vt.ei.vt_id = NULL;
-            break;
         }
+            break;
         case g_dataType:
         {   // actually a 'dataType' node
             ASTNode *rangeArrOrBaseType = typeOrDataTypeNode->child;
@@ -375,6 +377,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 vt.vaType = DYN_R_ARR;
                                 vt.si.vt_num = lb;
                                 vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
+                                if(vt.ei.vt_id == NULL)
+                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 // can't statically get 'bytes' and 'ei.vt_num' (as NUM) fields
                                 break;
                             default:
@@ -390,6 +394,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 unsigned int rb = numOrId->next->tkinfo->value.num;
                                 vt.vaType = DYN_L_ARR;
                                 vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
+                                if(vt.si.vt_id == NULL)
+                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 vt.ei.vt_num = rb;
                                 // can't statically get 'bytes' and 'si.vt_num' fields
                                 break;
@@ -397,7 +403,11 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                             case g_ID:
                                 vt.vaType = DYN_ARR;
                                 vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
+                                if(vt.si.vt_id == NULL)
+                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
+                                if(vt.ei.vt_id == NULL)
+                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 // can't statically get 'bytes', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
