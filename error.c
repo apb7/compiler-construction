@@ -70,6 +70,87 @@ void printError(error e){
                 case SEME_INVALID_BOUNDS:
                     fprintf(stderr,"The start index of the array '%s' should not be greater than the end index.\n",e.edata.seme.errStr1);
                     break;
+                case SEME_PARAM_PASS_ARR_LBOUND_MISMATCH:
+                    fprintf(stderr, "Left array bounds of formal parameter %s and actual parameter %s do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_ARR_RBOUND_MISMATCH:
+                    fprintf(stderr, "Right array bounds of formal parameter %s and actual parameter %s do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_VAR_BASE_TYPE_MISMATCH:
+                    fprintf(stderr,"The primitive types of formal parameter %s and actual parameter %s do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_ARR_TO_VAR:
+                    fprintf(stderr, "The formal parameter %s is a primitive type variable while the passed parameter %s is an array.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_VAR_TO_ARR:
+                    fprintf(stderr, "The formal parameter %s is an array while the passed parameter %s is a primitive type variable.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH:
+                    fprintf(stderr,"The primitive types of formal parameter array %s and actual parameter array %s do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_UNEXPECTED_DYN_ARR_IN_INP_LIST:
+                    fprintf(stderr,"A dynamic array %s is found in the input parameter list of module called here.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_RECV_VAR_IN_ARR:
+                    fprintf(stderr,"Returned primitive type variable %s is assigned to a variable %s of array type.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_RECV_VAR_BASE_TYPE_MISMATCH:
+                    fprintf(stderr,"The primitive types of returned variable %s and the variable %s that it is assigned to do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_RECV_TOO_MANY_RET_VALS_EXPECTED:
+                    fprintf(stderr,"Too many return values expected from the module %s.\n",e.edata.seme.errStr1);
+                    break;
+                case SEME_PARAM_RECV_TOO_FEW_RET_VALS_EXPECTED:
+                    fprintf(stderr,"Too few return values expected from the module %s.\n",e.edata.seme.errStr1);
+                    break;
+                case SEME_PARAM_PASS_TOO_MANY_ARGS_PASSED:
+                    fprintf(stderr,"Too many arguments passed to the module %s.\n",e.edata.seme.errStr1);
+                    break;
+                case SEME_PARAM_PASS_TOO_FEW_ARGS_PASSED:
+                    fprintf(stderr,"Too few arguments passed to the module %s.\n",e.edata.seme.errStr1);
+                    break;
+                case SEME_LOOP_VAR_REDEFINED:
+                    fprintf(stderr,"The loop variable %s is redefined here.\n",e.edata.seme.errStr1);
+                    break;
+                case SEME_MODULE_REDECLARED:
+                    fprintf(stderr,"The module %s is redeclared here.\n",e.edata.seme.errStr1);
+                    break;
+                case SEME_LOOP_VAR_REDECLARED:
+                    fprintf(stderr, "The loop variable %s is redeclared here.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_SWITCH_VAR_UNDECLARED:
+                    fprintf(stderr, "The switch statement variable %s used here is undeclared.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_SWITCH_VAR_TYPE_ARR:
+                    fprintf(stderr, "The switch statement variable %s is of array type.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_SWITCH_VAR_TYPE_INVALID:
+                    fprintf(stderr, "The switch statement variable %s has invalid primitive type ('integer' or 'boolean' type expected).\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_DEFAULT_IN_BOOLEAN_SWITCH:
+                    fprintf(stderr, "The boolean switch statement cannot have a default.\n");
+                    break;
+                case SEME_NON_BOOLEAN_IN_SWITCH:
+                    fprintf(stderr, "The boolean switch statement cannot have non-boolean case values. Unexpected case value %s found.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_TOO_MANY_BOOLEAN_CASES_IN_SWITCH:
+                    fprintf(stderr, "The boolean switch statement must have exactly one case each for 'true' and 'false'.\n");
+                    break;
+                case SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH:
+                    fprintf(stderr, "The integer switch statement must have a 'default'.\n");
+                    break;
+                case SEME_NON_INTEGER_IN_SWITCH:
+                    fprintf(stderr, "The integer switch statement cannot have non-integer case values. Unexpected case value %s found.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_FOR_VAR_UNDECLARED:
+                    fprintf(stderr, "The for loop counter variable %s used here is undeclared.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_FOR_VAR_TYPE_ARR:
+                    fprintf(stderr, "The for loop counter variable %s is of array type.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_FOR_VAR_TYPE_INVALID:
+                    fprintf(stderr, "The for loop counter variable %s has invalid primitive type ('integer' type expected).\n", e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

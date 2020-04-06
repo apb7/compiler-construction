@@ -18,7 +18,7 @@ int getSizeByType(gSymbol gs);
 void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, SemanticErrorType errorType);
 void setAssignedOutParam(paramOutNode *outNode);
 symbolTable *newScope(symbolTable *currST);
-bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode);
+bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, unsigned int lno);
 bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *plistNode, pListType pt);
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST);
 void initVarType(varType *vt);
