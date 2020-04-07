@@ -13,10 +13,7 @@
 #include "config.h"
 #include "astDef.h"
 
-#define SYMBOL_TABLE_SIZE 101
-#define SIZE_INTEGER 4
-#define SIZE_REAL 8
-#define SIZE_BOOLEAN 1
+
 
 //this will store the type of the variable
 //sidx and eidx will be valid only when isArray is true

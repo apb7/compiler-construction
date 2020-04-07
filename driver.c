@@ -20,6 +20,7 @@
 #include "astDef.h"
 #include "ast.h"
 #include "symbolHash.h"
+#include "symbolTable.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -38,6 +39,15 @@ extern char *inverseMappingTable[];
 extern int **parseTable;
 errorPtr_stack *errorStack;
 
+void printSymbolTable(symbolTable* st){
+    if(st == NULL)
+        return;
+    for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
+        if((st->tb)[i] != NULL){
+            printf("%s\n",(st->tb)[i]->lexeme);
+        }
+    }
+}
 
 int main(int argc, char *argv[]) {
 //    printf("%d",sizeof(symbolTable));
@@ -157,6 +167,21 @@ int main(int argc, char *argv[]) {
             }
             break;
 
+            case '6':
+            {
+                // Initialise lexer every time.
+                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                ASTNode *ASTroot = buildASTTree(root);
+
+                printf("No of nodes in AST Tree : %d \n", count_nodes_ASTTree(ASTroot));
+                printf("No of nodes in parse Tree : %d \n", count_nodes_parseTree(root));
+                extern symbolTable funcTable;
+                buildSymbolTable(ASTroot);
+
+                printSymbolTable(&funcTable);
+            }
+            break;
             default:
                 printf("Invalid Choice. Please try again! \n");
         }

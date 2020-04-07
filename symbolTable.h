@@ -49,4 +49,6 @@ void handlePendingCalls(symFuncInfo *funcInfo);
 void handleOtherModule(ASTNode *moduleNode);
 void buildSymbolTable(ASTNode *root);
 
+
+
 #endif //SYMBOLTABLE_H

@@ -51,8 +51,10 @@ void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, Semantic
     error e;
     e.errType = E_SEMANTIC;
     e.lno = lno;
-    strcpy(e.edata.seme.errStr1, errStr1);
-    strcpy(e.edata.seme.errStr2, errStr2);
+    if(errStr1 != NULL)
+        strcpy(e.edata.seme.errStr1, errStr1);
+    if(errStr2 != NULL)
+        strcpy(e.edata.seme.errStr2, errStr2);
     e.edata.seme.etype = errorType;
     foundNewError(e);
 }
@@ -727,7 +729,7 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         idListNode2 = moduleIdNode->next;
     }
     else{
-        moduleIdNode = moduleReuseNode->child->child;
+        moduleIdNode = moduleReuseNode->child;
         idListNode2 = moduleIdNode->next;
     }
     symFuncInfo * finfo = stGetFuncInfo(moduleIdNode->tkinfo->lexeme,&funcTable);

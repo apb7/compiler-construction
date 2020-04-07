@@ -27,7 +27,6 @@ typedef enum{
 //g_EPS is for Epsilon
 //g_EOS is end of string (it marks the end of input stream)
 
-
 typedef struct{
     int start;
     int end;

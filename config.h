@@ -42,4 +42,9 @@
 
 #define TMP_SRC_FILE_PATH "source.tmp"
 
+#define SYMBOL_TABLE_SIZE 101
+#define SIZE_INTEGER 4
+#define SIZE_REAL 8
+#define SIZE_BOOLEAN 1
+
 #endif //CONFIG_H

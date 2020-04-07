@@ -46,6 +46,7 @@ char *inverseMappingTable[] = {
 #undef X
 };
 
+
 //used mainly for error printing
 char *enum2LexemeTable[] = {
 #define K(a,b,c) c,

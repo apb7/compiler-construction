@@ -3,5 +3,5 @@
 #include "symbolTable.h"
 
 void printSymbolTable(struct symbolTable* st){
-    
+
 }
