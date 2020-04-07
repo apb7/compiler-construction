@@ -10,6 +10,7 @@
 
 #include "parserDef.h"
 #include "lexerDef.h"
+#include "config.h"
 
 typedef enum {
     NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, E_SEMANTIC
@@ -67,8 +68,8 @@ typedef struct{
 
 typedef struct{
     SemanticErrorType etype;
-    char errStr1[30];
-    char errStr2[30];
+    char errStr1[ERROR_STRING_LENGTH];
+    char errStr2[ERROR_STRING_LENGTH];
 } semanticError;
 
 typedef struct{

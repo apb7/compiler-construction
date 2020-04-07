@@ -40,11 +40,16 @@ extern int **parseTable;
 errorPtr_stack *errorStack;
 
 void printSymbolTable(symbolTable* st){
+    // prints the whole SymbolTable Structure by calling printCurrSymTable
+    // TODO: add a call to printCurrSymTable(..) appropriately
     if(st == NULL)
         return;
+    symTableNode *currST = NULL;
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
-        if((st->tb)[i] != NULL){
+        currST = (st->tb)[i];
+        while(currST != NULL){
             printf("%s\n",(st->tb)[i]->lexeme);
+            currST = currST->next;
         }
     }
 }

@@ -22,7 +22,7 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     funcInfo->inpPListHead = NULL;
     funcInfo->outPListHead = NULL;
     funcInfo->pendingCallListHead = NULL;
-    strcpy(funcInfo->funcName,funcName);
+    (funcName != NULL) ? strcpy(funcInfo->funcName,funcName) :  memset(funcInfo->funcName, 0, sizeof(funcInfo->funcName));
 }
 
 void initSymVarInfo(symVarInfo *varInfo) {
@@ -51,10 +51,8 @@ void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, Semantic
     error e;
     e.errType = E_SEMANTIC;
     e.lno = lno;
-    if(errStr1 != NULL)
-        strcpy(e.edata.seme.errStr1, errStr1);
-    if(errStr2 != NULL)
-        strcpy(e.edata.seme.errStr2, errStr2);
+    (errStr1 != NULL) ? strcpy(e.edata.seme.errStr1, errStr1) : memset(e.edata.seme.errStr1, 0, ERROR_STRING_LENGTH);
+    (errStr2 != NULL) ? strcpy(e.edata.seme.errStr2, errStr2) : memset(e.edata.seme.errStr2, 0, ERROR_STRING_LENGTH);
     e.edata.seme.etype = errorType;
     foundNewError(e);
 }
@@ -437,8 +435,6 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                         fprintf(stderr, "getVType: Unexpected ASTNode found representing left bound of array.\n");
                 }
             }
-            //@MDRP Please Check why this statement was here?
-            //vt.baseType = typeOrDataTypeNode->gs;
             break;
         }
         default:
@@ -807,7 +803,7 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
             throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
         }
         else if(stn->info.var.vtype.baseType != g_INTEGER){
-            throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT)
+            throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
         }
     }
 }

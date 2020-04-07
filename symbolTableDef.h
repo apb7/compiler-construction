@@ -95,7 +95,7 @@ struct symFuncInfo{
 typedef struct symFuncInfo symFuncInfo;
 
 //when a function is only declared and you see a call, then put the moduleReuseStatement Node to the beginning
-//of the pendingCallList after checking all IDs for there validity
+//of the pendingCallList after checking all IDs for their validity
 //these pending calls will be fulfilled at the time of processing of function definition
 
 
