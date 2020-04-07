@@ -25,7 +25,7 @@ void initVarType(varType *vt);
 varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST);
 paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo);
 paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo);
-paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode);
+paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode,symFuncInfo *funcInfo);
 paramInpNode *createParamInpList(ASTNode *inputPlistNode);
 paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode);
 paramOutNode *createParamOutList(ASTNode *outputPlistNode);

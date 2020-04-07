@@ -429,7 +429,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                         fprintf(stderr, "getVType: Unexpected ASTNode found representing left bound of array.\n");
                 }
             }
-            vt.baseType = typeOrDataTypeNode->gs;
+            //@MDRP Please Check why this statement was here?
+            //vt.baseType = typeOrDataTypeNode->gs;
             break;
         }
         default:
@@ -467,7 +468,7 @@ paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo){
     return NULL;
 }
 
-paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
+paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFuncInfo *funcInfo){
     if(idNode == NULL || dataTypeNode == NULL){
         fprintf(stderr,"createParamInpNode: NULL error.\n");
         return NULL;
@@ -477,7 +478,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode){
     if(idNode->tkinfo)
         (ptr->info).var.lno = idNode->tkinfo->lno;
     strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    (ptr->info).var.vtype = getVtype(dataTypeNode, NULL, NULL);
+    (ptr->info).var.vtype = getVtype(dataTypeNode, funcInfo, NULL);
     //TODO: check Offset computation
     (ptr->info).var.offset = nextGlobalOffset;
     nextGlobalOffset += (ptr->info).var.vtype.bytes;
@@ -492,13 +493,17 @@ paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
     ASTNode *curr = inputPlistNode->child;
     paramInpNode *head = NULL;
     paramInpNode *currInp = NULL;
+    symFuncInfo dummy_finfo;
+    initSymFuncInfo(&dummy_finfo,"@dummy");
+    dummy_finfo.inpPListHead = head;
     while(curr != NULL){
         if(head == NULL){
-            head = createParamInpNode(curr,curr->next);
+            head = createParamInpNode(curr,curr->next,&dummy_finfo);
             currInp = head;
+            dummy_finfo.inpPListHead = head;
         }
         else{
-            currInp->next = createParamInpNode(curr,curr->next);
+            currInp->next = createParamInpNode(curr,curr->next,&dummy_finfo);
             currInp = currInp->next;
         }
         if(curr->next)
