@@ -154,6 +154,9 @@ void printError(error e){
                 case SEME_RETURN_VALUES_NOT_CAPTURED:
                     fprintf(stderr, "Return value(s) of the module '%s' must be captured while calling it.\n", e.edata.seme.errStr1);
                     break;
+                case SEME_ARR_IDX_NOT_INT:
+                    fprintf(stderr,"'%s' is not an integer. Array index should be an integer.\n",e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

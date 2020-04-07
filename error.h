@@ -52,7 +52,8 @@ typedef enum{
     SEME_FOR_VAR_UNDECLARED,
     SEME_FOR_VAR_TYPE_ARR,
     SEME_FOR_VAR_TYPE_INVALID,
-    SEME_RETURN_VALUES_NOT_CAPTURED//add others here
+    SEME_RETURN_VALUES_NOT_CAPTURED,
+    SEME_ARR_IDX_NOT_INT//add others here
 } SemanticErrorType;
 
 typedef struct{

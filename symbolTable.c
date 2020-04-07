@@ -390,6 +390,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
                                 if(vt.ei.vt_id == NULL)
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 // can't statically get 'bytes' and 'ei.vt_num' (as NUM) fields
                                 break;
                             default:
@@ -407,6 +409,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
                                 if(vt.si.vt_id == NULL)
                                     throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 vt.ei.vt_num = rb;
                                 // can't statically get 'bytes' and 'si.vt_num' fields
                                 break;
@@ -416,9 +420,13 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
                                 if(vt.si.vt_id == NULL)
                                     throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
                                 if(vt.ei.vt_id == NULL)
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 // can't statically get 'bytes', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
@@ -790,6 +798,16 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
             //out of bounds
             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
+        }
+    }
+    else if(idOrNumNode->gs == g_ID){
+        //do type checking at compile time for array index when it is ID
+        symTableNode *stn = checkIDInScopesAndLists(idOrNumNode,funcInfo,currST,false);
+        if(stn == NULL){
+            throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+        }
+        else if(stn->info.var.vtype.baseType != g_INTEGER){
+            throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT)
         }
     }
 }
