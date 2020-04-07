@@ -281,6 +281,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         // passed while calling a function cannot be empty
         if(currOutListNode != NULL){
             throwSemanticError(idOrAssOp->tkinfo->lno, idOrAssOp->tkinfo->lexeme, NULL, SEME_RETURN_VALUES_NOT_CAPTURED);
+            return;
         }
         idOrList = idOrAssOp; // now points to function name AST node i.e. ID after idOrList
     }

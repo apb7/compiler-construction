@@ -127,7 +127,7 @@ struct symTableNode{
 //a symbol table has an array and a linked list of nested scopes
 struct symbolTable{
     symTableNode *tb[SYMBOL_TABLE_SIZE]; //current scope symbol table
-    symbolTable *headChild;  //nestedTablesHead --linked list of all parallel scope symbol tables
+    symbolTable *headChild;  //nestedTablesHead --linked list of all nested scope symbol tables
     symbolTable *lastChild;  //nestedTablesTail --last node of the above list (for easy last node insertions)
     symbolTable *parent; //parentTable
     symbolTable *next;  //parallel scope tables
