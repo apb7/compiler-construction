@@ -250,8 +250,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
     //TODO: Check whether the type, number and order of input and output variables match. if not report an error
 
-//    symFuncInfo* finfo =funcInfo;
-// comment the following two lines and uncomment the above line to get back to previous state
     ASTNode *idNode = getIDFromModuleReuse(moduleReuseNode);
     symFuncInfo *finfo = stGetFuncInfo(idNode->tkinfo->lexeme, &funcTable);
     paramInpNode *currInpListNode = finfo->inpPListHead;
@@ -797,12 +795,14 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         finfo->pendingCallListHead->next = NULL;
         finfo->pendingCallListHead->astNode = moduleReuseNode;
         finfo->pendingCallListHead->currST = currST;
+        finfo->pendingCallListHead->callerFuncInfo = funcInfo;
     }
     else if(finfo->status == F_DECLARATION_VALID){
         ASTNodeListNode *anode = (ASTNodeListNode *) malloc(sizeof(ASTNodeListNode));
         anode->next = finfo->pendingCallListHead;
         anode->astNode = moduleReuseNode;
         anode->currST = currST;
+        anode->callerFuncInfo = funcInfo;
         finfo->pendingCallListHead = anode;
     }
     if(finfo->status == F_DEFINED){
@@ -1159,7 +1159,7 @@ void handlePendingCalls(symFuncInfo *funcInfo){
         return;
     ASTNodeListNode *pcptr = funcInfo->pendingCallListHead;
     while(pcptr != NULL){
-        checkModuleSignature(pcptr->astNode,funcInfo,pcptr->currST);
+        checkModuleSignature(pcptr->astNode,pcptr->callerFuncInfo,pcptr->currST);
         ASTNodeListNode *tmp = pcptr;
         pcptr = pcptr->next;
         free(tmp);

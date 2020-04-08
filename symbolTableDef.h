@@ -20,7 +20,7 @@
 
 typedef struct symTableNode symTableNode;
 typedef struct symbolTable symbolTable;
-
+typedef struct symFuncInfo symFuncInfo;
 
 typedef enum{
     VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
@@ -45,6 +45,7 @@ typedef struct varType varType;
 struct ASTNodeListNode{
     ASTNode *astNode;
     symbolTable *currST;
+    symFuncInfo *callerFuncInfo;
     struct ASTNodeListNode *next;
 };
 typedef struct ASTNodeListNode ASTNodeListNode;
@@ -92,7 +93,7 @@ struct symFuncInfo{
     symbolTable *st;
     ASTNodeListNode *pendingCallListHead;
 };
-typedef struct symFuncInfo symFuncInfo;
+
 
 //when a function is only declared and you see a call, then put the moduleReuseStatement Node to the beginning
 //of the pendingCallList after checking all IDs for their validity
