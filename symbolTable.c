@@ -12,12 +12,14 @@
 //DONE: when the scope of the function ends, check if all its output parameters have been assigned.
 //DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
 //DONE: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
-//TODO: redeclarion of variables in input and output lists should be error. What if an inp list var is redeclared in output list.
+//DONE: redeclaration of variables in input and output lists should be error. What if an inp list var is redeclared in output list.
+    //i will then assume that, that input var is now shadowed by this output var. (therefore changed the order of search everywhere)
 //TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
-//TODO: add this at suitable place: printf("Input source code is semantically correct...........\n");
+//DONE: add this at suitable place: printf("Input source code is semantically correct...........\n");
 
 symbolTable funcTable;
 int nextGlobalOffset;
+bool haveSemanticErrors;
 
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     funcInfo->status = F_DECLARED;
@@ -52,6 +54,7 @@ int getSizeByType(gSymbol gs) {
 }
 
 void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, SemanticErrorType errorType) {
+    haveSemanticErrors = true;
     error e;
     e.errType = E_SEMANTIC;
     e.lno = lno;
@@ -481,17 +484,24 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         fprintf(stderr,"createParamInpNode: NULL error.\n");
         return NULL;
     }
-    paramInpNode *ptr = (paramInpNode *) (malloc(sizeof(paramInpNode)));
-    initSymVarInfo(&((ptr->info).var));
-    if(idNode->tkinfo)
-        (ptr->info).var.lno = idNode->tkinfo->lno;
-    strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    (ptr->info).var.vtype = getVtype(dataTypeNode, funcInfo, NULL);
-    //TODO: check Offset computation
-    (ptr->info).var.offset = nextGlobalOffset;
-    nextGlobalOffset += (ptr->info).var.vtype.bytes;
-    ptr->next = NULL;
-    return ptr;
+    paramInpNode *prevDeclaration = inpListSearchID(idNode,funcInfo);
+    if(prevDeclaration != NULL){
+        throwSemanticError(idNode->tkinfo->lno,idNode->tkinfo->lexeme,NULL,SEME_REDECLARATION);
+        return NULL;
+    }
+    else{
+        paramInpNode *ptr = (paramInpNode *) (malloc(sizeof(paramInpNode)));
+        initSymVarInfo(&((ptr->info).var));
+        if(idNode->tkinfo)
+            (ptr->info).var.lno = idNode->tkinfo->lno;
+        strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
+        (ptr->info).var.vtype = getVtype(dataTypeNode, funcInfo, NULL);
+        //TODO: check Offset computation
+        (ptr->info).var.offset = nextGlobalOffset;
+        nextGlobalOffset += (ptr->info).var.vtype.bytes;
+        ptr->next = NULL;
+        return ptr;
+    }
 }
 
 paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
@@ -512,7 +522,8 @@ paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
         }
         else{
             currInp->next = createParamInpNode(curr,curr->next,&dummy_finfo);
-            currInp = currInp->next;
+            if(currInp->next != NULL)   //so that we only include non NULL nodes
+                currInp = currInp->next;
         }
         if(curr->next)
             curr = curr->next->next;
@@ -522,23 +533,30 @@ paramInpNode *createParamInpList(ASTNode *inputPlistNode) {
     return head;
 }
 
-paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode){
+paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode, symFuncInfo *funcInfo){
     if(idNode == NULL || dataTypeNode == NULL){
         fprintf(stderr,"createParamOutNode: NULL error.\n");
         return NULL;
     }
-    paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
-    initSymVarInfo(&((ptr->info).var));
-    if(idNode->tkinfo)
-        (ptr->info).var.lno = idNode->tkinfo->lno;
-    strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-    (ptr->info).var.vtype = getVtype(dataTypeNode,NULL, NULL);
-    (ptr->info).var.isAssigned = false;
-    //TODO: check Offset computation
-    (ptr->info).var.offset = nextGlobalOffset;
-    nextGlobalOffset += (ptr->info).var.vtype.bytes;
-    ptr->next = NULL;
-    return ptr;
+    paramOutNode *prevDeclaration = outListSearchID(idNode,funcInfo);
+    if(prevDeclaration != NULL){
+        throwSemanticError(idNode->tkinfo->lno,idNode->tkinfo->lexeme,NULL,SEME_REDECLARATION);
+        return NULL;
+    }
+    else{
+        paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
+        initSymVarInfo(&((ptr->info).var));
+        if(idNode->tkinfo)
+            (ptr->info).var.lno = idNode->tkinfo->lno;
+        strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
+        (ptr->info).var.vtype = getVtype(dataTypeNode,NULL, NULL);
+        (ptr->info).var.isAssigned = false;
+        //TODO: check Offset computation
+        (ptr->info).var.offset = nextGlobalOffset;
+        nextGlobalOffset += (ptr->info).var.vtype.bytes;
+        ptr->next = NULL;
+        return ptr;
+    }
 }
 
 paramOutNode *createParamOutList(ASTNode *outputPlistNode){
@@ -548,14 +566,19 @@ paramOutNode *createParamOutList(ASTNode *outputPlistNode){
     ASTNode *curr = outputPlistNode->child;
     paramOutNode *head = NULL;
     paramOutNode *currOut = NULL;
+    symFuncInfo dummy_finfo;
+    initSymFuncInfo(&dummy_finfo,"@dummy");
+    dummy_finfo.outPListHead = head;
     while(curr != NULL){
         if(head == NULL){
-            head = createParamOutNode(curr, curr->next);
+            head = createParamOutNode(curr, curr->next,&dummy_finfo);
             currOut = head;
+            dummy_finfo.outPListHead = head;
         }
         else{
-            currOut->next = createParamOutNode(curr,curr->next);
-            currOut = currOut->next;
+            currOut->next = createParamOutNode(curr,curr->next,&dummy_finfo);
+            if(currOut->next != NULL)
+                currOut = currOut->next;
         }
         if(curr->next)
             curr = curr->next->next;
@@ -568,9 +591,9 @@ paramOutNode *createParamOutList(ASTNode *outputPlistNode){
 symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
     symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);;
     if(varNode == NULL)
-        varNode = inpListSearchID(node,funcInfo);
-    if(varNode == NULL)
         varNode = outListSearchID(node,funcInfo);
+    if(varNode == NULL)
+        varNode = inpListSearchID(node,funcInfo);
     if(varNode!=NULL) {
         *ty = varNode->info.var.vtype.baseType;
         if(varNode->info.var.vtype.vaType==VARIABLE)
@@ -582,18 +605,18 @@ symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo
 bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
-        if(inpListSearchID(idNode,funcInfo) == NULL){
-            //not found in the input list as well
-            paramOutNode *tmp = outListSearchID(idNode,funcInfo);
-            if(tmp == NULL){
+        paramOutNode *tmp;
+        if((tmp = outListSearchID(idNode,funcInfo)) == NULL){
+            //not found in the output list as well
+            if(inpListSearchID(idNode,funcInfo) == NULL){
                 //not found anywhere
                 throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                 return false;
             }
-            else{
-                //finally found in output parameters list
-                setAssignedOutParam(tmp);
-            }
+            //finally found in input parameters list
+        }
+        else{
+            setAssignedOutParam(tmp);
         }
     }
     gSymbol ty; int isVar = 0;
@@ -609,14 +632,14 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
 bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
         //not found in any of the symbol tables
-        if(inpListSearchID(idNode,funcInfo) == NULL){
-            //not found in the input list as well
-            paramOutNode *tmp = outListSearchID(idNode,funcInfo);
-            if(tmp == NULL){
+        if((outListSearchID(idNode,funcInfo)) == NULL){
+            //not found in the output list as well
+            if(inpListSearchID(idNode,funcInfo) == NULL){
                 //not found anywhere
                 throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                 return false;
             }
+            //finally found in input parameters list
         }
     }
     return true;
@@ -649,19 +672,19 @@ symTableNode *checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, sy
     st = stSearch(idNode->tkinfo->lexeme,currST);
     if(st == NULL) {
         //not found in any of the symbol tables
-        st = inpListSearchID(idNode, funcInfo);
+        st = outListSearchID(idNode, funcInfo);
         if (st == NULL) {
             //not found in the input list as well
-            st = outListSearchID(idNode, funcInfo);
+            st = inpListSearchID(idNode, funcInfo);
             if (st == NULL) {
                 //not found anywhere
                 return NULL;
             }
-            else {
-                if(assign) {
-                    //finally found in output parameters list
-                    setAssignedOutParam(st);
-                }
+        }
+        else {
+            if(assign) {
+                //finally found in output parameters list
+                setAssignedOutParam(st);
             }
         }
     }
@@ -1169,17 +1192,20 @@ void handleOtherModule(ASTNode *moduleNode){
 }
 
 void buildSymbolTable(ASTNode *root){
-    nextGlobalOffset = 0;
     if(root == NULL)
         return;
     switch(root->gs){
         case g_program:
         {
+            nextGlobalOffset = 0;
+            haveSemanticErrors = false;
             ASTNode *ptr = root->child;
             while(ptr != NULL){
                 buildSymbolTable(ptr);
                 ptr = ptr->next;
             }
+            if(haveSemanticErrors == false)
+                printf("Input source code is semantically correct...........\n");
         }
             break;
         case g_moduleDeclarations:

@@ -37,7 +37,7 @@ paramInpNode *inpListSearchID(ASTNode *idNode, symFuncInfo *funcInfo);
 paramOutNode *outListSearchID(ASTNode *idNode, symFuncInfo *funcInfo);
 paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode,symFuncInfo *funcInfo);
 paramInpNode *createParamInpList(ASTNode *inputPlistNode);
-paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode);
+paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode,symFuncInfo *funcInfo);
 paramOutNode *createParamOutList(ASTNode *outputPlistNode);
 symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty);
 bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
