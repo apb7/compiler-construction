@@ -815,7 +815,14 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
 }
 
 void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
-    symVarInfo *arrinfo = stGetVarInfo(idNode->tkinfo->lexeme,currST);
+    symTableNode *arrinfoEntry = checkIDInScopesAndLists(idNode,funcInfo,currST,false);
+    symVarInfo *arrinfo = NULL;
+    if(arrinfoEntry != NULL)
+        arrinfo = &(arrinfoEntry->info.var);
+    else{
+        throwSemanticError(idNode->tkinfo->lno,idNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+        return;
+    }
     if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
         int idx = (idOrNumNode->tkinfo->value).num;
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){

@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
                 extern symbolTable funcTable;
 //                makeSampleSymTableForTest(&funcTable);
                 buildSymbolTable(ASTroot);
-                printSymbolTable(&funcTable);
+//                printSymbolTable(&funcTable);
             }
             break;
             default:
