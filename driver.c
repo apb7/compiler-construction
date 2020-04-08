@@ -39,21 +39,6 @@ extern char *inverseMappingTable[];
 extern int **parseTable;
 errorPtr_stack *errorStack;
 
-void printSymbolTable(symbolTable* st){
-    // prints the whole SymbolTable Structure by calling printCurrSymTable
-    // TODO: add a call to printCurrSymTable(..) appropriately
-    if(st == NULL)
-        return;
-    symTableNode *currST = NULL;
-    for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
-        currST = (st->tb)[i];
-        while(currST != NULL){
-            printf("%s\n",(st->tb)[i]->lexeme);
-            currST = currST->next;
-        }
-    }
-}
-
 int main(int argc, char *argv[]) {
 //    printf("%d",sizeof(symbolTable));
     if(argc != 3) {
@@ -97,7 +82,7 @@ int main(int argc, char *argv[]) {
     char userInput;
 
     while(1) {
-        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree\n");
+        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree.\n\t Press 6 to build Symbol Table.\n");
         scanf(" %c", &userInput);
         switch(userInput) {
 
@@ -179,11 +164,9 @@ int main(int argc, char *argv[]) {
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 ASTNode *ASTroot = buildASTTree(root);
 
-                printf("No of nodes in AST Tree : %d \n", count_nodes_ASTTree(ASTroot));
-                printf("No of nodes in parse Tree : %d \n", count_nodes_parseTree(root));
                 extern symbolTable funcTable;
+//                makeSampleSymTableForTest(&funcTable);
                 buildSymbolTable(ASTroot);
-
                 printSymbolTable(&funcTable);
             }
             break;

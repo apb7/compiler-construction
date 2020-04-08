@@ -12,6 +12,10 @@
 //DONE: when the scope of the function ends, check if all its output parameters have been assigned.
 //DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
 //DONE: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
+//TODO: redeclarion of variables in input and output lists should be error. What if an inp list var is redeclared in output list.
+//TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
+//TODO: add this at suitable place: printf("Input source code is semantically correct...........\n");
+
 symbolTable funcTable;
 int nextGlobalOffset;
 
