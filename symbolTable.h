@@ -57,6 +57,7 @@ void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTabl
 void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo);
 void handlePendingCalls(symFuncInfo *funcInfo);
 void handleOtherModule(ASTNode *moduleNode);
+void handleUndefinedModules();
 void buildSymbolTable(ASTNode *root);
 
 

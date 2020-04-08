@@ -17,6 +17,7 @@
 //TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
 //DONE: add this at suitable place: printf("Input source code is semantically correct...........\n");
 //TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
+//TODO: Complete the function handleUndefinedModules(...)
 
 symbolTable funcTable;
 int nextGlobalOffset;
@@ -670,6 +671,7 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
     if(finfo == NULL){
         union funcVar fv;
         initSymFuncInfo(&(fv.func),moduleIDNode->tkinfo->lexeme);
+        fv.func.lno = moduleIDNode->tkinfo->lno;
         union funcVar *funcEntry = stAdd(moduleIDNode->tkinfo->lexeme, fv, &funcTable);
     }
     else{
@@ -789,6 +791,30 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         throwSemanticError(moduleIdNode->tkinfo->lno, moduleIdNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
         return;
     }
+    else if(finfo->status == F_DEFINED) {
+        if (equals(funcInfo->funcName, finfo->funcName)) {
+            //report recursion error
+            throwSemanticError(moduleIdNode->tkinfo->lno, moduleIdNode->tkinfo->lexeme, NULL, SEME_RECURSION);
+            return;
+        }
+    }
+    bool error_free = true;
+    if(idListNode1){
+        ASTNode *idNode = idListNode1->child;
+        while(idNode != NULL){
+            error_free = assignIDinScope(idNode, funcInfo, currST) ? error_free : false;
+            idNode = idNode->next;
+        }
+    }
+    if(idListNode2){
+        ASTNode *idNode = idListNode2->child;
+        while(idNode != NULL){
+            error_free = useIDinScope(idNode, funcInfo, currST) ? error_free : false;
+            idNode = idNode->next;
+        }
+    }
+    if(!error_free)
+        return; //discard this call
     if(finfo->status == F_DECLARED){
         finfo->status = F_DECLARATION_VALID;
         finfo->pendingCallListHead = (ASTNodeListNode *) malloc(sizeof(ASTNodeListNode));
@@ -804,27 +830,6 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         anode->currST = currST;
         anode->callerFuncInfo = funcInfo;
         finfo->pendingCallListHead = anode;
-    }
-    if(finfo->status == F_DEFINED){
-        if(equals(funcInfo->funcName,finfo->funcName)){
-            //report recursion error
-            throwSemanticError(moduleIdNode->tkinfo->lno,moduleIdNode->tkinfo->lexeme,NULL, SEME_RECURSION);
-            return;
-        }
-    }
-    if(idListNode1){
-        ASTNode *idNode = idListNode1->child;
-        while(idNode != NULL){
-            assignIDinScope(idNode, funcInfo, currST);
-            idNode = idNode->next;
-        }
-    }
-    if(idListNode2){
-        ASTNode *idNode = idListNode2->child;
-        while(idNode != NULL){
-            useIDinScope(idNode, funcInfo, currST);
-            idNode = idNode->next;
-        }
     }
     if(finfo->status == F_DEFINED){
         checkModuleSignature(moduleReuseNode,funcInfo,currST);
@@ -1215,6 +1220,10 @@ void handleOtherModule(ASTNode *moduleNode){
     handleModuleDef(moduleDefNode->child,finfo);
 }
 
+void handleUndefinedModules(){
+    //After everything, traverse and check all functions to know if there is any function which is still left in the state DECLARED or DECLARATION_VALID
+}
+
 void buildSymbolTable(ASTNode *root){
     if(root == NULL)
         return;
@@ -1228,8 +1237,7 @@ void buildSymbolTable(ASTNode *root){
                 buildSymbolTable(ptr);
                 ptr = ptr->next;
             }
-            if(haveSemanticErrors == false)
-                printf("Input source code is semantically correct...........\n");
+            handleUndefinedModules();
         }
             break;
         case g_moduleDeclarations:
