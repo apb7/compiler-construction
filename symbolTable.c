@@ -16,6 +16,7 @@
     //i will then assume that, that input var is now shadowed by this output var. (therefore changed the order of search everywhere)
 //TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
 //DONE: add this at suitable place: printf("Input source code is semantically correct...........\n");
+//TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
 
 symbolTable funcTable;
 int nextGlobalOffset;
@@ -230,6 +231,18 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
 
 }
 
+ASTNode *getIDFromModuleReuse(ASTNode *moduleReuseNode){
+    ASTNode *idOrAssOp = moduleReuseNode->child;
+    switch (idOrAssOp->gs){
+        case g_ID:
+            return idOrAssOp;
+        case g_ASSIGNOP:
+            return idOrAssOp->child->next;
+        default:
+            return NULL;
+    }
+}
+
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST) {
     if(moduleReuseNode == NULL || funcInfo == NULL || currST == NULL){
         fprintf(stderr, "checkModuleSignature: Received a NULL Node.\n");
@@ -237,8 +250,12 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }
     //TODO: Check whether the type, number and order of input and output variables match. if not report an error
 
-    paramInpNode *currInpListNode = funcInfo->inpPListHead;
-    paramOutNode *currOutListNode = funcInfo->outPListHead;
+//    symFuncInfo* finfo =funcInfo;
+// comment the following two lines and uncomment the above line to get back to previous state
+    ASTNode *idNode = getIDFromModuleReuse(moduleReuseNode);
+    symFuncInfo *finfo = stGetFuncInfo(idNode->tkinfo->lexeme, &funcTable);
+    paramInpNode *currInpListNode = finfo->inpPListHead;
+    paramOutNode *currOutListNode = finfo->outPListHead;
     ASTNode *idOrAssOp = moduleReuseNode->child;
     ASTNode *idOrList = NULL;
     ASTNode *currListNode = NULL;
@@ -246,7 +263,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     symTableNode *currSymNode;
 
 
-    if(idOrAssOp->child != NULL){
+    if(idOrAssOp->gs == g_ASSIGNOP){
         //idOrAssOp is actually ASSIGNOP
         //match LHS list with outPList
         idOrList = idOrAssOp->child;
@@ -259,7 +276,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
             // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
 
             if(currOutListNode == NULL){
-                throwSemanticError(currListNode->tkinfo->lno, funcInfo->funcName, NULL, SEME_PARAM_RECV_TOO_MANY_RET_VALS_EXPECTED);
+                throwSemanticError(currListNode->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_RECV_TOO_MANY_RET_VALS_EXPECTED);
 //                TODO: ERROR: too many return values expected from function
                 return;
             }
@@ -273,13 +290,13 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
             currListNode = currListNode->next;
         }while(currListNode != NULL);
         if(currOutListNode != NULL){
-            throwSemanticError(idOrList->next->tkinfo->lno, funcInfo->funcName, NULL, SEME_PARAM_RECV_TOO_FEW_RET_VALS_EXPECTED);
+            throwSemanticError(idOrList->next->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_RECV_TOO_FEW_RET_VALS_EXPECTED);
 //            TODO: ERROR; too few return values expected from the function
             return;
         }
         idOrList = idOrList->next; // now points to function name AST node i.e. ID after idOrList
     }
-    if(idOrAssOp->child == NULL){
+    if(idOrAssOp->gs == g_ID){
         // idOrAssOp is actually ID
         // if function returns values but they are not received then it is an error
         // we are here means, we haven't captured any values
@@ -304,7 +321,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
 
         if(currInpListNode == NULL){
-            throwSemanticError(currListNode->tkinfo->lno, funcInfo->funcName, NULL, SEME_PARAM_PASS_TOO_MANY_ARGS_PASSED);
+            throwSemanticError(currListNode->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_PASS_TOO_MANY_ARGS_PASSED);
 //                TODO: ERROR: too many arguments passed to the function
             return;
         }
@@ -316,7 +333,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         currListNode = currListNode->next;
     }while(currListNode != NULL);
     if(currInpListNode != NULL){
-        throwSemanticError(idOrList->parent->tkinfo->lno, funcInfo->funcName, NULL, SEME_PARAM_PASS_TOO_FEW_ARGS_PASSED);
+        throwSemanticError(idOrList->parent->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_PASS_TOO_FEW_ARGS_PASSED);
 //            TODO: ERROR; too few arguments passed to the function
         return;
     }
