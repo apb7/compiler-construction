@@ -15,9 +15,9 @@
 //DONE: redeclaration of variables in input and output lists should be error. What if an inp list var is redeclared in output list.
     //i will then assume that, that input var is now shadowed by this output var. (therefore changed the order of search everywhere)
 //TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
-//DONE: add this at suitable place: printf("Input source code is semantically correct...........\n");
+//TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
 //TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
-//TODO: Complete the function handleUndefinedModules(...)
+//DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
 
 symbolTable funcTable;
 int nextGlobalOffset;
@@ -1221,7 +1221,21 @@ void handleOtherModule(ASTNode *moduleNode){
 }
 
 void handleUndefinedModules(){
-    //After everything, traverse and check all functions to know if there is any function which is still left in the state DECLARED or DECLARATION_VALID
+    //Original intention: Traverses and checks all functions to know if there is any function which is still left in the state DECLARED or DECLARATION_VALID
+    //What it does now: currently we only throw an error if a function was declared, called and not defined. A function that was declared, never used and not defined is not an error
+    symTableNode *currFunc = NULL;
+    for(int i = 0; i<SYMBOL_TABLE_SIZE; i++){
+        // traverse all slots one by one
+        currFunc = funcTable.tb[i];
+        while(currFunc != NULL){
+            //traverse all functions hashed in current slot
+            if(currFunc->info.func.status == F_DECLARATION_VALID){
+                throwSemanticError(currFunc->info.func.lno, currFunc->info.func.funcName, NULL, SEME_MODULE_USED_NOT_DEFINED);
+            }
+            currFunc = currFunc->next;
+        }
+    }
+
 }
 
 void buildSymbolTable(ASTNode *root){

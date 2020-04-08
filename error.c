@@ -157,6 +157,9 @@ void printError(error e){
                 case SEME_ARR_IDX_NOT_INT:
                     fprintf(stderr,"'%s' is not an integer. Array index should be an integer.\n",e.edata.seme.errStr1);
                     break;
+                case SEME_MODULE_USED_NOT_DEFINED:
+                    fprintf(stderr,"Module '%s' is called but missing definition.\n",e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;
