@@ -1018,6 +1018,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
     if(varNode == NULL) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_UNDECLARED);
+        return; // no use to go ahead if we cannot find the variable in scope. we need to know its data type (integer or boolean) to proceed.
         // TOCHECK: ERROR handle undeclared case statement var error
     }
     else if(!isVar){
@@ -1108,13 +1109,14 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             return;
         }
 
-        if(!isVar) {
+        else if(!isVar) {
             throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_FOR_VAR_TYPE_ARR);
             // TOCHECK: ERROR handle for variable is an array
             return;
         }
-        if(ty!=g_INTEGER){
+        else if(ty!=g_INTEGER){
             throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_FOR_VAR_TYPE_INVALID);
+            return;
             // TOCHECK: ERROR handle not valid data type
         }
 
