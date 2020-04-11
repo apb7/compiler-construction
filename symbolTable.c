@@ -1055,7 +1055,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
             it=it->next;
         }
         if(true_count*false_count!=1) {
-            throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_TOO_MANY_BOOLEAN_CASES_IN_SWITCH);
+            throwSemanticError(idNode->tkinfo->lno, NULL, NULL, SEME_TOO_MANY_BOOLEAN_CASES_IN_SWITCH);
             // TOCHECK: ERROR both T/F don't occur
         }
         while(ptr!=NULL) {
