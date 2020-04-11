@@ -1080,12 +1080,12 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
             }
             it=it->next;
         }
+        ASTNode *default_node = (ptr != NULL && ptr->parent != NULL) ? ptr->parent->next : NULL;
         while(ptr!=NULL) {
             handleStatements(ptr->child,funcInfo,currST);
             ptr=ptr->next;
         }
-        ptr=ptr->parent->next; //on default
-        handleStatements(ptr->child,funcInfo,currST);
+        handleStatements(default_node->child,funcInfo,currST);
     }
 
 }

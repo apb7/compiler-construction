@@ -110,7 +110,7 @@ void printError(error e){
                     fprintf(stderr,"Too few arguments passed to the module '%s'.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_LOOP_VAR_REDEFINED:
-                    fprintf(stderr,"The loop variable '%s' is redefined here.\n",e.edata.seme.errStr1);
+                    fprintf(stderr,"The loop variable '%s' is assigned here.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_MODULE_REDECLARED:
                     fprintf(stderr,"The module '%s' is redeclared here.\n",e.edata.seme.errStr1);
