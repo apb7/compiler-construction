@@ -13,6 +13,9 @@
 typedef treeNode parseNode;
 
 unsigned int number_of_ASTNodes;
+
+struct symbolTable;
+
 struct ASTNode {
     gSymbol gs;
     tokenInfo *tkinfo;
@@ -21,6 +24,7 @@ struct ASTNode {
     struct ASTNode *next; // Sibling of the ASTNode.
     struct ASTNode *child; // Child of the ASTNode.
     struct ASTNode *parent; // Parent of the ASTNode.
+    struct symbolTable *st;
 };
 
 typedef struct ASTNode ASTNode;
