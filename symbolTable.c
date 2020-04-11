@@ -1011,7 +1011,8 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     }
     gSymbol ty;
     int isVar=0;
-    ASTNode *ptr = conditionalStmtNode->child; //on ID
+    ASTNode *idNode = conditionalStmtNode->child;
+    ASTNode *ptr = idNode; //on ID
     symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
     if(varNode == NULL) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_UNDECLARED);
@@ -1037,7 +1038,6 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         if(ptr->next!=NULL) {
             throwSemanticError(ptr->next->tkinfo->lno, NULL, NULL, SEME_DEFAULT_IN_BOOLEAN_SWITCH);
             // TOCHECK: ERROR handle default in g_BOOLEAN
-            return;
         }
         int true_count=0, false_count=0;
         ptr=ptr->child; //on TRUE/FALSE
@@ -1064,7 +1064,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         }
     } else {// INTEGER type switch
         if(ptr->next==NULL) {
-            throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH);
+            throwSemanticError(idNode->tkinfo->lno, NULL, NULL, SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH);
             // TOCHECK: ERROR handle no default in g_INTEGER
             return;
         }
@@ -1295,7 +1295,7 @@ void buildSymbolTable(ASTNode *root){
             }
         }
             break;
-        case g_driverModule:
+        case g_DRIVER:
         {
             union funcVar fv;
             initSymFuncInfo(&(fv.func),"@driver");
