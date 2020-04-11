@@ -65,7 +65,7 @@ void printError(error e){
                     fprintf(stderr,"Array index out of bounds for array '%s'.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_REDEFINITION:
-                    fprintf(stderr,"Previous definition was here. Found redefinition of the module '%s'.\n",e.edata.seme.errStr1);
+                    fprintf(stderr,"Previous definition was at line %s. Found redefinition of the module '%s'.\n",e.edata.seme.errStr2, e.edata.seme.errStr1);
                     break;
                 case SEME_RECURSION:
                     fprintf(stderr,"The module '%s' cannot call itself.\n",e.edata.seme.errStr1);

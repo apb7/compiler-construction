@@ -1236,7 +1236,9 @@ void handleOtherModule(ASTNode *moduleNode){
     }
     else if(finfo->status == F_DEFINED) {
         //redefinition
-        throwSemanticError(finfo->lno, idNode->tkinfo->lexeme, NULL, SEME_REDEFINITION);
+        char val[30];
+        sprintf(val,"%d",finfo->lno);
+        throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, val, SEME_REDEFINITION);
         return;
     }
 
@@ -1303,6 +1305,7 @@ void buildSymbolTable(ASTNode *root){
             //adding symTableNode pointer in ASTNode
             root->stNode = stSearchCurrent("@driver",&funcTable);
             nextGlobalOffset = 0;
+            funcEntry->func.lno = root->child->child->tkinfo->lno;
             handleModuleDef(root->child->child,&(funcEntry->func));
         }
             break;
