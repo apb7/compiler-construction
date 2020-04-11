@@ -1,6 +1,7 @@
 #include "astDef.h"
 #include "lexerDef.h"
 #include "parserDef.h"
+#include "symbolTableDef.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@ ASTNode* createASTNode(parseNode *parseNode) {
     newNode->next = NULL;
     newNode->child = NULL;
     newNode->parent = NULL;
+    newNode->st = NULL;
 }
 
 
@@ -771,7 +773,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         }
 
         case 68: // <N7> -> <logicalOp> <AnyTerm> <N71>
-            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_PLUS, g_MINUS);
+            return createASTNodeForRightRecursiveRule(parseNodeRoot, g_AND, g_OR);
 
         case 75: // <N4> -> <op1> <term> <N41>
             return createASTNodeForRightRecursiveRule(parseNodeRoot, g_PLUS, g_MINUS);
@@ -1075,8 +1077,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
 void print_ASTTree(ASTNode *ASTNodeRoot) {
 
-    if(ASTNodeRoot == NULL)
-    {
+    if(ASTNodeRoot == NULL) {
         printf("NULL\n");
         return;
     }
@@ -1104,8 +1105,7 @@ void print_ASTTree(ASTNode *ASTNodeRoot) {
 
 void print_ParseTree(parseNode *parseNodeRoot) {
 
-    if(parseNodeRoot == NULL)
-    {
+    if(parseNodeRoot == NULL) {
         printf("NULL\n");
         return;
     }
