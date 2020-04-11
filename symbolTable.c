@@ -1305,7 +1305,7 @@ void buildSymbolTable(ASTNode *root){
             //adding symTableNode pointer in ASTNode
             root->stNode = stSearchCurrent("@driver",&funcTable);
             nextGlobalOffset = 0;
-            funcEntry->func.lno = root->child->child->tkinfo->lno;
+            funcEntry->func.lno = root->tkinfo->lno;
             handleModuleDef(root->child->child,&(funcEntry->func));
         }
             break;
