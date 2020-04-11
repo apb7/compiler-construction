@@ -50,7 +50,7 @@ void printError(error e){
                     fprintf(stderr,"'%s' undeclared.\n",(e.edata.seme.errStr1));
                     break;
                 case SEME_FUNCTION_NOT_FOUND:
-                    fprintf(stderr,"The module '%s' was neither declared nor defined before use.\n");
+                    fprintf(stderr,"The module '%s' was neither declared nor defined before use.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_UNASSIGNED:
                     fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr1);
