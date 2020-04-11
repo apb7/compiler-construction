@@ -23,7 +23,7 @@ ASTNode* createASTNode(parseNode *parseNode) {
     newNode->next = NULL;
     newNode->child = NULL;
     newNode->parent = NULL;
-    newNode->st = NULL;
+    newNode->stNode = NULL;
 }
 
 

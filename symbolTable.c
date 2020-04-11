@@ -413,6 +413,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                else
+                                    numOrId->next->stNode = vt.ei.vt_id;
                                 // can't statically get 'bytes' and 'ei.vt_num' (as NUM) fields
                                 break;
                             default:
@@ -432,6 +434,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                     throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
                                     throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                else
+                                    numOrId->stNode = vt.si.vt_id;
                                 vt.ei.vt_num = rb;
                                 // can't statically get 'bytes' and 'si.vt_num' fields
                                 break;
@@ -443,11 +447,15 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                     throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
                                     throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                else
+                                    numOrId->stNode = vt.si.vt_id;
                                 vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
                                 if(vt.ei.vt_id == NULL)
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
                                 else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                else
+                                    numOrId->next = vt.ei.vt_id;
                                 // can't statically get 'bytes', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
@@ -516,6 +524,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         (ptr->info).var.offset = nextGlobalOffset;
         nextGlobalOffset += (ptr->info).var.vtype.bytes;
         ptr->next = NULL;
+        idNode->stNode = ptr;
         return ptr;
     }
 }
@@ -571,6 +580,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         (ptr->info).var.offset = nextGlobalOffset;
         nextGlobalOffset += (ptr->info).var.vtype.bytes;
         ptr->next = NULL;
+        idNode->stNode = ptr;
         return ptr;
     }
 }
@@ -619,12 +629,12 @@ symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo
 }
 
 bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
-    if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
+    if((idNode->stNode = stSearch(idNode->tkinfo->lexeme,currST)) == NULL){
         //not found in any of the symbol tables
         paramOutNode *tmp;
         if((tmp = outListSearchID(idNode,funcInfo)) == NULL){
             //not found in the output list as well
-            if(inpListSearchID(idNode,funcInfo) == NULL){
+            if((idNode->stNode = inpListSearchID(idNode,funcInfo)) == NULL){
                 //not found anywhere
                 throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                 return false;
@@ -632,6 +642,7 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
             //finally found in input parameters list
         }
         else{
+            idNode->stNode = tmp;
             setAssignedOutParam(tmp);
         }
     }
@@ -646,11 +657,11 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
 }
 
 bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST){
-    if(stSearch(idNode->tkinfo->lexeme,currST) == NULL){
+    if((idNode->stNode = stSearch(idNode->tkinfo->lexeme,currST)) == NULL){
         //not found in any of the symbol tables
-        if((outListSearchID(idNode,funcInfo)) == NULL){
+        if(((idNode->stNode = outListSearchID(idNode,funcInfo))) == NULL){
             //not found in the output list as well
-            if(inpListSearchID(idNode,funcInfo) == NULL){
+            if((idNode->stNode = inpListSearchID(idNode,funcInfo)) == NULL){
                 //not found anywhere
                 throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                 return false;
@@ -673,13 +684,14 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
         initSymFuncInfo(&(fv.func),moduleIDNode->tkinfo->lexeme);
         fv.func.lno = moduleIDNode->tkinfo->lno;
         union funcVar *funcEntry = stAdd(moduleIDNode->tkinfo->lexeme, fv, &funcTable);
+        moduleIDNode->stNode = stSearchCurrent(moduleIDNode->tkinfo->lexeme,&funcTable);
     }
     else{
         // ERROR: Redeclaration Error
         if(finfo->status == F_DECLARED){
             // no need to check this if condition but just for consistency
             throwSemanticError(moduleIDNode->tkinfo->lno, moduleIDNode->tkinfo->lexeme, NULL, SEME_MODULE_REDECLARED);
-//            TODO: throw Redeclaration error
+//            TOCHECK: throw Redeclaration error
         }
     }
 }
@@ -741,19 +753,21 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
 //                PRINT var_id_num->RNUM -- nothing to handle
 //                    PRINT var_id_num->ID
                     // idOrConst is actually ID
-                    if (checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == NULL) {
+                    //adding symTableNode pointer in ASTNode
+                    if ((idOrConst->stNode = checkIDInScopesAndLists(idOrConst, funcInfo, currST, false)) == NULL) {
 //                      TODO: will this checkIDInScopesAndLists check suffice if ID is array; handle array index bound checking
                         throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                         return;
                     }
                     if(idOrConst->next != NULL){
+
                         // if idOrConst->next is NUM, the following will do static bound checking
                         boundsCheckIfStatic(idOrConst, idOrConst->next, funcInfo, currST);
 //                        PRINT var_id_num->ID, NUM -- handled upto last line
                         idOrConst = idOrConst->next;
                         if(idOrConst->gs == g_ID){
 //                      PRINT var_id_num->ID, ID
-                            if(checkIDInScopesAndLists(idOrConst, funcInfo, currST, false) == NULL){
+                            if((idOrConst->stNode = checkIDInScopesAndLists(idOrConst, funcInfo, currST, false)) == NULL){
 //                            TODO: dynamic bounds check on array in previous if and index given by this ID
                                 throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                                 return;
@@ -785,7 +799,10 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
         moduleIdNode = moduleReuseNode->child;
         idListNode2 = moduleIdNode->next;
     }
-    symFuncInfo * finfo = stGetFuncInfo(moduleIdNode->tkinfo->lexeme,&funcTable);
+    //adding symTableNode pointer in ASTNode
+    moduleIdNode->stNode = stSearchCurrent(moduleIdNode->tkinfo->lexeme,&funcTable);
+    symFuncInfo *finfo = &(moduleIdNode->stNode->info.func);
+
     if(finfo == NULL){
         //No such function
         throwSemanticError(moduleIdNode->tkinfo->lno, moduleIdNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
@@ -838,6 +855,8 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
 
 void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
     symTableNode *arrinfoEntry = checkIDInScopesAndLists(idNode,funcInfo,currST,false);
+    //adding symTableNode pointer in ASTNode
+    idNode->stNode = arrinfoEntry;
     symVarInfo *arrinfo = NULL;
     if(arrinfoEntry != NULL)
         arrinfo = &(arrinfoEntry->info.var);
@@ -855,6 +874,8 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
     else if(idOrNumNode->gs == g_ID){
         //do type checking at compile time for array index when it is ID
         symTableNode *stn = checkIDInScopesAndLists(idOrNumNode,funcInfo,currST,false);
+        //adding symTableNode pointer in ASTNode
+        idOrNumNode->stNode = stn;
         if(stn == NULL){
             throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
         }
@@ -939,7 +960,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
         symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
         if(varNode!=NULL && varNode->info.var.isLoopVar) {
             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_LOOP_VAR_REDECLARED);
-            // TODO: ERROR Loop variable redeclared
+            // TOCHECK: ERROR Loop variable redeclared
         }
         else{
             symVarInfo *vinfo = stGetVarInfoCurrent(idNode->tkinfo->lexeme,currST);
@@ -966,6 +987,8 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                             nextGlobalOffset += fv.var.vtype.bytes;
                         }
                         stAdd(idNode->tkinfo->lexeme,fv,currST);
+                        //adding symTableNode pointer in ASTNode
+                        idNode->stNode = stSearchCurrent(idNode->tkinfo->lexeme,currST);
                     }
 
                 }
@@ -990,26 +1013,28 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
     if(varNode == NULL) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_UNDECLARED);
-        // TODO: ERROR handle undeclared case statement var error
+        // TOCHECK: ERROR handle undeclared case statement var error
         return;
     }
     if(!isVar){
-        // TODO: ERROR handle switch variable is an array
+        // TOCHECK: ERROR handle switch variable is an array
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_TYPE_ARR);
         return;
     }
     if(ty!=g_BOOLEAN && ty!=g_INTEGER) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_TYPE_INVALID);
-        // TODO: ERROR handle not valid data type
+        // TOCHECK: ERROR handle not valid data type
         return;
     }
+    //adding symTableNode pointer in ASTNode
+    ptr->stNode = varNode;
     if(ptr->next->gs == g_START)
         currST = newScope(currST);
     ptr=ptr->next->child; //on caseStmts
     if(ty == g_BOOLEAN) {
         if(ptr->next!=NULL) {
             throwSemanticError(ptr->next->tkinfo->lno, NULL, NULL, SEME_DEFAULT_IN_BOOLEAN_SWITCH);
-            // TODO: ERROR handle default in g_BOOLEAN
+            // TOCHECK: ERROR handle default in g_BOOLEAN
             return;
         }
         int true_count=0, false_count=0;
@@ -1022,14 +1047,14 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
                 false_count++;
             else {
                 throwSemanticError(it->tkinfo->lno, it->tkinfo->lexeme, NULL, SEME_NON_BOOLEAN_IN_SWITCH);
-                // TODO: ERROR handle non boolean
+                // TOCHECK: ERROR handle non boolean
                 return;
             }
             it=it->next;
         }
         if(true_count*false_count!=1) {
             throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_TOO_MANY_BOOLEAN_CASES_IN_SWITCH);
-            // TODO: ERROR both T/F don't occur
+            // TOCHECK: ERROR both T/F don't occur
         }
         while(ptr!=NULL) {
             handleStatements(ptr->child,funcInfo,currST);
@@ -1038,7 +1063,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     } else {// INTEGER type switch
         if(ptr->next==NULL) {
             throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH);
-            // TODO: ERROR handle no default in g_INTEGER
+            // TOCHECK: ERROR handle no default in g_INTEGER
             return;
         }
         ptr=ptr->child; //on NUM
@@ -1046,7 +1071,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         while(it!=NULL) {
             if(it->gs!=g_NUM) {
                 throwSemanticError(it->tkinfo->lno, it->tkinfo->lexeme, NULL, SEME_NON_INTEGER_IN_SWITCH);
-                // TODO: ERROR not NUM
+                // TOCHECK: ERROR not NUM
                 return;
             }
             it=it->next;
@@ -1073,21 +1098,22 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         gSymbol ty;
         int isVar=0;
         symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
-
+        //adding symTableNode pointer in ASTNode
+        ptr->stNode = varNode;
         if(varNode == NULL) {
             throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_FOR_VAR_UNDECLARED);
-            // TODO: ERROR handle undeclared iterative statement var error
+            // TOCHECK: ERROR handle undeclared iterative statement var error
             return;
         }
 
         if(!isVar) {
             throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_FOR_VAR_TYPE_ARR);
-            // TODO: ERROR handle for variable is an array
+            // TOCHECK: ERROR handle for variable is an array
             return;
         }
         if(ty!=g_INTEGER){
             throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_FOR_VAR_TYPE_INVALID);
-            // TODO: ERROR handle not valid data type
+            // TOCHECK: ERROR handle not valid data type
         }
 
         varNode->info.var.isLoopVar=true;
@@ -1099,7 +1125,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         varNode->info.var.isLoopVar=false;
         return;
     }
-    if(ptr->gs==g_WHILE) {
+    else if(ptr->gs==g_WHILE) {
         ptr=ptr->next;
         // TODO: verify typeof(ptr)
         ptr=ptr->next;
@@ -1216,6 +1242,8 @@ void handleOtherModule(ASTNode *moduleNode){
     finfo->status = F_DEFINED;
     finfo->inpPListHead = createParamInpList(inpListNode);
     finfo->outPListHead = createParamOutList(outListNode);
+    //adding symTableNode pointer in ASTNode
+    idNode->stNode = stSearchCurrent(idNode->tkinfo->lexeme,&funcTable);
     handlePendingCalls(finfo);
     handleModuleDef(moduleDefNode->child,finfo);
 }
@@ -1270,6 +1298,8 @@ void buildSymbolTable(ASTNode *root){
             fv.func.status = F_DEFINED;
             //@driver is the special name for driver function
             union funcVar *funcEntry = stAdd("@driver", fv, &funcTable);
+            //adding symTableNode pointer in ASTNode
+            root->stNode = stSearchCurrent("@driver",&funcTable);
             nextGlobalOffset = 0;
             handleModuleDef(root->child->child,&(funcEntry->func));
         }

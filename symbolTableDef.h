@@ -40,6 +40,7 @@ struct varType{
 };
 typedef struct varType varType;
 
+typedef struct ASTNode ASTNode;
 
 //for making a linked list of AST nodes
 struct ASTNodeListNode{
