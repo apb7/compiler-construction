@@ -10,11 +10,11 @@ start
 	get_value(var_1_);
 	var_2_:=10;
 	var_3_:= -(6);
-	[R1_abc, r2_ABC] := use module compute with parameters r2_ABC, var_2_, var_3_;
+	[R1_abc, r2_ABC, R3_abc] := use module compute with parameters R3_abc, var_2_, var_3_;
 	** do not bother that the last variable is not declared. It will be taken care of later in the semantic analysis phase**
 end
 <<module compute>>
-takes input[b: real, a: array [4..5] of integer,c:array [2..5] of integer];
+takes input[b: real, a: array [2..5] of integer,c:array [2..5] of integer];
 returns [res_1:boolean, res_2_a:integer, res_2__b:real];
 start
 	declare b:boolean;

@@ -12,19 +12,25 @@ void printSymbolTable(symbolTable* st){
     if(st == NULL)
         return;
     symTableNode *currST = NULL;
+    printf("################################# SYMBOL TABLE #################################\n\n");
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         currST = (st->tb)[i];
         while(currST != NULL){
-            printf("%s\n",(st->tb)[i]->lexeme);
+            printf("%s, slot %d\n",currST->lexeme,i);
             printCurrSymTable(currST);
+            printf("\n\n");
             currST = currST->next;
         }
     }
+    printf("##################################### ~ ** ~ #####################################\n\n");
 }
 
 void printCurrSymTable(symTableNode *stn){
     // prints just one symbol table and its hierarchies corresponding to a function scope
     // i.e. prints the whole scope structure of a function
+    int level = 0;
+
+
 
 }
 

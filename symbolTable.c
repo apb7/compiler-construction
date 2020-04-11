@@ -270,8 +270,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         currListNode = idOrList->child;
         do{
             // match LHS list i.e. currListNode's type with currOutListNode
-            currlexeme = currListNode->tkinfo->lexeme;
-            currSymNode = stSearch(currlexeme, currST);
+            currSymNode = checkIDInScopesAndLists(currListNode, funcInfo, currST, true);
             // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
 
             if(currOutListNode == NULL){
@@ -315,8 +314,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     currListNode = idOrList->child;
     do{
         // match RHS list i.e. currListNode's type with currInpListNode
-        currlexeme = currListNode->tkinfo->lexeme;
-        currSymNode = stSearch(currlexeme, currST);
+        currSymNode = checkIDInScopesAndLists(currListNode, funcInfo, currST, false);
         // currSymNode is assured to be non-NULL since we check this in handleModuleReuse
 
         if(currInpListNode == NULL){
