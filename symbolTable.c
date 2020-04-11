@@ -622,6 +622,8 @@ symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo
         *ty = varNode->info.var.vtype.baseType;
         if(varNode->info.var.vtype.vaType==VARIABLE)
             *isVar=1;
+        else
+            *isVar = 0;
     }
     return varNode;
 }
@@ -1010,21 +1012,20 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         return;
     }
     gSymbol ty;
-    int isVar=0;
+    int isVar=0; // assume that the switch variable is non-array by default
     ASTNode *idNode = conditionalStmtNode->child;
     ASTNode *ptr = idNode; //on ID
     symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
     if(varNode == NULL) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_UNDECLARED);
         // TOCHECK: ERROR handle undeclared case statement var error
-        return;
     }
-    if(!isVar){
+    else if(!isVar){
         // TOCHECK: ERROR handle switch variable is an array
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_TYPE_ARR);
         return;
     }
-    if(ty!=g_BOOLEAN && ty!=g_INTEGER) {
+    else if(ty!=g_BOOLEAN && ty!=g_INTEGER) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_TYPE_INVALID);
         // TOCHECK: ERROR handle not valid data type
         return;
@@ -1050,7 +1051,6 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
             else {
                 throwSemanticError(it->tkinfo->lno, it->tkinfo->lexeme, NULL, SEME_NON_BOOLEAN_IN_SWITCH);
                 // TOCHECK: ERROR handle non boolean
-                return;
             }
             it=it->next;
         }
@@ -1066,7 +1066,6 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         if(ptr->next==NULL) {
             throwSemanticError(idNode->tkinfo->lno, NULL, NULL, SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH);
             // TOCHECK: ERROR handle no default in g_INTEGER
-            return;
         }
         ptr=ptr->child; //on NUM
         ASTNode* it=ptr;
@@ -1074,7 +1073,6 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
             if(it->gs!=g_NUM) {
                 throwSemanticError(it->tkinfo->lno, it->tkinfo->lexeme, NULL, SEME_NON_INTEGER_IN_SWITCH);
                 // TOCHECK: ERROR not NUM
-                return;
             }
             it=it->next;
         }
@@ -1083,7 +1081,9 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
             handleStatements(ptr->child,funcInfo,currST);
             ptr=ptr->next;
         }
-        handleStatements(default_node->child,funcInfo,currST);
+        if(default_node != NULL){
+            handleStatements(default_node->child,funcInfo,currST);
+        }
     }
 
 }
