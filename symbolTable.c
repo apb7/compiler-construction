@@ -455,7 +455,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 else
-                                    numOrId->next = vt.ei.vt_id;
+                                    numOrId->next->stNode = vt.ei.vt_id;
                                 // can't statically get 'bytes', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
