@@ -801,7 +801,11 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
     }
     //adding symTableNode pointer in ASTNode
     moduleIdNode->stNode = stSearchCurrent(moduleIdNode->tkinfo->lexeme,&funcTable);
-    symFuncInfo *finfo = &(moduleIdNode->stNode->info.func);
+    symFuncInfo *finfo;
+    if(moduleIdNode->stNode != NULL)
+        finfo = &(moduleIdNode->stNode->info.func);
+    else
+        finfo = NULL;
 
     if(finfo == NULL){
         //No such function
@@ -1310,7 +1314,7 @@ void buildSymbolTable(ASTNode *root){
             ASTNode *ptr = root->child;
             while(ptr != NULL){
                 nextGlobalOffset = 0;
-                handleOtherModule(root->child);
+                handleOtherModule(ptr);
                 ptr = ptr->next;
             }
         }
