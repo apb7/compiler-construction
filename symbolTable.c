@@ -807,7 +807,7 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
 
     if(finfo == NULL){
         //No such function
-        throwSemanticError(moduleIdNode->tkinfo->lno, moduleIdNode->tkinfo->lexeme, NULL, SEME_UNDECLARED);
+        throwSemanticError(moduleIdNode->tkinfo->lno, moduleIdNode->tkinfo->lexeme, NULL, SEME_FUNCTION_NOT_FOUND);
         return;
     }
     else if(finfo->status == F_DEFINED) {
