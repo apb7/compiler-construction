@@ -202,7 +202,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             if(AST_child == NULL)
                 return NULL;
             
-            ASTNode *newNode = createASTNode(parseNodeRoot);
+            ASTNode *newNode = createASTNode(parseNodeRoot->child->next); // DRIVER
             AST_child->parent = newNode;
             newNode->child = AST_child;
 
@@ -949,7 +949,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         // Keeping a <default> node will help in distinguishing it later.
         case 102:
         {
-            ASTNode *newNode = createASTNode(parseNodeRoot);
+            ASTNode *newNode = createASTNode(parseNodeRoot->child); //DEFAULT
 
             parseNode *parse_child = parseNodeRoot->child;
             parse_child = parse_child->next->next; // <statements>
