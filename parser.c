@@ -31,6 +31,7 @@ intSet* firstSet;   //This array stores first sets of all the non terminals
 intSet* followSet;  //This array stores follow sets of all the non terminals
 int parseTable[NUM_NON_TERMINALS][NUM_TERMINALS + 1];   //This table is used for predictive parsing
 intSet defaultSyn;
+bool stage1ErrorFree;
 
 //This table is used to convert Enums to their corresponding strings
 char *inverseMappingTable[] = {
@@ -561,7 +562,7 @@ void recoverTerminal_Terminal(treeNodePtr_stack **parseStack, FILE **srcFilePtr,
 
 /*------------PARSE I/P SOURCECODE STARTS-------------*/
 treeNode *parseInputSourceCode(char *src){
-    bool errorFree = true;
+    stage1ErrorFree = true;
     if(!src) {
         fprintf(stderr,"parseInputSourceCode: ERROR, Invalid source file\n");
         return NULL;
@@ -620,7 +621,7 @@ treeNode *parseInputSourceCode(char *src){
         }
         else if(topNode->gs <= g_EOS){
             //topNode is not a non Terminal
-            errorFree = false;
+            stage1ErrorFree = false;
             recoverTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
         }
         else{
@@ -628,7 +629,7 @@ treeNode *parseInputSourceCode(char *src){
             int ruleId = parseTable[ntx(topNode->gs)][sym];
             if(ruleId == ERROR_RECOVERY_SKIP || ruleId == ERROR_RECOVERY_POP){
                 //Invalid Combination
-                errorFree = false;
+                stage1ErrorFree = false;
                 recoverNonTerminal_Terminal(&parseStack, &srcFilePtr, &tkinfo, &eosEncountered);
             }
             else{
@@ -674,7 +675,7 @@ treeNode *parseInputSourceCode(char *src){
             }
         }
     }
-    if(errorFree){
+    if(stage1ErrorFree){
         printf("Input source code is syntactically correct...........\n");
     }
     else{

@@ -162,6 +162,9 @@ int main(int argc, char *argv[]) {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                extern bool stage1ErrorFree;
+                if(!stage1ErrorFree)
+                    break;
                 ASTNode *ASTroot = buildASTTree(root);
 
                 extern symbolTable funcTable;

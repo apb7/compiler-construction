@@ -1140,6 +1140,8 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
 }
 
 void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST){
+    if(statementsNode == NULL || statementsNode->child == NULL)
+        return;
     ASTNode *ptr = statementsNode->child; //the first statement
     while(ptr != NULL){
         switch(ptr->gs){
