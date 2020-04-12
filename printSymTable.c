@@ -4,124 +4,116 @@
 #include "symbolTableDef.h"
 #include "symbolTable.h"
 
-#define FUNC_ALIGN 3
-int curr_align;
+extern char *inverseMappingTable[];
 
-void printSymbolTable(symbolTable* st){
+void printVarEntry(symTableNode *stNode, int sno, FILE *fp){
+    fprintf(fp, "%-4d %-20s", sno, stNode->lexeme);
+    char *va, *ty;
+    if(stNode->info.var.vtype.vaType == VARIABLE)
+        va = "Variable";
+    else
+        va = "Array";
+    ty = inverseMappingTable[stNode->info.var.vtype.baseType];
+    fprintf(fp," %-10s %-10s",va,ty);
+    varType vt =  stNode->info.var.vtype;
+    switch(stNode->info.var.vtype.vaType){
+        case VARIABLE:
+            fprintf(fp," %-25s %-25s","----","----");
+            break;
+        case STAT_ARR:
+            fprintf(fp," %-25d %-25d",vt.si.vt_num,vt.ei.vt_num);
+        case DYN_L_ARR:
+            if(vt.si.vt_id != NULL)
+                fprintf(fp," %-25s",vt.si.vt_id->lexeme);
+            else
+                fprintf(fp," %-25s","NULL");
+            fprintf(fp," %-25d",vt.ei.vt_num);
+            break;
+        case DYN_R_ARR:
+            fprintf(fp," %-25d",vt.si.vt_num);
+            if(vt.ei.vt_id != NULL)
+                fprintf(fp," %-25s",vt.ei.vt_id->lexeme);
+            else
+                fprintf(fp," %-25s","NULL");
+            break;
+        case DYN_ARR:
+            if(vt.si.vt_id != NULL)
+                fprintf(fp," %-25s",vt.si.vt_id->lexeme);
+            else
+                fprintf(fp," %-25s","NULL");
+            if(vt.ei.vt_id != NULL)
+                fprintf(fp," %-25s",vt.ei.vt_id->lexeme);
+            else
+                fprintf(fp," %-25s","NULL");
+            break;
+    }
+    fprintf(fp, " %-5d %-6d\n", stNode->info.var.lno, stNode->info.var.offset);
+}
+
+void printSymbolTable(symbolTable* st, FILE *fp){
     // prints the whole SymbolTable Structure by calling printCurrSymTable
     // TODO: add a call to printCurrSymTable(..) appropriately
     if(st == NULL)
         return;
-    symTableNode *currST = NULL;
-    printf("\n\n################################# SYMBOL TABLE #################################\n\n");
+    symTableNode *currSTN = NULL;
+    fprintf(fp,"################################# SYMBOL TABLE #################################\n\n");
+    fprintf(fp,"################################# FUNCTION TABLE #################################\n\n");
+    fprintf(fp,"%-4s%-20s%-7s%-6s\n", "SNO", "Func-Name", "Status", "Line");
+    int sno = 1;
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
-        currST = (st->tb)[i];
-        while(currST != NULL){
-            printf("Module '%s', slot %d\n",currST->lexeme,i);
-            printCurrSymTable(currST);
-            printf("\n\n");
-            currST = currST->next;
+        currSTN = (st->tb)[i];
+        while(currSTN != NULL){
+            fprintf(fp, "%-4d%-20s%-7d%-6d\n", sno, currSTN->lexeme, currSTN->info.func.status, currSTN->info.func.lno);
+            currSTN = currSTN->next;
+            sno++;
         }
     }
-    printf("##################################### ~ ** ~ #####################################\n\n");
-}
-
-void printAtAlignment(char *toPrint, int align){
-    // prints 'toPrint', aligning it 'align' spaces from left
-    printf("%*s",align,"");
-    printf("%s", toPrint);
-}
-
-void setSymNodeTypeStr(varType vt, char *ts){
-    int skip = 0;
-    switch(vt.baseType){
-        case g_INTEGER:
-            skip += sprintf(ts + skip,"baseType: %s","integer");
-            break;
-        case g_REAL:
-            skip += sprintf(ts + skip,"baseType: %s","real");
-            break;
-        case g_BOOLEAN:
-            skip += sprintf(ts + skip,"baseType: %s","boolean");
-            break;
-        default:skip += sprintf(ts + skip,"baseType: %s","error_type");
+    fprintf(fp,"\n");
+    for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
+        currSTN = (st->tb)[i];
+        while(currSTN != NULL){
+            fprintf(fp, "################################# MODULE '%s' #################################\n\n", currSTN->lexeme);
+            int sno = 1;
+            fprintf(fp,"################################# I/O VARS #################################\n\n");
+            fprintf(fp,"%-4s %-20s %-10s %-10s %-25s %-25s %-5s %-6s\n","SNO","LEXEME","VAR/ARR","TYPE","LB","UB","LINE","OFFSET");
+            symTableNode *iohead = currSTN->info.func.inpPListHead;
+            while(iohead != NULL){
+                printVarEntry(iohead,sno,fp);
+                sno++;
+                iohead = iohead->next;
+            }
+            iohead = currSTN->info.func.outPListHead;
+            while(iohead != NULL){
+                printVarEntry(iohead,sno,fp);
+                sno++;
+                iohead = iohead->next;
+            }
+            fprintf(fp,"\n");
+            printCurrSymTable(currSTN->info.func.st, 0, fp);
+            currSTN = currSTN->next;
+        }
     }
+    fprintf(fp,"##################################### ~ ** ~ #####################################\n\n");
+}
 
-    switch(vt.vaType){
-        case VARIABLE :
-            skip += sprintf(ts + skip,", varOrArr: %s","VARIABLE");
-            break;
-        case STAT_ARR :
-            skip += sprintf(ts + skip,", varOrArr: %s","STAT_ARR");
-            skip += sprintf(ts + skip,", bounds: [%u..%d]",vt.si.vt_num);
-            break;
-        case DYN_L_ARR:
-            skip += sprintf(ts + skip,", varOrArr: %s","DYN_L_ARR");
-            break;
-        case DYN_R_ARR:
-            skip += sprintf(ts + skip,", varOrArr: %s","DYN_R_ARR");
-            break;
-        case DYN_ARR  :
-            skip += sprintf(ts + skip,", varOrArr: %s","DYN_ARR");
-            break;
-        default:
-            skip += sprintf(ts + skip,", varOrArr: %s","ERROR_TYPE");
+void printCurrSymTable(symbolTable *st,int level, FILE *fp){
+    fprintf(fp,"################################# Level %d #################################\n\n",level);
+    fprintf(fp,"%-4s %-20s %-10s %-10s %-25s %-25s %-5s %-6s\n","SNO","LEXEME","VAR/ARR","TYPE","LB","UB","LINE","OFFSET");
+    int sno = 1;
+    for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
+        symTableNode *currSTN = (st->tb)[i];
+        while(currSTN != NULL){
+            printVarEntry(currSTN,sno,fp);
+            currSTN = currSTN->next;
+            sno++;
+        }
     }
-}
-
-void printSymNode(symTableNode *node, int align){
-    char pstr[400];
-    char typeStr[250];
-    setSymNodeTypeStr(node->info.var.vtype, typeStr);
-    sprintf(pstr,"[ Name: %s, Line No.: %d, Type: [ %s ], Offset: %d, isAssigned: %s, isLoopVar: %s ]",node->lexeme, node->info.var.lno, typeStr, node->info.var.offset, node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false");
-    printAtAlignment(pstr, align);
-}
-
-void printParamList(symTableNode *head, int baseAlign, pListType pt){
-    char pstr[100];
-    int alignHence = baseAlign;
-    printAtAlignment("[\n",curr_align);// line 1
-
-    alignHence += 3;
-    // line 2 and henceforth
-    while(head!=NULL){
-        printSymNode(head, alignHence);
-        head = head->next;
-        head == NULL ? printf("\n") : printf(",\n");
+    fprintf(fp,"\n");
+    symbolTable *childst = st->headChild;
+    while(childst != NULL){
+        printCurrSymTable(childst,level+1,fp);
+        childst = childst->next;
     }
-    printAtAlignment("]\n",curr_align);
-}
-
-void printFuncVar(union funcVar *fvinfo, int baseAlign){
-    char pstr[100];
-    int alignHence = baseAlign;
-    printAtAlignment("[ Module status: ",curr_align);// line 1
-
-    switch(fvinfo->func.status){
-        case F_DECLARED:
-            printf("DECLARED, line %d\n",fvinfo->func.lno);// line 1
-            break;
-        case F_DECLARATION_VALID:
-            printf("DECLARATION VALID, line %d\n",fvinfo->func.lno);// line 1
-            break;
-        case F_DEFINED:
-            printf("DEFINED, line %d\n",fvinfo->func.lno);// line 1
-            break;
-        default: printf("");
-    }
-
-    alignHence += 2; // align after beginning "[ "
-    printAtAlignment("Input Parameters List:\n",alignHence);
-    printParamList(fvinfo->func.inpPListHead, alignHence, INP_PLIST);
-
-}
-void printCurrSymTable(symTableNode *stn){
-    // prints just one symbol table and its hierarchies corresponding to a function scope
-    // i.e. prints the whole scope structure of a function
-    printFuncVar(&(stn->info), FUNC_ALIGN);
-
-
-
 }
 
 
