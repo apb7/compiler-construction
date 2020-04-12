@@ -4,6 +4,7 @@
 // SALMAAN SHAHID  2016B4A70580P
 // APURV BAJAJ     2016B3A70549P
 // HASAN NAQVI     2016B5A70452P
+#include <stdio.h>
 #include "astDef.h"
 #include "symbolTableDef.h"
 #include "error.h"
@@ -13,10 +14,10 @@
 
 //______________________________
 // both currently reside in printSymTable.c, to move to symbolTable.c post testing
-void printSymbolTable(symbolTable* st);
+void printSymbolTable(symbolTable* st, FILE *fp);
 void makeSampleSymTableForTest(symbolTable* funcTable);
 // returns a sample symbolTable structure with 3 functions in total (2 hashed to same slot) and 1 in different slot
-void printCurrSymTable(symTableNode* stn);
+void printCurrSymTable(symbolTable *st,int level, FILE *fp);
 // gets the symTableNode entry corresponding to a function and prints scope hierarchy of that function
 //______________________________
 

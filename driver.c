@@ -174,10 +174,11 @@ int main(int argc, char *argv[]) {
 
                 printf("symbol table built\n");
 
-                checkType(ASTroot);
+                //checkType(ASTroot);
 
-                printf("Type check done\n");
-                printSymbolTable(&funcTable);
+                //printf("Type check done\n");
+                FILE *fpout = fopen(argv[2],"w");
+                printSymbolTable(&funcTable,fpout);
             }
             break;
             default:
