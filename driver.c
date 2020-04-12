@@ -16,6 +16,7 @@
 #include "config.h"
 #include "lexer.h"
 #include "errorPtr_stack.h"
+#include "typeCheck.h"
 
 #include "astDef.h"
 #include "ast.h"
@@ -170,6 +171,12 @@ int main(int argc, char *argv[]) {
                 extern symbolTable funcTable;
 //                makeSampleSymTableForTest(&funcTable);
                 buildSymbolTable(ASTroot);
+
+                printf("symbol table built\n");
+
+                checkType(ASTroot);
+
+                printf("Type check done\n");
                 printSymbolTable(&funcTable);
             }
             break;

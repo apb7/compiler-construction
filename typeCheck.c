@@ -1,12 +1,16 @@
 #include "symbolTableDef.h"
+#include "symbolTable.h"
+#include "astDef.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 typedef enum{
     T_INTEGER, T_REAL, T_BOOLEAN, T_ERROR
-} dataType;
+} primitiveDataType;
 
-dataType getExpressionType(ASTNode *ptr) {
+extern char* inverseMappingTable[];
+
+primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
     switch(ptr->gs) {
 
         // Arithemetic operators, only binary forms called here
@@ -15,15 +19,15 @@ dataType getExpressionType(ASTNode *ptr) {
         case g_MUL:
         case g_DIV:
         {
-            dataType t1 = getExpressionType(ptr->child);
-            dataType t2 = getExpressionType(ptr->child->next);
+            primitiveDataType t1 = getExpressionPrimitiveType(ptr->child);
+            primitiveDataType t2 = getExpressionPrimitiveType(ptr->child->next);
 
             if (t1 == T_INTEGER && t2 == T_INTEGER)
                 return T_INTEGER;
 
             if (t1 == T_REAL && t2 == T_REAL)
                 return T_REAL;
-
+            
             return T_ERROR;
         }
 
@@ -35,8 +39,8 @@ dataType getExpressionType(ASTNode *ptr) {
         case g_EQ:
         case g_NE:
         {
-            dataType t1 = getExpressionType(ptr->child);
-            dataType t2 = getExpressionType(ptr->child->next);
+            primitiveDataType t1 = getExpressionPrimitiveType(ptr->child);
+            primitiveDataType t2 = getExpressionPrimitiveType(ptr->child->next);
 
             if (t1 == T_INTEGER && t2 == T_INTEGER)
                 return T_BOOLEAN;
@@ -51,8 +55,8 @@ dataType getExpressionType(ASTNode *ptr) {
         case g_AND:
         case g_OR:
         {
-            dataType t1 = getExpressionType(ptr->child);
-            dataType t2 = getExpressionType(ptr->child->next);
+            primitiveDataType t1 = getExpressionPrimitiveType(ptr->child);
+            primitiveDataType t2 = getExpressionPrimitiveType(ptr->child->next);
 
             if (t1 == T_BOOLEAN && t2 == T_BOOLEAN)
                 return T_BOOLEAN;
@@ -63,12 +67,17 @@ dataType getExpressionType(ASTNode *ptr) {
         case g_u:
         {
             // t1 will be g_unary_op
-            dataType t2 = getExpressionType(ptr->child->next); // g_ of either arithmetic, relational or logical operators.
+            primitiveDataType t2 = getExpressionPrimitiveType(ptr->child->next); // g_ of either arithmetic, relational or logical operators.
 
-            // Cannot have either boolean or error type expression with unary operator.
-            if(t2 == T_BOOLEAN || t2 == T_ERROR)
-                return T_ERROR;
+            // Can only have real or integer expression with unary operator.
+            if(t2 == T_REAL || t2 == T_INTEGER)
+                return t2;
+
+            return T_ERROR;
         }
+
+        case g_var_id_num:
+            return getExpressionPrimitiveType(ptr->child);
 
         case g_NUM:
             return T_INTEGER;
@@ -81,8 +90,50 @@ dataType getExpressionType(ASTNode *ptr) {
             return T_BOOLEAN;
 
         case g_ID:
-            // TODO: get type from symbol table!
+        {
+            if (ptr->stNode->info.var.vtype.baseType == g_INTEGER)
+                return T_INTEGER;
+            
+            if (ptr->stNode->info.var.vtype.baseType == g_REAL)
+                return T_REAL;
+            
+            if (ptr->stNode->info.var.vtype.baseType == g_BOOLEAN)
+                return T_BOOLEAN;
+        }
+    }
+}
 
+// TODO: handle memory leaks
+varType* getDataType(ASTNode *ptr) {
+    switch(ptr->gs) {
+        case g_ID:
+            return &(ptr->stNode->info.var.vtype);
+
+        default:
+        {
+            primitiveDataType expressionType = getExpressionPrimitiveType(ptr);
+
+            if (expressionType == T_ERROR)
+                return NULL;
+
+            varType *vt = malloc(sizeof(varType));
+
+            if(expressionType == T_INTEGER)
+                vt->baseType = g_INTEGER;
+            
+            if(expressionType == T_REAL)
+                vt->baseType = g_REAL;
+                
+            if(expressionType == T_BOOLEAN)
+                vt->baseType = g_BOOLEAN;
+
+            vt->bytes = getSizeByType(vt->baseType);
+            vt->vaType = VARIABLE;
+            vt->si.vt_id = NULL;
+            vt->ei.vt_id = NULL;
+
+            return vt;
+        }
     }
 }
 
@@ -92,18 +143,33 @@ void checkTypeAssignmentStmt(ASTNode* rt) {
     if(rt->gs == g_lvalueIDStmt) {
         rt = rt->child; // g_ASSIGNOP
 
-        dataType t1 = getExpressionType(rt->child); // g_ID
-        dataType t2 = getExpressionType(rt->child->next);  // g_expression
+        varType *t1 = getDataType(rt->child); // g_ID
+        varType *t2 = getDataType(rt->child->next);  // g_expression
 
-        if(t1 == T_ERROR || t2 == T_ERROR || t1 != t2)
-            printf("\n ERROR: The types of left and right hand side of assignment operator are not same at line %d.", rt->tkinfo->lno);
+        if(t2 == NULL) {
+            printf(" TYPE ERROR: Expression has type error at line %d.\n", rt->tkinfo->lno);
+            return;    
+        }
+
+        if(t1->baseType == t2->baseType && t1->vaType == t2->vaType) {
+            if(t1->vaType == VARIABLE)
+                return; // No error
+            else
+                printf("to do other vatypes\n");
+            return;
+        }
+
+        else {
+            printf(" TYPE ERROR: LHS and RHS tpes don't match at line %d.\n", rt->tkinfo->lno);
+        }
     }
+
     else { // g_lvalueARRStmt
         rt = rt->child; // g_ASSIGNOP
 
-        dataType t1 = getExpressionType(rt->child); // g_ID
-        dataType t2 = getExpressionType(rt->child->next);  // g_index
-        dataType t3 = getExpressionType(rt->child->next->next);  // g_expression
+        primitiveDataType t1 = getExpressionPrimitiveType(rt->child); // g_ID
+        primitiveDataType t2 = getExpressionPrimitiveType(rt->child->next);  // g_index
+        primitiveDataType t3 = getExpressionPrimitiveType(rt->child->next->next);  // g_expression
 
         // TODO: Additional checks needed for array A[k]
         if(t1 == T_ERROR || t2 == T_ERROR || t1 != t2)
