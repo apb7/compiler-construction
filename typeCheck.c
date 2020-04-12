@@ -126,6 +126,18 @@ varType* getDataType(ASTNode *ptr) {
             return &(ptr->stNode->info.var.vtype);
         }
 
+        case g_var_id_num:
+        {
+            if(ptr->child->gs == g_ID) {
+                if (ptr->child->stNode == NULL){
+                    return NULL;
+                }
+
+                return &(ptr->child->stNode->info.var.vtype);
+            }
+            // otherwise let it fall through the case stmt
+        }
+
         default:
         {
             primitiveDataType expressionType = getExpressionPrimitiveType(ptr);
