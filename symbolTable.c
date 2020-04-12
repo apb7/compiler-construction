@@ -935,13 +935,18 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             vt2 = getDataType(idNode->next);
 
             if (vt1 != NULL && vt2 != NULL) {
-                if(vt1->baseType == vt2->baseType && vt1->vaType == vt2->vaType) {
-                    if(vt1->vaType == VARIABLE) 
-                        return; // No error
-                    else {
-                        printf("TODO: handle arrays assignemnt\n");
-                        return;
+                if(vt1->baseType == vt2->baseType) {
+
+                    if(vt1->vaType == VARIABLE){
+                        if(vt1->vaType != vt2->vaType)  
+                            printf("LHS AND RHS DONT MATCH!line no %d\n", idNode->tkinfo->lno);
+                    }  
+
+                    else if(vt1->vaType == STAT_ARR && vt2->vaType == STAT_ARR) {
+                        if (vt1->si.vt_num != vt2->si.vt_num || vt1->ei.vt_num != vt2->ei.vt_num )
+                            printf("LHS AND RHS BOUNDS DONT MATCH!line no %d\n", idNode->tkinfo->lno);
                     }
+
                 }
 
                 else {
