@@ -8,6 +8,7 @@
 #include "util.h"
 #include "error.h"
 #include "lexerDef.h"
+#include "typeCheck.h"
 
 //DONE: when the scope of the function ends, check if all its output parameters have been assigned.
 //DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
@@ -893,10 +894,12 @@ void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *cur
     if(someNode == NULL){
         return;
     }
+
     if(someNode->gs == g_var_id_num){
         if(someNode->child->gs == g_ID){
             ASTNode *idNode = someNode->child;
             useIDinScope(idNode, funcInfo, currST);
+
             if(idNode->next != NULL){
                 //array
                 boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
@@ -915,20 +918,54 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
         fprintf(stderr,"handleAssignmentStmt: NULL node found.\n");
         return;
     }
+
+    varType *vt1, *vt2;
+
     switch(assignmentStmtNode->child->gs){
         case g_lvalueIDStmt:{
             ASTNode *idNode = assignmentStmtNode->child->child->child;
             assignIDinScope(idNode, funcInfo, currST);
+            vt1 = getDataType(idNode);
+
             handleExpression(idNode->next,funcInfo,currST);
+            vt2 = getDataType(idNode->next);
+
+            if (vt1 != NULL && vt2 != NULL) {
+                if(vt1->baseType == vt2->baseType && vt1->vaType == vt2->vaType) {
+                    if(vt1->vaType == VARIABLE)
+                        return; // No error
+                    else {
+                        printf("TODO: handle arrays assignemnt\n");
+                        return;
+                    }
+                }
+
+                else {
+                    printf("LHS AND RHS DONT MATCH!( %d %d %d %d )line no %d\n", vt1->baseType, vt2->baseType, vt1->vaType, vt2->vaType, idNode->tkinfo->lno);
+                }
+            }
         }
-            break;
+        break;
+
         case g_lvalueARRStmt:{
             ASTNode *idNode = assignmentStmtNode->child->child->child;
             useIDinScope(idNode, funcInfo, currST);
+            vt1 = getDataType(idNode);
+
             boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
+            // TODO: use bound check result!
+
             handleExpression(idNode->next->next,funcInfo,currST);
+            vt2 = getDataType(idNode->next->next);
+
+            if (vt1 != NULL && vt2 != NULL) {
+                if(vt1->baseType == vt2->baseType && VARIABLE == vt2->vaType)
+                    return; // No error
+                else 
+                    printf("LHS AND RHS DONT MATCH! line no %d\n", idNode->tkinfo->lno);
+            }
         }
-            break;
+        break;
     }
 }
 
