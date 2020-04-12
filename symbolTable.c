@@ -858,7 +858,7 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
     }
 }
 
-void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
+bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
     symTableNode *arrinfoEntry = checkIDInScopesAndLists(idNode,funcInfo,currST,false);
     //adding symTableNode pointer in ASTNode
     idNode->stNode = arrinfoEntry;
@@ -867,13 +867,14 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
         arrinfo = &(arrinfoEntry->info.var);
     else{
         throwSemanticError(idNode->tkinfo->lno,idNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
-        return;
+        return false;
     }
     if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
         int idx = (idOrNumNode->tkinfo->value).num;
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
             //out of bounds
             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
+            return false;
         }
     }
     else if(idOrNumNode->gs == g_ID){
@@ -883,11 +884,14 @@ void boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
         idOrNumNode->stNode = stn;
         if(stn == NULL){
             throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+            return false;
         }
         else if(stn->info.var.vtype.baseType != g_INTEGER){
             throwSemanticError(idOrNumNode->tkinfo->lno,idOrNumNode->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+            return false;
         }
     }
+    return true;
 }
 
 void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST){
