@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 typedef enum{
-    T_INTEGER, T_REAL, T_BOOLEAN, T_ERROR
+    T_INTEGER, T_REAL, T_BOOLEAN, T_ERROR, T_UNDEFINED
 } primitiveDataType;
 
 extern char* inverseMappingTable[];
@@ -28,6 +28,9 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
             if (t1 == T_REAL && t2 == T_REAL)
                 return T_REAL;
             
+            if(t1 == T_UNDEFINED || t2 == T_UNDEFINED)
+                return T_UNDEFINED;
+            
             return T_ERROR;
         }
 
@@ -48,6 +51,9 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
             if (t1 == T_REAL && t2 == T_REAL)
                 return T_BOOLEAN;
 
+            if(t1 == T_UNDEFINED || t2 == T_UNDEFINED)
+                return T_UNDEFINED;
+
             return T_ERROR;
         }
 
@@ -61,6 +67,9 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
             if (t1 == T_BOOLEAN && t2 == T_BOOLEAN)
                 return T_BOOLEAN;
 
+            if(t1 == T_UNDEFINED || t2 == T_UNDEFINED)
+                return T_UNDEFINED;
+
             return T_ERROR;
         }
 
@@ -70,7 +79,7 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
             primitiveDataType t2 = getExpressionPrimitiveType(ptr->child->next); // g_ of either arithmetic, relational or logical operators.
 
             // Can only have real or integer expression with unary operator.
-            if(t2 == T_REAL || t2 == T_INTEGER)
+            if(t2 == T_REAL || t2 == T_INTEGER || t2 == T_UNDEFINED)
                 return t2;
 
             return T_ERROR;
@@ -91,6 +100,9 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
 
         case g_ID:
         {
+            if (ptr->stNode == NULL)
+                return T_UNDEFINED;
+                
             if (ptr->stNode->info.var.vtype.baseType == g_INTEGER)
                 return T_INTEGER;
             
@@ -107,14 +119,24 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
 varType* getDataType(ASTNode *ptr) {
     switch(ptr->gs) {
         case g_ID:
+        {
+            if (ptr->stNode == NULL)
+                return NULL;
+
             return &(ptr->stNode->info.var.vtype);
+        }
 
         default:
         {
             primitiveDataType expressionType = getExpressionPrimitiveType(ptr);
 
-            if (expressionType == T_ERROR)
+            if (expressionType == T_UNDEFINED)
                 return NULL;
+
+            if(expressionType == T_ERROR) {
+                printf("Invalid expression type! at line no %d \n", ptr->tkinfo->lno);
+                return NULL;
+            }
 
             varType *vt = malloc(sizeof(varType));
 
@@ -136,7 +158,7 @@ varType* getDataType(ASTNode *ptr) {
         }
     }
 }
-
+/*
 void checkTypeAssignmentStmt(ASTNode* rt) {
     rt = rt->child;
 
@@ -194,4 +216,4 @@ void checkType(ASTNode *root) {
         }
     }
 }
-
+*/
