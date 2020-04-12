@@ -1131,6 +1131,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     }
     else if(ptr->gs==g_WHILE) {
         ptr=ptr->next;
+        handleExpression(ptr,funcInfo,currST);  //to do existence checking for all its IDs
         // TODO: verify typeof(ptr)
         ptr=ptr->next;
         if(ptr->gs==g_START)
