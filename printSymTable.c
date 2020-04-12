@@ -22,6 +22,7 @@ void printVarEntry(symTableNode *stNode, int sno, FILE *fp){
             break;
         case STAT_ARR:
             fprintf(fp," %-25d %-25d",vt.si.vt_num,vt.ei.vt_num);
+            break;
         case DYN_L_ARR:
             if(vt.si.vt_id != NULL)
                 fprintf(fp," %-25s",vt.si.vt_id->lexeme);
