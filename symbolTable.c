@@ -936,7 +936,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
 
             if (vt1 != NULL && vt2 != NULL) {
                 if(vt1->baseType == vt2->baseType && vt1->vaType == vt2->vaType) {
-                    if(vt1->vaType == VARIABLE)
+                    if(vt1->vaType == VARIABLE) 
                         return; // No error
                     else {
                         printf("TODO: handle arrays assignemnt\n");
@@ -948,6 +948,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                     printf("LHS AND RHS DONT MATCH!( %d %d %d %d )line no %d\n", vt1->baseType, vt2->baseType, vt1->vaType, vt2->vaType, idNode->tkinfo->lno);
                 }
             }
+
         }
         break;
 
