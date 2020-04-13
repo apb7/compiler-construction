@@ -1080,8 +1080,12 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     }
     //adding symTableNode pointer in ASTNode
     ptr->stNode = varNode;
-    if(ptr->next->gs == g_START)
+    if(ptr->next->gs == g_START){
         currST = newScope(currST);
+        currST->startNode = ptr->next;
+        strcpy(currST->funcName,funcInfo->funcName);
+    }
+
     ptr=ptr->next->child; //on caseStmts
     if(ty == g_BOOLEAN) {
         if(ptr->next!=NULL) {
@@ -1169,8 +1173,12 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
 
         varNode->info.var.isLoopVar=true;
         ptr=ptr->next->next;
-        if(ptr->gs==g_START)
+        if(ptr->gs==g_START){
             currST=newScope(currST);
+            currST->startNode = ptr;
+            strcpy(currST->funcName,funcInfo->funcName);
+        }
+
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
         varNode->info.var.isLoopVar=false;
@@ -1181,8 +1189,11 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         handleExpression(ptr,funcInfo,currST);  //to do existence checking for all its IDs
         // TODO: verify typeof(ptr)
         ptr=ptr->next;
-        if(ptr->gs==g_START)
+        if(ptr->gs==g_START){
             currST=newScope(currST);
+            currST->startNode = ptr;
+            strcpy(currST->funcName,funcInfo->funcName);
+        }
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
         return;
@@ -1220,9 +1231,9 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
         fprintf(stderr,"handleModuleDef: Empty Start Node received.\n");
         return;
     }
-    if(startNode->tkinfo)
-        funcInfo->lno = startNode->tkinfo->lno;
     funcInfo->st = newScope(NULL);
+    funcInfo->st->startNode = startNode;
+    strcpy(funcInfo->st->funcName,funcInfo->funcName);
     if(startNode->child == NULL)
         return; //no statements inside
     handleStatements(startNode->child,funcInfo,funcInfo->st);

@@ -130,6 +130,8 @@ struct symbolTable{
     symbolTable *lastChild;  //nestedTablesTail --last node of the above list (for easy last node insertions)
     symbolTable *parent; //parentTable
     symbolTable *next;  //parallel scope tables
+    ASTNode *startNode; //start node from AST
+    char funcName[30];
 };
 
 

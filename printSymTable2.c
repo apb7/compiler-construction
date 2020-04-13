@@ -165,7 +165,7 @@ void printFuncVar(union funcVar *fvinfo, int baseAlign, FILE *fp){
         case F_DEFINED:
             fprintf(fp,"DEFINED, line %d\n",fvinfo->func.lno);// line 1
             break;
-        default: fprintf(fp,"");
+        default: break;
     }
 
     alignHence += 1; // align after beginning "[ "
