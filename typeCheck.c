@@ -10,6 +10,29 @@ typedef enum{
 
 extern char* inverseMappingTable[];
 
+bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) {
+    symTableNode *arrinfoEntry = idNode->stNode ;
+    symVarInfo *arrinfo = &(arrinfoEntry->info.var);
+
+    if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
+            //out of bounds
+            return false;
+        }
+    }
+
+    else if(idOrNumNode->gs == g_ID){
+        symTableNode *stn = idOrNumNode->stNode;
+      
+        if(stn == NULL)
+            return false;
+        else if(stn->info.var.vtype.baseType != g_INTEGER)
+            return false;
+    }
+    return true;
+}
+
 primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
     switch(ptr->gs) {
 
@@ -102,6 +125,12 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
         {
             if (ptr->stNode == NULL)
                 return T_UNDEFINED;
+
+            // declared array type          
+            if(ptr->next != NULL) {
+                if (rhsBoundsCheckIfStatic(ptr, ptr->next) == false)
+                    return T_UNDEFINED;
+            }
                 
             if (ptr->stNode->info.var.vtype.baseType == g_INTEGER)
                 return T_INTEGER;

@@ -937,7 +937,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             if (vt1 != NULL && vt2 != NULL) {
                 if(vt1->baseType == vt2->baseType) {
 
-                    if(vt1->vaType == VARIABLE){
+                    if(vt1->vaType == VARIABLE || vt2->vaType == VARIABLE){
                         if(vt1->vaType != vt2->vaType)  
                             printf("LHS AND RHS DONT MATCH!line no %d\n", idNode->tkinfo->lno);
                     }  
@@ -947,6 +947,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                             printf("LHS AND RHS BOUNDS DONT MATCH!line no %d\n", idNode->tkinfo->lno);
                     }
 
+                    // All dynamic array types are checked at runtime, if teir basetype matches. No error for now! Maybe added here!
                 }
 
                 else {
@@ -962,8 +963,11 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             useIDinScope(idNode, funcInfo, currST);
             vt1 = getDataType(idNode);
 
-            boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
-            // TODO: use bound check result!
+            bool inBounds = boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
+
+            if(inBounds == false) {
+                vt1 = NULL;
+            }
 
             handleExpression(idNode->next->next,funcInfo,currST);
             vt2 = getDataType(idNode->next->next);
