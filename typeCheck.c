@@ -161,7 +161,7 @@ varType* getDataType(ASTNode *ptr) {
             if(expressionType == T_BOOLEAN)
                 vt->baseType = g_BOOLEAN;
 
-            vt->bytes = getSizeByType(vt->baseType);
+            vt->width = getSizeByType(vt->baseType);
             vt->vaType = VARIABLE;
             vt->si.vt_id = NULL;
             vt->ei.vt_id = NULL;

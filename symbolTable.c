@@ -343,7 +343,7 @@ void initVarType(varType *vt) {
     vt->vaType = VARIABLE;
     vt->si.vt_id = NULL;
     vt->ei.vt_id = NULL;
-    vt->bytes = SIZE_INTEGER;
+    vt->width = SIZE_INTEGER;
 }
 
 varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST) {
@@ -362,7 +362,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
         case g_REAL:
         {
             vt.baseType = typeOrDataTypeNode->gs;
-            vt.bytes = getSizeByType(vt.baseType);
+            vt.width = getSizeByType(vt.baseType);
             vt.vaType = VARIABLE;
             vt.si.vt_id = NULL;
             vt.ei.vt_id = NULL;
@@ -377,7 +377,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
             {
                 // we're dealing with a variable
                 vt.baseType = rangeArrOrBaseType->gs;
-                vt.bytes = getSizeByType(vt.baseType);
+                vt.width = getSizeByType(vt.baseType);
                 vt.vaType = VARIABLE;
                 vt.si.vt_id = NULL;
                 vt.ei.vt_id = NULL;
@@ -385,9 +385,9 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
             else
             {
                 // we're dealing with an array
-                // for a dynamic array, vt.bytes will store the size occupied by single element of its base type
+                // for a dynamic array, vt.width will store the size occupied by single element of its base type
                 vt.baseType = baseTypeOrNull->gs;
-                vt.bytes = getSizeByType(vt.baseType); // size occupied by single element
+                vt.width = getSizeByType(vt.baseType); // size occupied by single element
                 ASTNode *numOrId = rangeArrOrBaseType->child;
                 switch(numOrId->gs)
                 {   // check the left bound
@@ -401,7 +401,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 vt.vaType = STAT_ARR;
                                 vt.si.vt_num = lb;
                                 vt.ei.vt_num = rb;
-                                vt.bytes = vt.bytes*(rb - lb + 1);
+                                vt.width = vt.width * (rb - lb + 1) + 1;// +1 for storing address of the array
                                 break;
                             }
                             case g_ID:
@@ -414,7 +414,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 else
                                     numOrId->next->stNode = vt.ei.vt_id;
-                                // can't statically get 'bytes' and 'ei.vt_num' (as NUM) fields
+                                // can't statically get 'width' and 'ei.vt_num' (as NUM) fields
                                 break;
                             default:
                                 fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
@@ -436,7 +436,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 else
                                     numOrId->stNode = vt.si.vt_id;
                                 vt.ei.vt_num = rb;
-                                // can't statically get 'bytes' and 'si.vt_num' fields
+                                // can't statically get 'width' and 'si.vt_num' fields
                                 break;
                             }
                             case g_ID:
@@ -455,7 +455,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                     throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
                                 else
                                     numOrId->next->stNode = vt.ei.vt_id;
-                                // can't statically get 'bytes', 'si.vt_num' and 'ei.vt_num' fields
+                                // can't statically get 'width', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
                                 fprintf(stderr, "getVType: Unexpected ASTNode found representing right bound of array.\n");
@@ -521,7 +521,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         (ptr->info).var.vtype = getVtype(dataTypeNode, funcInfo, NULL);
         //TODO: check Offset computation
         (ptr->info).var.offset = nextGlobalOffset;
-        nextGlobalOffset += (ptr->info).var.vtype.bytes;
+        nextGlobalOffset += (ptr->info).var.vtype.width;
         ptr->next = NULL;
         idNode->stNode = ptr;
         return ptr;
@@ -577,7 +577,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         (ptr->info).var.isAssigned = false;
         //TODO: check Offset computation
         (ptr->info).var.offset = nextGlobalOffset;
-        nextGlobalOffset += (ptr->info).var.vtype.bytes;
+        nextGlobalOffset += (ptr->info).var.vtype.width;
         ptr->next = NULL;
         idNode->stNode = ptr;
         return ptr;
@@ -1035,7 +1035,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                         //TODO: check Offset Calculation
                         if(vtype.vaType == VARIABLE || vtype.vaType == STAT_ARR){
                             fv.var.offset = nextGlobalOffset;
-                            nextGlobalOffset += fv.var.vtype.bytes;
+                            nextGlobalOffset += fv.var.vtype.width;
                         }
                         stAdd(idNode->tkinfo->lexeme,fv,currST);
                         //adding symTableNode pointer in ASTNode

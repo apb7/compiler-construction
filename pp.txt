@@ -4,42 +4,98 @@
 
 Module '@driver', slot 20
    [
-       Module status: DEFINED, line 5
+       Module status: DEFINED, line 105
        Input Parameters List Empty.
 
        Output Parameters List Empty.
    ]
    Scope Hierarchy:
       --- LEVEL 1 ---
-      [ Name: 'var_1_', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 0, isAssigned: false, isLoopVar: false ]
-      [ Name: 's', Line No.: 7, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 6, isAssigned: false, isLoopVar: false ]
-      [ Name: 'var_2_', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 2, isAssigned: false, isLoopVar: false ]
-      [ Name: 'var_3_', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 4, isAssigned: false, isLoopVar: false ]
+      [ Name: 'a', Line No.: 106, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ]
+      [ Name: 'b', Line No.: 106, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 2, isAssigned: false, isLoopVar: false ]
+      [ Name: 'c', Line No.: 107, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 4, isAssigned: false, isLoopVar: false ]
+      [ Name: 'd', Line No.: 108, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 8, isAssigned: false, isLoopVar: false ]
+           --- LEVEL 2 ---
+           [ Name: 'k', Line No.: 113, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
+                --- LEVEL 3 ---
+                     --- LEVEL 4 ---
+                     [ Name: 'kj', Line No.: 121, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 11, isAssigned: false, isLoopVar: false ]
 
 
 
-Module 'compute', slot 54
+
+
+
+Module 'switch_var_demo1', slot 43
    [
-       Module status: DEFINED, line 14
+       Module status: DEFINED, line 11
        Input Parameters List:
        [
-          [ Name: 'r1', Line No.: 12, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
-          [ Name: 'r2', Line No.: 12, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 2, isAssigned: false, isLoopVar: false ],
-          [ Name: 'r3', Line No.: 12, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 4, isAssigned: false, isLoopVar: false ]
+          [ Name: 'x', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
+          [ Name: 'y', Line No.: 9, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 2, isAssigned: false, isLoopVar: false ],
+          [ Name: 'z', Line No.: 9, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 6, isAssigned: false, isLoopVar: false ]
        ]
 
        Output Parameters List:
        [
-          [ Name: 'a', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 6, isAssigned: true, isLoopVar: false ]
+          [ Name: 'u', Line No.: 10, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 7, isAssigned: true, isLoopVar: false ]
        ]
    ]
    Scope Hierarchy:
       --- LEVEL 1 ---
-      [ Name: 'b', Line No.: 16, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
-      [ Name: 'c', Line No.: 16, Type: [ baseType: integer, vaType: VARIABLE, bytes: 2 ], offset: 11, isAssigned: false, isLoopVar: false ]
-      [ Name: 'flag', Line No.: 15, Type: [ baseType: boolean, vaType: VARIABLE, bytes: 1 ], offset: 8, isAssigned: false, isLoopVar: false ]
+      [ Name: 'h', Line No.: 14, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 15, isAssigned: false, isLoopVar: false ]
+      [ Name: 'k', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 13, isAssigned: false, isLoopVar: false ]
+      [ Name: 'm', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
+      [ Name: 'n', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 11, isAssigned: false, isLoopVar: false ]
+      [ Name: 'p', Line No.: 15, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 16, isAssigned: false, isLoopVar: false ]
            --- LEVEL 2 ---
+           [ Name: 'A', Line No.: 19, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 20, isAssigned: false, isLoopVar: false ]
+           [ Name: 'B', Line No.: 21, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 26, isAssigned: false, isLoopVar: false ]
+           [ Name: 'E', Line No.: 22, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 69, isAssigned: false, isLoopVar: false ]
+           [ Name: 'Q', Line No.: 20, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 24, isAssigned: false, isLoopVar: false ]
+                --- LEVEL 3 ---
+                [ Name: 'uhj', Line No.: 29, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 84, isAssigned: false, isLoopVar: false ]
 
+
+           --- LEVEL 2 ---
+           [ Name: 'A', Line No.: 52, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 85, isAssigned: false, isLoopVar: false ]
+           [ Name: 'B', Line No.: 54, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 91, isAssigned: false, isLoopVar: false ]
+           [ Name: 'E', Line No.: 55, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 134, isAssigned: false, isLoopVar: false ]
+           [ Name: 'Q', Line No.: 53, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 89, isAssigned: false, isLoopVar: false ]
+                --- LEVEL 3 ---
+                [ Name: 'ninja', Line No.: 62, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 149, isAssigned: false, isLoopVar: false ]
+                     --- LEVEL 4 ---
+                     [ Name: 'hakuna', Line No.: 65, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 153, isAssigned: false, isLoopVar: false ]
+
+
+                --- LEVEL 3 ---
+                [ Name: 'ninja', Line No.: 76, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 157, isAssigned: false, isLoopVar: false ]
+                     --- LEVEL 4 ---
+                     [ Name: 'hakuna', Line No.: 79, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 161, isAssigned: false, isLoopVar: false ]
+
+
+
+
+
+
+Module 'for_loop_demo', slot 80
+   [
+       Module status: DEFINED, line 94
+       Input Parameters List:
+       [
+          [ Name: 'x', Line No.: 92, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
+          [ Name: 'y', Line No.: 92, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 2, isAssigned: false, isLoopVar: false ],
+          [ Name: 'z', Line No.: 92, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 6, isAssigned: false, isLoopVar: false ]
+       ]
+
+       Output Parameters List:
+       [
+          [ Name: 'u', Line No.: 93, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 7, isAssigned: true, isLoopVar: false ]
+       ]
+   ]
+   Scope Hierarchy:
+      --- LEVEL 1 ---
+      [ Name: 'k', Line No.: 96, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
            --- LEVEL 2 ---
 
 

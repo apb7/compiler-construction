@@ -36,7 +36,7 @@ struct varType{
     varOrArr vaType;
     union numOrId si;
     union numOrId ei;
-    int bytes;
+    int width;
 };
 typedef struct varType varType;
 

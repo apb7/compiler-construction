@@ -49,23 +49,23 @@ void setSymNodeTypeStr(varType vt, char *ts, char *boundInfo){
 
     switch(vt.vaType){
         case VARIABLE :
-            skip += sprintf(ts + skip,", vaType: %s, bytes: %d","VARIABLE", vt.bytes);
+            skip += sprintf(ts + skip,", vaType: %s, width: %d","VARIABLE", vt.width);
             strcpy(boundInfo,"");
             break;
         case STAT_ARR :
-            skip += sprintf(ts + skip,", vaType: %s, bounds: [%u..%u], bytes: %d", "STAT_ARR", vt.si.vt_num, vt.ei.vt_num, vt.bytes);
+            skip += sprintf(ts + skip,", vaType: %s, bounds: [%u..%u], width: %d", "STAT_ARR", vt.si.vt_num, vt.ei.vt_num, vt.width);
             strcpy(boundInfo,"");
             break;
         case DYN_L_ARR: {
             char pstr[150];
-            skip += sprintf(ts + skip, ", vaType: %s, bounds: [%s..%u], bytes: %d", "DYN_L_ARR", vt.si.vt_id->lexeme, vt.ei.vt_num, vt.bytes);
+            skip += sprintf(ts + skip, ", vaType: %s, bounds: [%s..%u], width: %d", "DYN_L_ARR", vt.si.vt_id->lexeme, vt.ei.vt_num, vt.width);
             getSymNode(vt.si.vt_id, pstr);
             sprintf(boundInfo,", boundInfo: [ Left Bound: %s ]", pstr);
             break;
         }
         case DYN_R_ARR: {
             char pstr[150];
-            skip += sprintf(ts + skip, ", vaType: %s, bounds: [%u..%s], bytes: %d", "DYN_R_ARR", vt.si.vt_num, vt.ei.vt_id->lexeme, vt.bytes);
+            skip += sprintf(ts + skip, ", vaType: %s, bounds: [%u..%s], width: %d", "DYN_R_ARR", vt.si.vt_num, vt.ei.vt_id->lexeme, vt.width);
             getSymNode(vt.ei.vt_id, pstr);
             sprintf(boundInfo,", boundInfo: [ Right Bound: %s ]", pstr);
             break;
@@ -73,7 +73,7 @@ void setSymNodeTypeStr(varType vt, char *ts, char *boundInfo){
         case DYN_ARR: {
             char pstr1[150];
             char pstr2[150];
-            skip += sprintf(ts + skip, ", vaType: %s, bounds: [%s..%s], bytes: %d", "DYN_ARR", vt.si.vt_id->lexeme, vt.ei.vt_id->lexeme, vt.bytes);
+            skip += sprintf(ts + skip, ", vaType: %s, bounds: [%s..%s], width: %d", "DYN_ARR", vt.si.vt_id->lexeme, vt.ei.vt_id->lexeme, vt.width);
             getSymNode(vt.si.vt_id, pstr1);
             getSymNode(vt.ei.vt_id, pstr2);
             sprintf(boundInfo,", boundInfo: [ Left Bound: %s, Right Bound: %s ]", pstr1, pstr2);
