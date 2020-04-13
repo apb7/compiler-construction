@@ -116,6 +116,12 @@ start
 		case 2: a:=a-b;
 		    for(k in 12..70)
             	start
+            	for(k in 12..70)
+                    start
+                        declare kj: boolean;
+                        u:= x+k;
+                        k:= k+2;
+                    end
             		u:= x+k;
             		k:= k+2;                            **ERROR: for loop variable k cannot be assigned a value**
             	end
