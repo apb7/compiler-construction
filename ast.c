@@ -110,7 +110,7 @@ ASTNode* simple_recursive_list_non_empty(parseNode *parseNodeRoot, int stop_cond
 ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
     if (parseNodeRoot == NULL) {
-        printf("NULL ptr provided\n");
+        printf("NULL pointer provided to buildASTTree(..).\n");
         return NULL;
     }
 

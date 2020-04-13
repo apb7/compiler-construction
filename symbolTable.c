@@ -1276,8 +1276,10 @@ void handleUndefinedModules(){
 }
 
 void buildSymbolTable(ASTNode *root){
-    if(root == NULL)
+    if(root == NULL){
+        printf("NULL pointer provided to buildSymbolTable(..).\n");
         return;
+    }
     switch(root->gs){
         case g_program:
         {
