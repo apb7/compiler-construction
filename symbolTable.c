@@ -67,6 +67,14 @@ void throwSemanticError(unsigned int lno, char *errStr1, char *errStr2, Semantic
     foundNewError(e);
 }
 
+void throwTypeError(ErrorType et, unsigned int lno) {
+    haveSemanticErrors = true;
+    error e;
+    e.errType = et;
+    e.lno = lno;
+    foundNewError(e);
+}
+
 void setAssignedOutParam(paramOutNode *outNode) {
     if(outNode == NULL)
         return;
@@ -866,9 +874,10 @@ bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
     if(arrinfoEntry != NULL)
         arrinfo = &(arrinfoEntry->info.var);
     else{
-        throwSemanticError(idNode->tkinfo->lno,idNode->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+        // Array is not declared, but error is already thrown previously. No point in checking further.
         return false;
     }
+
     if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
         int idx = (idOrNumNode->tkinfo->value).num;
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
@@ -876,6 +885,14 @@ bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
             return false;
         }
+    }
+    else if((arrinfo->vtype).vaType == VARIABLE) {
+        throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_NOT_A_ARRAY);
+
+        if(idOrNumNode->gs == g_ID) 
+            idOrNumNode->stNode = checkIDInScopesAndLists(idOrNumNode,funcInfo,currST,false);
+
+        return false;
     }
     else if(idOrNumNode->gs == g_ID){
         //do type checking at compile time for array index when it is ID
@@ -904,10 +921,10 @@ void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *cur
             ASTNode *idNode = someNode->child;
             useIDinScope(idNode, funcInfo, currST);
 
-            if(idNode->next != NULL){
-                //array
-                boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
-            }
+             if(idNode->next != NULL){
+                 //array
+                 boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
+             }
         }
         handleExpression(someNode->next,funcInfo,currST);
     }
@@ -937,20 +954,21 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             if (vt1 != NULL && vt2 != NULL) {
                 if(vt1->baseType == vt2->baseType) {
 
-                    if(vt1->vaType == VARIABLE){
-                        if(vt1->vaType != vt2->vaType)  
-                            printf("LHS AND RHS DONT MATCH!line no %d\n", idNode->tkinfo->lno);
+                    if(vt1->vaType == VARIABLE || vt2->vaType == VARIABLE){
+                        if(vt1->vaType != vt2->vaType) {
+                            throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
+                        }
                     }  
-
                     else if(vt1->vaType == STAT_ARR && vt2->vaType == STAT_ARR) {
                         if (vt1->si.vt_num != vt2->si.vt_num || vt1->ei.vt_num != vt2->ei.vt_num )
-                            printf("LHS AND RHS BOUNDS DONT MATCH!line no %d\n", idNode->tkinfo->lno);
+                            throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                     }
 
+                    // All dynamic array types are checked at runtime, if their basetype matches. No error for now! Maybe added here later!
                 }
 
                 else {
-                    printf("LHS AND RHS DONT MATCH!( %d %d %d %d )line no %d\n", vt1->baseType, vt2->baseType, vt1->vaType, vt2->vaType, idNode->tkinfo->lno);
+                    throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                 }
             }
 
@@ -962,8 +980,11 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             useIDinScope(idNode, funcInfo, currST);
             vt1 = getDataType(idNode);
 
-            boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
-            // TODO: use bound check result!
+            bool inBounds = boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
+
+            if(inBounds == false) {
+                vt1 = NULL;
+            }
 
             handleExpression(idNode->next->next,funcInfo,currST);
             vt2 = getDataType(idNode->next->next);
@@ -972,7 +993,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                 if(vt1->baseType == vt2->baseType && VARIABLE == vt2->vaType)
                     return; // No error
                 else 
-                    printf("LHS AND RHS DONT MATCH! line no %d\n", idNode->tkinfo->lno);
+                    throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
             }
         }
         break;

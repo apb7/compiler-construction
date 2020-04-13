@@ -13,7 +13,7 @@
 #include "config.h"
 
 typedef enum {
-    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, E_SEMANTIC
+    NO_ERROR, SYNTAX_TT, SYNTAX_NTT, LEXICAL,STACK_NON_EMPTY, E_SEMANTIC, E_TYPE_MISMATCH, E_EXPRESSION_ERROR
 } ErrorType;
 
 typedef enum{
@@ -56,7 +56,8 @@ typedef enum{
     SEME_RETURN_VALUES_NOT_CAPTURED,
     SEME_ARR_IDX_NOT_INT,
     SEME_MODULE_USED_NOT_DEFINED,
-    SEME_FUNCTION_NOT_FOUND//add others here
+    SEME_FUNCTION_NOT_FOUND,
+    SEME_NOT_A_ARRAY//add others here
 } SemanticErrorType;
 
 typedef struct{
