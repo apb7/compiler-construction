@@ -1,6 +1,7 @@
 #include "symbolTableDef.h"
 #include "symbolTable.h"
 #include "astDef.h"
+#include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,7 +9,7 @@ typedef enum{
     T_INTEGER, T_REAL, T_BOOLEAN, T_ERROR, T_UNDEFINED
 } primitiveDataType;
 
-extern char* inverseMappingTable[];
+void throwTypeError(ErrorType et, unsigned int lno);
 
 bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) {
     symTableNode *arrinfoEntry = idNode->stNode ;
@@ -21,6 +22,9 @@ bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) {
             return false;
         }
     }
+
+    else if((arrinfo->vtype).vaType == VARIABLE) 
+        return false;
 
     else if(idOrNumNode->gs == g_ID){
         symTableNode *stn = idOrNumNode->stNode;
@@ -126,20 +130,26 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
             if (ptr->stNode == NULL)
                 return T_UNDEFINED;
 
-            // declared array type          
+            // array[index]         
             if(ptr->next != NULL) {
                 if (rhsBoundsCheckIfStatic(ptr, ptr->next) == false)
                     return T_UNDEFINED;
             }
+
+            primitiveDataType result;
                 
             if (ptr->stNode->info.var.vtype.baseType == g_INTEGER)
-                return T_INTEGER;
+                result = T_INTEGER;
+            else if (ptr->stNode->info.var.vtype.baseType == g_REAL)
+                result =  T_REAL;
+            else if (ptr->stNode->info.var.vtype.baseType == g_BOOLEAN)
+                result = T_BOOLEAN;
+
+            // ID should either be a variable or it should it indexed.
+            if (ptr->stNode->info.var.vtype.vaType == VARIABLE ^ ptr->next != NULL)
+                return result;
             
-            if (ptr->stNode->info.var.vtype.baseType == g_REAL)
-                return T_REAL;
-            
-            if (ptr->stNode->info.var.vtype.baseType == g_BOOLEAN)
-                return T_BOOLEAN;
+            return T_ERROR;            
         }
     }
 }
@@ -175,7 +185,8 @@ varType* getDataType(ASTNode *ptr) {
                 return NULL;
 
             if(expressionType == T_ERROR) {
-                printf("Invalid expression type! at line no %d \n", ptr->tkinfo->lno);
+                throwTypeError(E_EXPRESSION_ERROR, ptr->tkinfo->lno);
+
                 return NULL;
             }
 
@@ -199,62 +210,3 @@ varType* getDataType(ASTNode *ptr) {
         }
     }
 }
-/*
-void checkTypeAssignmentStmt(ASTNode* rt) {
-    rt = rt->child;
-
-    if(rt->gs == g_lvalueIDStmt) {
-        rt = rt->child; // g_ASSIGNOP
-
-        varType *t1 = getDataType(rt->child); // g_ID
-        varType *t2 = getDataType(rt->child->next);  // g_expression
-
-        if(t2 == NULL) {
-            printf(" TYPE ERROR: Expression has type error at line %d.\n", rt->tkinfo->lno);
-            return;    
-        }
-
-        if(t1->baseType == t2->baseType && t1->vaType == t2->vaType) {
-            if(t1->vaType == VARIABLE)
-                return; // No error
-            else
-                printf("to do other vatypes\n");
-            return;
-        }
-
-        else {
-            printf(" TYPE ERROR: LHS and RHS tpes don't match at line %d.\n", rt->tkinfo->lno);
-        }
-    }
-
-    else { // g_lvalueARRStmt
-        rt = rt->child; // g_ASSIGNOP
-
-        primitiveDataType t1 = getExpressionPrimitiveType(rt->child); // g_ID
-        primitiveDataType t2 = getExpressionPrimitiveType(rt->child->next);  // g_index
-        primitiveDataType t3 = getExpressionPrimitiveType(rt->child->next->next);  // g_expression
-
-        // TODO: Additional checks needed for array A[k]
-        if(t1 == T_ERROR || t2 == T_ERROR || t1 != t2)
-            printf("\n ERROR: The types of left and right hand side of assignment operator are not same at line %d.", rt->tkinfo->lno);
-    }
-}
-
-void checkType(ASTNode *root) {
-    if(root == NULL)
-        return;
-
-    switch(root->gs)
-    {
-        case g_assignmentStmt:
-            checkTypeAssignmentStmt(root);
-
-        // No break because we need to check all nodes.
-        default:
-        {
-            checkType(root->child);
-            checkType(root->next);
-        }
-    }
-}
-*/

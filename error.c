@@ -42,6 +42,12 @@ void printError(error e){
         case STACK_NON_EMPTY:
             fprintf(stderr, "SYNTAX ERROR: Stack Non-empty: End of input source file reached.\n");
             break;
+        case E_TYPE_MISMATCH:
+            fprintf(stderr, "Line %u: TYPE ERROR: Types of LHS and RHS do not match.\n", e.lno);
+            break;
+        case E_EXPRESSION_ERROR:
+            fprintf(stderr, "Line %u: TYPE ERROR: Expression evaluates to error type.\n", e.lno);
+            break;        
         case E_SEMANTIC:
             //TODO: MAKE SEMANTIC ERRORS DESCRIPTIVE
             fprintf(stderr, "Line %u: SEMANTIC ERROR: ",e.lno);
@@ -163,6 +169,9 @@ void printError(error e){
                 case SEME_MODULE_USED_NOT_DEFINED:
                     fprintf(stderr,"Module '%s' is called but missing definition.\n",e.edata.seme.errStr1);
                     break;
+                case SEME_NOT_A_ARRAY:
+                    fprintf(stderr,"'%s' is not a array to be indexed.\n",e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;
@@ -176,7 +185,7 @@ void foundNewError(error e){
     if(STACK_ENABLED){
         error *newError = (error *)(malloc(sizeof(error)));
         *newError = e;
-        if(e.errType == E_SEMANTIC){
+        if(e.errType == E_SEMANTIC || e.errType == E_TYPE_MISMATCH || e.errType == E_EXPRESSION_ERROR){
             //this will only happen if there were no errors of syntax or lexical kind
             errorPtr_stack_push(errorStack,newError);
             return;
