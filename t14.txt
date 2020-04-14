@@ -37,7 +37,7 @@ start
 			 break;
 	end
 
-	u:= u+ x*m-n;
+	u:= u OR x*m-n;
 
 	switch(p)				**ERROR: switch variable cannot be of type real**
 	start

@@ -19,6 +19,8 @@ void printCurrSymTable(symbolTable *st, int level, FILE *fp);
 //__________________________________________________________________________________________
 
 
+void throwTypeError(ErrorType et, unsigned int lno);
+
 //TODO: put all the declarations here once symbolTable.c is done
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName);
 void initSymVarInfo(symVarInfo *varInfo);

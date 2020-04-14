@@ -4,12 +4,9 @@
 #include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "typeCheck.h"
+#include "symbolTable.h"
 
-typedef enum{
-    T_INTEGER, T_REAL, T_BOOLEAN, T_ERROR, T_UNDEFINED
-} primitiveDataType;
-
-void throwTypeError(ErrorType et, unsigned int lno);
 
 bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) {
     symTableNode *arrinfoEntry = idNode->stNode ;
