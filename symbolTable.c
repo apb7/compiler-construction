@@ -1212,7 +1212,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         varType *vt = getDataType(ptr);
         if(vt == NULL || vt->baseType != T_BOOLEAN){
             // if vt is NULL, short-circuiting saves the evaluation of second preposition and hence segFault is avoided
-            throwSemanticError(ptr->parent->child->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
+            throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
         ptr=ptr->next;
         if(ptr->gs==g_START){
