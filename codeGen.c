@@ -19,13 +19,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     switch(gs) {
         case g_PROGRAM:
         {
+            fprintf(fp, "section .data\n");
+            fprintf(fp,"\tinputLabel: db \"%%hd\",0\n");
+            fprintf(fp,"\toutputLabel: db \"%%hd\",10,0,\n");
+
             fprintf(fp, "section .text\n");
             fprintf(fp, "\tglobal main\n");
             fprintf(fp, "\textern scanf\n");
             fprintf(fp, "\textern printf\n");
-            fprintf(fp, "section .data\n");
-            fprintf(fp,"\tinputLabel: db \"%%hd\",0\n");
-            fprintf(fp,"\toutputLabel: db \"%%hd\",10,0,\n");
 
             generateCode(root->child, symT, fp);
             return;
