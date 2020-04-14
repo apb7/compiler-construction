@@ -16,7 +16,7 @@ void printVarEntry(symTableNode *stNode, int sno, char *funcName, ASTNode *start
     if(stNode->info.var.vtype.vaType == VARIABLE || stNode->info.var.vtype.vaType == STAT_ARR)
         fprintf(fp,"%-15s%-8d",scl,stNode->info.var.vtype.width);
     else
-        fprintf(fp,"%-15s%-8s",scl,"Runtime");
+        fprintf(fp,"%-15s%-8s",scl,"---");
     char *va, *sd, *ty;
     if(stNode->info.var.vtype.vaType == VARIABLE){
         va = "No";
@@ -63,7 +63,10 @@ void printVarEntry(symTableNode *stNode, int sno, char *funcName, ASTNode *start
                 sprintf(rng+strlen(rng),"%s]","NULL");
             break;
     }
-    fprintf(fp,"%-20s%-10s%-7d%-7d\n",rng,ty,stNode->info.var.offset,level);
+    if(stNode->info.var.vtype.vaType == VARIABLE || stNode->info.var.vtype.vaType == STAT_ARR)
+        fprintf(fp,"%-20s%-10s%-7d%-7d\n",rng,ty,stNode->info.var.offset,level);
+    else
+        fprintf(fp,"%-20s%-10s%-7s%-7d\n",rng,ty,"---",level);
 }
 
 void printSymbolTable(symbolTable* st, FILE *fp){
