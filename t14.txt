@@ -14,34 +14,36 @@ start
 	declare h:boolean;
 	declare p: real;
 	get_value(n);
+	get_value(m);
+	get_value(k);
+	get_value(p);
 	switch(k)
 	start
 		case 10: declare A:real;
 			 declare Q: integer;
-			 declare B: array[Q..30] of integer;
 			 declare E: array[4..10] of integer;
-			 B[12]:= k*20;
+			 E[6]:= k*20;
 			 break;
 		case 20: A:= 12.90 + p;
 			 get_value(Q);
 			 for(m in 10..15)
 			 start
-			    declare uhj: boolean;
+			    declare we: boolean;
 				n:= n+m;
 			 end
 			 E[7]:= k+12 - Q*10;
 			 break;
-		case true: m:=m-n;			**ERROR: Case value is incorrect as condiiton variable type is integer**
+		case 30: m:=m-n;			**ERROR: Case value is incorrect as condiiton variable type is integer**
 			 break;
-		default: E[9]:= B[15]+Q;
+		default: E[9]:= k+Q;
 			 break;
 	end
 
-	u:= u OR x*m-n;
-
-	switch(p)				**ERROR: switch variable cannot be of type real**
+	u:= u + x*m-n;
+    m:=2;
+	switch(m)				**ERROR: switch variable cannot be of type real**
 	start
-		case 1: p:=p+1;
+		case 1: p:=p+1.5;
 			break;
 		default:h:=false;
 			break;
@@ -52,38 +54,25 @@ start
 		case false: declare A:real;
 			 declare Q: integer;
 			 declare B: array[10..30] of integer;
-			 **declare E: array[4..10] of integer;**
+			 get_value(B);
+			 declare E: array[1..3] of integer;
 			 B[12]:= k*20;
 			 break;
-		case 20: A:= 12.90 + p;       		**ERROR: Case value is incorrect as condiiton variable type is boolean**
+		case true: A:= 12.90 + p;       		**ERROR: Case value is incorrect as condiiton variable type is boolean**
 			 get_value(Q);
 			 for(m in 10..15)
 			 start
-			    declare ninja:real;
+			    declare ni:real;
 			    for(m in 10..15)
                 start
-                    declare hakuna:real;
+                    declare ji:real;
                     n:= n+m;
                 end
 				n:= n+m;
 			 end
-			 E[7]:= k+12 - Q*10;
+			 E[2]:= k+12 - Q*10;
 			 break;
-		case true: m:=m-n;
-			 print(m);
-			 for(m in 10..15)
-             			 start
-             			    declare ninja:real;
-             			    for(m in 10..15)
-                             start
-                                 declare hakuna:real;
-                                 n:= n+m;
-                             end
-             				n:= n+m;
-             			 end
-			 break;
-		default: E[9]:= B[15]+Q;	      **ERROR: presence of default statement is incorrect as condiiton variable type is boolean**
-			 break;
+
 	end
 
 end
@@ -96,11 +85,10 @@ start
 	declare k: integer;
 	for(k in 12..70)
 	start
-	    declare yll: boolean;
-		u:= x+k;
-		k:= k+2;                            **ERROR: for loop variable k cannot be assigned a value**
+	    declare y: boolean;
+		u:= x+k;                           **ERROR: for loop variable k cannot be assigned a value**
 	end
-	declare yy: real;
+	declare py: real;
 end
 
 <<<driver program>>>
@@ -109,6 +97,8 @@ start
 	declare c: real;
 	declare d: boolean;
 	[a]:=use module for_loop_demo with parameters b, c, d;
+	get_value(a);
+	get_value(b);
 	switch(a)
 	start
 		case 1:
@@ -118,19 +108,21 @@ start
 		case 2: a:=a-b;
 		    for(k in 12..70)
             	start
-            	for(k in 12..70)
-                    start
-                        declare kj: boolean;
-                        u:= x+k;
-                        k:= k+2;
-                    end
-            		u:= x+k;
-            		k:= k+2;                            **ERROR: for loop variable k cannot be assigned a value**
+                    while(a<=b)
+                        start
+                            get_value(c);
+                            c:=10.5;
+                            a:=a+1;
+                        end
+                    a:= b+k;                            **ERROR: for loop variable k cannot be assigned a value**
             	end
 			break;
 		case 3: a:= a*b;
 			break;
 		case 4: a:= a/b;
+			break;
+		default:
+			a:=1;
 			break;
 	end					**ERROR: default statement is missing- the type of switch variable is integer**
 end

@@ -2,105 +2,41 @@
 
 ####################################################################### SYMBOL TABLE #######################################################################
 
-Module '@driver', slot 20
-   [
-       Module status: DEFINED, line 106
-       Input Parameters List Empty.
+SNO   VAR-NAME            SCOPE: FUNC-NAME         SCOPE: LINES   WIDTH   IS ARRAY? STAT/DYN   RANGE               TYPE      OFFSET LEVEL  
 
-       Output Parameters List Empty.
-   ]
-   Scope Hierarchy:
-      --- LEVEL 1 ---
-      [ Name: 'a', Line No.: 108, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ]
-      [ Name: 'b', Line No.: 108, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 2, isAssigned: false, isLoopVar: false ]
-      [ Name: 'c', Line No.: 109, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 4, isAssigned: false, isLoopVar: false ]
-      [ Name: 'd', Line No.: 110, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 8, isAssigned: false, isLoopVar: false ]
-           --- LEVEL 2 ---
-           [ Name: 'k', Line No.: 115, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
-                --- LEVEL 3 ---
-                     --- LEVEL 4 ---
-                     [ Name: 'kj', Line No.: 123, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 11, isAssigned: false, isLoopVar: false ]
+1     a                   @driver                  [95,128]       2       No        ---        ---                 INTEGER   0      1      
+2     b                   @driver                  [95,128]       2       No        ---        ---                 INTEGER   2      1      
+3     c                   @driver                  [95,128]       4       No        ---        ---                 REAL      4      1      
+4     d                   @driver                  [95,128]       1       No        ---        ---                 BOOLEAN   8      1      
+5     k                   @driver                  [103,127]      2       No        ---        ---                 INTEGER   9      2      
 
+1     x                   switch_var_demo1         [11,78]        2       No        ---        ---                 INTEGER   0      0      
+2     y                   switch_var_demo1         [11,78]        4       No        ---        ---                 REAL      2      0      
+3     z                   switch_var_demo1         [11,78]        1       No        ---        ---                 BOOLEAN   6      0      
+4     u                   switch_var_demo1         [11,78]        2       No        ---        ---                 INTEGER   7      0      
+5     h                   switch_var_demo1         [11,78]        1       No        ---        ---                 BOOLEAN   15     1      
+6     k                   switch_var_demo1         [11,78]        2       No        ---        ---                 INTEGER   13     1      
+7     m                   switch_var_demo1         [11,78]        2       No        ---        ---                 INTEGER   9      1      
+8     n                   switch_var_demo1         [11,78]        2       No        ---        ---                 INTEGER   11     1      
+9     p                   switch_var_demo1         [11,78]        4       No        ---        ---                 REAL      16     1      
+10    A                   switch_var_demo1         [21,40]        4       No        ---        ---                 REAL      20     2      
+11    E                   switch_var_demo1         [21,40]        15      Yes       Static     [4,10]              INTEGER   26     2      
+12    Q                   switch_var_demo1         [21,40]        2       No        ---        ---                 INTEGER   24     2      
+13    we                  switch_var_demo1         [30,33]        1       No        ---        ---                 BOOLEAN   41     3      
+14    A                   switch_var_demo1         [53,76]        4       No        ---        ---                 REAL      42     2      
+15    B                   switch_var_demo1         [53,76]        43      Yes       Static     [10,30]             INTEGER   48     2      
+16    E                   switch_var_demo1         [53,76]        7       Yes       Static     [1,3]               INTEGER   91     2      
+17    Q                   switch_var_demo1         [53,76]        2       No        ---        ---                 INTEGER   46     2      
+18    ni                  switch_var_demo1         [64,72]        4       No        ---        ---                 REAL      98     3      
+19    ji                  switch_var_demo1         [67,70]        4       No        ---        ---                 REAL      102    4      
 
-
-
-
-
-Module 'switch_var_demo1', slot 43
-   [
-       Module status: DEFINED, line 8
-       Input Parameters List:
-       [
-          [ Name: 'x', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
-          [ Name: 'y', Line No.: 9, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 2, isAssigned: false, isLoopVar: false ],
-          [ Name: 'z', Line No.: 9, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 6, isAssigned: false, isLoopVar: false ]
-       ]
-
-       Output Parameters List:
-       [
-          [ Name: 'u', Line No.: 10, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 7, isAssigned: true, isLoopVar: false ]
-       ]
-   ]
-   Scope Hierarchy:
-      --- LEVEL 1 ---
-      [ Name: 'h', Line No.: 14, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 15, isAssigned: false, isLoopVar: false ]
-      [ Name: 'k', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 13, isAssigned: false, isLoopVar: false ]
-      [ Name: 'm', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
-      [ Name: 'n', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 11, isAssigned: false, isLoopVar: false ]
-      [ Name: 'p', Line No.: 15, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 16, isAssigned: false, isLoopVar: false ]
-           --- LEVEL 2 ---
-           [ Name: 'A', Line No.: 19, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 20, isAssigned: false, isLoopVar: false ]
-           [ Name: 'B', Line No.: 21, Type: [ baseType: integer, vaType: DYN_L_ARR, bounds: [Q..30], width: 2 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: [ Name: 'Q', Line No.: 20, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 24, isAssigned: false, isLoopVar: false ] ] ]
-           [ Name: 'E', Line No.: 22, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 26, isAssigned: false, isLoopVar: false ]
-           [ Name: 'Q', Line No.: 20, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 24, isAssigned: false, isLoopVar: false ]
-                --- LEVEL 3 ---
-                [ Name: 'uhj', Line No.: 29, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 41, isAssigned: false, isLoopVar: false ]
-
-
-           --- LEVEL 2 ---
-           [ Name: 'A', Line No.: 52, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 42, isAssigned: false, isLoopVar: false ]
-           [ Name: 'B', Line No.: 54, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 48, isAssigned: false, isLoopVar: false ]
-           [ Name: 'Q', Line No.: 53, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 46, isAssigned: false, isLoopVar: false ]
-                --- LEVEL 3 ---
-                [ Name: 'ninja', Line No.: 62, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 91, isAssigned: false, isLoopVar: false ]
-                     --- LEVEL 4 ---
-                     [ Name: 'hakuna', Line No.: 65, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 95, isAssigned: false, isLoopVar: false ]
-
-
-                --- LEVEL 3 ---
-                [ Name: 'ninja', Line No.: 76, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 99, isAssigned: false, isLoopVar: false ]
-                     --- LEVEL 4 ---
-                     [ Name: 'hakuna', Line No.: 79, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 103, isAssigned: false, isLoopVar: false ]
-
-
-
-
-
-
-Module 'for_loop_demo', slot 80
-   [
-       Module status: DEFINED, line 91
-       Input Parameters List:
-       [
-          [ Name: 'x', Line No.: 92, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
-          [ Name: 'y', Line No.: 92, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 2, isAssigned: false, isLoopVar: false ],
-          [ Name: 'z', Line No.: 92, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 6, isAssigned: false, isLoopVar: false ]
-       ]
-
-       Output Parameters List:
-       [
-          [ Name: 'u', Line No.: 93, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 7, isAssigned: true, isLoopVar: false ]
-       ]
-   ]
-   Scope Hierarchy:
-      --- LEVEL 1 ---
-      [ Name: 'k', Line No.: 96, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 9, isAssigned: false, isLoopVar: false ]
-      [ Name: 'yy', Line No.: 103, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 12, isAssigned: false, isLoopVar: false ]
-           --- LEVEL 2 ---
-           [ Name: 'yll', Line No.: 99, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 11, isAssigned: false, isLoopVar: false ]
-
-
-
+1     x                   for_loop_demo            [83,92]        2       No        ---        ---                 INTEGER   0      0      
+2     y                   for_loop_demo            [83,92]        4       No        ---        ---                 REAL      2      0      
+3     z                   for_loop_demo            [83,92]        1       No        ---        ---                 BOOLEAN   6      0      
+4     u                   for_loop_demo            [83,92]        2       No        ---        ---                 INTEGER   7      0      
+5     k                   for_loop_demo            [83,92]        2       No        ---        ---                 INTEGER   9      1      
+6     py                  for_loop_demo            [83,92]        4       No        ---        ---                 REAL      12     1      
+7     y                   for_loop_demo            [87,90]        1       No        ---        ---                 BOOLEAN   11     2      
 
 ########################################################################## ~ ** ~ ##########################################################################
 
