@@ -172,6 +172,9 @@ void printError(error e){
                 case SEME_NOT_A_ARRAY:
                     fprintf(stderr,"'%s' is not a array to be indexed.\n",e.edata.seme.errStr1);
                     break;
+                case SEME_WHILE_COND_TYPE_MISMATCH:
+                    fprintf(stderr,"WHILE loop condition type is not 'boolean'.\n");
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

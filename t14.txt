@@ -52,7 +52,7 @@ start
 		case false: declare A:real;
 			 declare Q: integer;
 			 declare B: array[10..30] of integer;
-			 declare E: array[4..10] of integer;
+			 **declare E: array[4..10] of integer;**
 			 B[12]:= k*20;
 			 break;
 		case 20: A:= 12.90 + p;       		**ERROR: Case value is incorrect as condiiton variable type is boolean**
@@ -96,9 +96,11 @@ start
 	declare k: integer;
 	for(k in 12..70)
 	start
+	    declare yll: boolean;
 		u:= x+k;
 		k:= k+2;                            **ERROR: for loop variable k cannot be assigned a value**
 	end
+	declare yy: real;
 end
 
 <<<driver program>>>
