@@ -125,7 +125,12 @@ void printCurrSymTable1(symbolTable *st,int level, FILE *fp){
 
 
 // ################################################################# printSymTable2 starts ########################################################
-#define FUNC_ALIGN 3
+#define FUNC_ALIGN 3 // how farther from the left to align the [ of the function.
+#define LEVEL_STRING 20 // just to print "--- LEVEL %d ---"
+#define TYPE_STRING_WO_BOUND_INFO 150 // type string without bound info
+#define SYM_NODE_FOR_ONE_BOUND 180 // for the symbol table node of one bound (this ID will be INTEGER VARIABLE type) of dynamic array
+#define BOUND_STRING SYM_NODE_FOR_ONE_BOUND*2 + 50 // for dynamic array's bounds' info
+#define GENERAL_SYM_NODE TYPE_STRING_WO_BOUND_INFO +  BOUND_STRING + 100 // for any general symbol table node (possibly a dynamic array requiring both bounds as VARIABLE INTEGER symbol table nodes i.e. the largest possible)
 
 void printSymbolTable2(symbolTable* st, FILE *fp){
     // prints the whole SymbolTable Structure by calling printCurrSymTable2
@@ -176,22 +181,22 @@ void setSymNodeTypeStr(varType vt, char *ts, char *boundInfo){
             strcpy(boundInfo,"");
             break;
         case DYN_L_ARR: {
-            char pstr[150];
+            char pstr[SYM_NODE_FOR_ONE_BOUND];
             skip += sprintf(ts + skip, ", vaType: %s, bounds: [%s..%u], width: %d", "DYN_L_ARR", vt.si.vt_id->lexeme, vt.ei.vt_num, vt.width);
             getSymNode(vt.si.vt_id, pstr);
             sprintf(boundInfo,", boundInfo: [ Left Bound: %s ]", pstr);
             break;
         }
         case DYN_R_ARR: {
-            char pstr[150];
+            char pstr[SYM_NODE_FOR_ONE_BOUND];
             skip += sprintf(ts + skip, ", vaType: %s, bounds: [%u..%s], width: %d", "DYN_R_ARR", vt.si.vt_num, vt.ei.vt_id->lexeme, vt.width);
             getSymNode(vt.ei.vt_id, pstr);
             sprintf(boundInfo,", boundInfo: [ Right Bound: %s ]", pstr);
             break;
         }
         case DYN_ARR: {
-            char pstr1[150];
-            char pstr2[150];
+            char pstr1[SYM_NODE_FOR_ONE_BOUND];
+            char pstr2[SYM_NODE_FOR_ONE_BOUND];
             skip += sprintf(ts + skip, ", vaType: %s, bounds: [%s..%s], width: %d", "DYN_ARR", vt.si.vt_id->lexeme, vt.ei.vt_id->lexeme, vt.width);
             getSymNode(vt.si.vt_id, pstr1);
             getSymNode(vt.ei.vt_id, pstr2);
@@ -204,8 +209,8 @@ void setSymNodeTypeStr(varType vt, char *ts, char *boundInfo){
 }
 
 void getSymNode(symTableNode *node, char *pstr){
-    char typeStr[100];
-    char boundStr[350];
+    char typeStr[TYPE_STRING_WO_BOUND_INFO];
+    char boundStr[BOUND_STRING];
     setSymNodeTypeStr(node->info.var.vtype, typeStr, boundStr);
     if(node->info.var.vtype.vaType == VARIABLE || node->info.var.vtype.vaType == STAT_ARR) {
         sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s ]",
@@ -220,7 +225,7 @@ void getSymNode(symTableNode *node, char *pstr){
 }
 
 void printParamList(symTableNode *head, int baseAlign, FILE *fp){
-    char pstr[500];
+    char pstr[GENERAL_SYM_NODE];
     int alignHence = baseAlign;
     printAtAlignment("[\n",alignHence, fp);// line 1
 
@@ -253,7 +258,7 @@ void printThisST(symTableNode **stp, int align, FILE *fp){
 }
 
 void printScopeDFS(symbolTable *st, int baseAlign, int level, FILE* fp){
-    char lstr[20];
+    char lstr[LEVEL_STRING];
     sprintf(lstr, "--- LEVEL %d ---\n",level);
     printAtAlignment(lstr,baseAlign, fp);
     printThisST(st->tb, baseAlign, fp);
