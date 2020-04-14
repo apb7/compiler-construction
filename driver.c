@@ -22,6 +22,7 @@
 #include "ast.h"
 #include "symbolHash.h"
 #include "symbolTable.h"
+#include "archive.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -83,7 +84,7 @@ int main(int argc, char *argv[]) {
     char userInput;
 
     while(1) {
-        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree.\n\t Press 6 to build Symbol Table.\n\t Press 7 to build and alternatively print Symbol Table (testing).\n");
+        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree.\n\t Press 6 to build and print ma'am's Symbol Table.\n\t Press # to build and printSymTable1 (testing).\n\t Press $ to build and printSymTable2 (testing).\n");
         scanf(" %c", &userInput);
         switch(userInput) {
 
@@ -158,6 +159,8 @@ int main(int argc, char *argv[]) {
             }
             break;
 
+            // TODO: case '7' is a subset of the following case. It just asks for print of type expression of arrays. Just change printVarEntry in desired manner.
+            // TODO: This prints the symbol table as required by ma'am. Move it to case '5' in final driver.
             case '6':
             {
                 // Initialise lexer every time.
@@ -184,7 +187,32 @@ int main(int argc, char *argv[]) {
                 fclose(fpout);
             }
             break;
-            case '7':
+
+            // TODO: Leave the below as it is. These are for testing. Just remove their menu options from the print menu.
+            case '#':
+            {
+                // Initialise lexer every time.
+                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                extern bool stage1ErrorFree;
+                if(!stage1ErrorFree)
+                    break;
+                ASTNode *ASTroot = buildASTTree(root);
+
+                extern symbolTable funcTable;
+//                makeSampleSymTableForTest(&funcTable);
+                buildSymbolTable(ASTroot);
+
+                if(ASTroot != NULL) {
+                    printf("symbol table built\n");
+                }
+
+                FILE *fpout = fopen(argv[2],"w");
+                printSymbolTable1(&funcTable,fpout);
+                fclose(fpout);
+            }
+            break;
+            case '$':
             {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
@@ -201,10 +229,7 @@ int main(int argc, char *argv[]) {
                 if(ASTroot != NULL) {
                     printf("symbol table built.\n");
                 }
-                //checkType(ASTroot);
 
-                //printf("Type check done\n");
-//                FILE *fpout = fopen(argv[2],"w");
                 FILE *fpout = fopen(argv[2],"w");
                 printSymbolTable2(&funcTable, fpout);
                 fclose(fpout);

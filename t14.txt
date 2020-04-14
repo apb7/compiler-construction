@@ -18,7 +18,7 @@ start
 	start
 		case 10: declare A:real;
 			 declare Q: integer;
-			 declare B: array[10..30] of integer;
+			 declare B: array[Q..30] of integer;
 			 declare E: array[4..10] of integer;
 			 B[12]:= k*20;
 			 break;

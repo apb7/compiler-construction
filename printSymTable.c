@@ -6,11 +6,10 @@
 #include <string.h>
 
 extern char *inverseMappingTable[];
+int sno;
 
-void printVarEntry(symTableNode *stNode, int sno, char *funcName, ASTNode *startNode, int level, FILE *fp) {
-//    "SNO","VAR-NAME","SCOPE: FUNC-NAME", "SCOPE: LINES","WIDTH","IS ARRAY?","STAT/DYN","RANGE", "TYPE", "OFFSET", "LEVEL"
-    //fprintf(fp,"%-4s%-25s%-25s%-11s%-6s%-10s%-9s%-25s%-10s%-7s%-7s","SNO","VAR-NAME","SCOPE: FUNC-NAME", "SCOPE: LINES","WIDTH","IS ARRAY?","STAT/DYN","RANGE", "TYPE", "OFFSET", "LEVEL");
-    fprintf(fp, "%-4d%-20s%-25s", sno, stNode->lexeme,funcName);
+void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, int level, FILE *fp) {
+    fprintf(fp, "%-6d%-20s%-25s", sno, stNode->lexeme,funcName);
     char scl[30];
     sprintf(scl,"[%d,%d]",startNode->start_line_no,startNode->end_line_no);
     if(stNode->info.var.vtype.vaType == VARIABLE || stNode->info.var.vtype.vaType == STAT_ARR)
@@ -70,66 +69,48 @@ void printVarEntry(symTableNode *stNode, int sno, char *funcName, ASTNode *start
 }
 
 void printSymbolTable(symbolTable* st, FILE *fp){
-    // prints the whole SymbolTable Structure by calling printCurrSymTable
-    // TODO: add a call to printCurrSymTable(..) appropriately
     if(st == NULL)
         return;
     symTableNode *currSTN = NULL;
-    fprintf(fp,"################################# SYMBOL TABLE #################################\n\n");
-    fprintf(fp,"################################# FUNCTION TABLE #################################\n\n");
-    fprintf(fp,"%-4s%-20s%-6s\n", "SNO", "FUNCTION-NAME", "LINE");
-    int sno = 1;
-    for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
-        currSTN = (st->tb)[i];
-        while(currSTN != NULL){
-            fprintf(fp, "%-4d%-20s%-6d\n", sno, currSTN->lexeme, currSTN->info.func.lno);
-            currSTN = currSTN->next;
-            sno++;
-        }
-    }
+    fprintf(fp,"\n\n####################################################################### SYMBOL TABLE #######################################################################\n\n");
+
+    fprintf(fp,"%-6s%-20s%-25s%-15s%-8s%-10s%-11s%-20s%-10s%-7s%-7s\n","SNO","VAR-NAME","SCOPE: FUNC-NAME", "SCOPE: LINES","WIDTH","IS ARRAY?","STAT/DYN","RANGE", "TYPE", "OFFSET", "LEVEL");
+
     fprintf(fp,"\n");
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         currSTN = (st->tb)[i];
         while(currSTN != NULL){
-            fprintf(fp, "################################# MODULE '%s' #################################\n\n", currSTN->lexeme);
-            int sno = 1;
-            fprintf(fp,"############################ I/O VARS (Level 0) ############################\n\n");
-            fprintf(fp,"%-4s%-20s%-25s%-15s%-8s%-10s%-11s%-20s%-10s%-7s%-7s\n","SNO","VAR-NAME","SCOPE: FUNC-NAME", "SCOPE: LINES","WIDTH","IS ARRAY?","STAT/DYN","RANGE", "TYPE", "OFFSET", "LEVEL");
-//            fprintf(fp,"%-4s %-20s %-10s %-10s %-25s %-25s %-5s %-6s\n","SNO","VAR-NAME","VAR/ARR","TYPE","LB","UB","LINE","OFFSET");
+
+            sno = 1;
             symTableNode *iohead = currSTN->info.func.inpPListHead;
             while(iohead != NULL){
-                printVarEntry(iohead, sno, currSTN->lexeme, currSTN->info.func.st->startNode, 0, fp);
+                printVarEntry(iohead, currSTN->lexeme, currSTN->info.func.st->startNode, 0, fp);
                 sno++;
                 iohead = iohead->next;
             }
             iohead = currSTN->info.func.outPListHead;
             while(iohead != NULL){
-                printVarEntry(iohead, sno, currSTN->lexeme, currSTN->info.func.st->startNode, 0, fp);
+                printVarEntry(iohead, currSTN->lexeme, currSTN->info.func.st->startNode, 0, fp);
                 sno++;
                 iohead = iohead->next;
             }
-            fprintf(fp,"\n");
             printCurrSymTable(currSTN->info.func.st, 1, fp);
             currSTN = currSTN->next;
+            fprintf(fp,"\n");
         }
     }
-    fprintf(fp,"##################################### ~ ** ~ #####################################\n\n");
+    fprintf(fp,"########################################################################## ~ ** ~ ##########################################################################\n\n");
 }
 
-void printCurrSymTable(symbolTable *st,int level, FILE *fp){
-    fprintf(fp,"################################# Level %d #################################\n\n",level);
-    fprintf(fp,"%-4s%-20s%-25s%-15s%-8s%-10s%-11s%-20s%-10s%-7s%-7s\n","SNO","VAR-NAME","SCOPE:FUNC-NAME", "SCOPE:LINES","WIDTH","IS ARRAY?","STAT/DYN","RANGE", "TYPE", "OFFSET", "LEVEL");
-//    fprintf(fp,"%-4s %-20s %-10s %-10s %-25s %-25s %-5s %-6s\n","SNO","LEXEME","VAR/ARR","TYPE","LB","UB","LINE","OFFSET");
-    int sno = 1;
+void printCurrSymTable(symbolTable *st, int level, FILE *fp){
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         symTableNode *currSTN = (st->tb)[i];
         while(currSTN != NULL){
-            printVarEntry(currSTN, sno, st->funcName, st->startNode, level, fp);
+            printVarEntry(currSTN, st->funcName, st->startNode, level, fp);
             currSTN = currSTN->next;
             sno++;
         }
     }
-    fprintf(fp,"\n");
     symbolTable *childst = st->headChild;
     while(childst != NULL){
         printCurrSymTable(childst,level+1,fp);

@@ -12,16 +12,11 @@
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
-//______________________________
-// both currently reside in printSymTable.c, to move to symbolTable.c post testing
+//__________________________________________________________________________________________
+// for printing the symbol table
 void printSymbolTable(symbolTable* st, FILE *fp);
-void printSymbolTable2(symbolTable *st, FILE *fp);
-void getSymNode(symTableNode *node, char *pstr);
-// returns a sample symbolTable structure with 3 functions in total (2 hashed to same slot) and 1 in different slot
-void printCurrSymTable(symbolTable *st,int level, FILE *fp);
-void printCurrentSymTable(symTableNode *stn, FILE *fp);
-// gets the symTableNode entry corresponding to a function and prints scope hierarchy of that function
-//______________________________
+void printCurrSymTable(symbolTable *st, int level, FILE *fp);
+//__________________________________________________________________________________________
 
 
 //TODO: put all the declarations here once symbolTable.c is done
