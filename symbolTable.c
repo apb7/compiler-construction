@@ -20,9 +20,10 @@
 //TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
 //DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
 /* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
- *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpressions,
+ *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,
  *  it does as you intended. If you only wanted an expression check on the passed node then set its next as NULL and then restore
- *  as done in handleIterative's WHILE part near the call to handleExpressions
+ *  as done in handleExpressionSafe. Thus, do not call handleExpression if the handling of passed node's Expression is what you intend.
+ *  Call handleExpressionSafe instead.
  */
 
 symbolTable funcTable;
@@ -916,6 +917,13 @@ bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
     return true;
 }
 
+void handleExpressionSafe(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST){
+    ASTNode *tmpnext = someNode->next;
+    someNode->next = NULL;
+    handleExpression(someNode,funcInfo,currST);
+    someNode->next = tmpnext;
+}
+
 void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(someNode == NULL){
         return;
@@ -953,7 +961,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             assignIDinScope(idNode, funcInfo, currST);
             vt1 = getDataType(idNode);
 
-            handleExpression(idNode->next,funcInfo,currST);
+            handleExpressionSafe(idNode->next,funcInfo,currST);
             vt2 = getDataType(idNode->next);
 
             if (vt1 != NULL && vt2 != NULL) {
@@ -991,7 +999,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                 vt1 = NULL;
             }
 
-            handleExpression(idNode->next->next,funcInfo,currST);
+            handleExpressionSafe(idNode->next->next,funcInfo,currST);
             vt2 = getDataType(idNode->next->next);
 
             if (vt1 != NULL && vt2 != NULL) {
@@ -1212,10 +1220,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     }
     else if(ptr->gs==g_WHILE) {
         ptr=ptr->next;
-        ASTNode *tmpnext = ptr->next;
-        ptr->next = NULL;
-        handleExpression(ptr,funcInfo,currST);  //to do existence checking for all its IDs
-        ptr->next = tmpnext;
+        handleExpressionSafe(ptr,funcInfo,currST);  //to do existence checking for all its IDs
         // TODO: verify typeof(ptr)
         varType *vt = getDataType(ptr);
         if(vt != NULL && vt->baseType != T_BOOLEAN){

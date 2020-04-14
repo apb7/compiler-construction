@@ -25,7 +25,7 @@ start
 
     a := 5;
 
-    while(b OR c)
+    while(b + c)
     start
         get_value(c);
         c:=tempvar;
