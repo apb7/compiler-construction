@@ -1207,7 +1207,10 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     }
     else if(ptr->gs==g_WHILE) {
         ptr=ptr->next;
+        ASTNode *tmpnext = ptr->next;
+        ptr->next = NULL;
         handleExpression(ptr,funcInfo,currST);  //to do existence checking for all its IDs
+        ptr->next = tmpnext;
         // TODO: verify typeof(ptr)
         varType *vt = getDataType(ptr);
         if(vt == NULL || vt->baseType != T_BOOLEAN){
