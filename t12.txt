@@ -28,7 +28,7 @@ start
     while(b OR c)
     start
         get_value(c);
-        c:=tempvar[1];
+        c:=tempvar;
         a:=a+1;
     end
 end

@@ -19,6 +19,11 @@
 //TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
 //TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
 //DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
+/* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
+ *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpressions,
+ *  it does as you intended. If you only wanted an expression check on the passed node then set its next as NULL and then restore
+ *  as done in handleIterative's WHILE part near the call to handleExpressions
+ */
 
 symbolTable funcTable;
 int nextGlobalOffset;
@@ -930,8 +935,7 @@ void handleExpression(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *cur
     }
     else{
         handleExpression(someNode->child,funcInfo,currST);
-        if(someNode->parent->child->gs != g_WHILE)
-            handleExpression(someNode->next,funcInfo,currST);
+        handleExpression(someNode->next,funcInfo,currST);
     }
 }
 
@@ -1208,13 +1212,13 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     }
     else if(ptr->gs==g_WHILE) {
         ptr=ptr->next;
-//        ASTNode *tmpnext = ptr->next;
-//        ptr->next = NULL;
+        ASTNode *tmpnext = ptr->next;
+        ptr->next = NULL;
         handleExpression(ptr,funcInfo,currST);  //to do existence checking for all its IDs
-//        ptr->next = tmpnext;
+        ptr->next = tmpnext;
         // TODO: verify typeof(ptr)
         varType *vt = getDataType(ptr);
-        if(vt == NULL || vt->baseType != T_BOOLEAN){
+        if(vt != NULL && vt->baseType != T_BOOLEAN){
             // if vt is NULL, short-circuiting saves the evaluation of second preposition and hence segFault is avoided
             throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
