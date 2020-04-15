@@ -144,13 +144,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_PRINT:
         {   
             // Need changes here!
-            ASTNode* siblingId = root->next;
+            ASTNode* sibling = root->next;
             
-            if(siblingId->stNode == NULL) {
+            if(sibling->gs != g_var_id_num) {
                 // TODO(apb7): Handle BOOL, NUM, RNUM constant
                 return;
             }
 
+            ASTNode *siblingId = sibling->child;
             varType idVarType = siblingId->stNode->info.var.vtype;
 
             if(idVarType.vaType == VARIABLE) {
@@ -159,6 +160,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 // their values.
                 // BEWARE: Number of pushes here should be odd.
                 // push rbx
+
                 fprintf(fp, "\tpush rbp\n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
@@ -169,7 +171,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                     fprintf(fp, "\tcall printf\n");
                 }
-                else if(idVarType.baseType == g_NUM) {
+                else if(idVarType.baseType == g_INTEGER) {
 
                     fprintf(fp, "\tmov rdi, outputInt\n");
                     fprintf(fp, "\tmov rsi, %d\n", varValue);
