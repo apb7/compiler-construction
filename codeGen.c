@@ -1,3 +1,5 @@
+// nasm -felf64 code.asm && gcc code.o && ./a.out
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,30 +23,42 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     switch(gs) {
         case g_program:
         {
+            fprintf(fp, "section .bss\n");
+            fprintf(fp, "\tinta: resb 4\n");
+            fprintf(fp, "\tfloatb: resb 8\n");
+
             fprintf(fp, "section .data\n");
+
+            // To be removed
+            fprintf(fp, "\tsampleInt: db 5,0\n");
+            fprintf(fp, "\tsampleFloat: db -5.2,0\n");
+
+
             fprintf(fp,"\tmsgBoolean: db \"Input: Enter a boolean value:\", 10, 0\n");
-            fprintf(fp,"\tinputBoolean: db \"%d\", 0\n");
+            fprintf(fp,"\tinputBoolean: db \"%%d\", 0\n");
 
             fprintf(fp,"\tmsgInt: db \"Input: Enter an integer value:\", 10, 0\n");
-            fprintf(fp,"\tinputInt: db \"%d\", 0\n");
+            fprintf(fp,"\tinputInt: db \"%%d\", 0\n");
 
             fprintf(fp,"\tmsgFloat: db \"Input: Enter a float value:\", 10, 0\n");
-            fprintf(fp,"\tinputFloat: db \"%f\",0\n");
+            fprintf(fp,"\tinputFloat: db \"%%lf\",0\n");
 
             fprintf(fp,"\toutputBooleanTrue: db \"Output: true\", 10, 0,\n");
             fprintf(fp,"\toutputBooleanFalse: db \"Output: false\", 10, 0,\n");
 
-            fprintf(fp,"\toutputInt: db \"Output: %d\", 10, 0,\n");
+            fprintf(fp,"\toutputInt: db \"Output: %%d\", 10, 0,\n");
 
-            fprintf(fp,"\toutputFloat: db \"Output: %f\", 10, 0,\n");
+            fprintf(fp,"\toutputFloat: db \"Output: %%lf\", 10, 0,\n");
 
-            fprintf(fp, "section .text\n");
+            fprintf(fp, "\nsection .text\n");
             fprintf(fp, "\tglobal main\n");
             fprintf(fp, "\textern scanf\n");
             fprintf(fp, "\textern printf\n");
 
             ASTNode* ASTChild = root->child;
 
+            // Might need to change its position.
+            fprintf(fp, "\nmain:\n");
             while(ASTChild) {
                 generateCode(ASTChild, symT, fp);
                 ASTChild = ASTChild->next;
@@ -95,7 +109,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
 
             ASTNode* siblingId = root->next;
-            
+
+            // <ioStmt> -> GET_VALUE BO ID BC SEMICOL
+
             if(! siblingId->stNode) {
                 // printf("ERROR: Undeclared variable\n");
                 // Already being handled.
@@ -119,17 +135,33 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     // Scanned int goes to rax or rdx:rax.
                     // Scanned float goes to xmm0 or xmm1:xmm0.
                 }
-                else if(idVarType.baseType == g_NUM) {
+                else if(idVarType.baseType == g_INTEGER) {
                     fprintf(fp, "\tmov rdi, msgInt\n");
                     fprintf(fp, "\tcall printf\n");
                     fprintf(fp, "\tmov rdi, inputInt\n");
+                    fprintf(fp, "\tmov rsi, inta\n");
                     fprintf(fp, "\tcall scanf\n");
+/*
+                    // Check the value being scanned
+                    fprintf(fp, "\tmov rdi, outputInt\n");
+                    fprintf(fp, "\tmov rsi, [inta]\n");
+                    fprintf(fp, "\tcall printf\n");
+*/
+
                 }
-                else /* RNUM */{
+                else if(idVarType.baseType == g_REAL) {
                     fprintf(fp, "\tmov rdi, msgFloat\n");
                     fprintf(fp, "\tcall printf\n");
+
                     fprintf(fp, "\tmov rdi, inputFloat\n");
+                    fprintf(fp, "\tmov rsi, floatb\n");
                     fprintf(fp, "\tcall scanf\n");
+/*
+                    // Check the value being scanned
+                    fprintf(fp, "\tmov rdi, outputFloat\n");
+                    fprintf(fp, "\tmov xmm0, [floatb]\n");
+                    fprintf(fp, "\tcall printf\n");
+*/
                 }
 
                 fprintf(fp, "\tpop rbp\n");
@@ -145,9 +177,16 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {   
             // Need changes here!
             ASTNode* sibling = root->next;
-            
-            if(sibling->gs != g_var_id_num) {
-                // TODO(apb7): Handle BOOL, NUM, RNUM constant
+
+            // <ioStmt> -> PRINT BO <var> BC SEMICOL
+            // <boolConstt> -> TRUE | FALSE
+            // <var_id_num> -> ID <whichId> | NUM | RNUM
+            // <var> -> <var_id_num> | <boolConstt>
+            // <whichId> -> SQBO <index> SQBC | ε
+            // <index> -> NUM | ID
+
+            if(sibling->gs == g_boolConstt || sibling->child->gs == NUM || sibling->child->gs == RNUM) {
+                // TODO(apb7): Handle TRUE, FALSE, NUM, RNUM constant
                 return;
             }
 
@@ -155,7 +194,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             varType idVarType = siblingId->stNode->info.var.vtype;
 
             if(idVarType.vaType == VARIABLE) {
-                unsigned int varValue = idVarType.si.vt_num;
                 // More registers need to me pushed to preserve
                 // their values.
                 // BEWARE: Number of pushes here should be odd.
@@ -164,7 +202,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\tpush rbp\n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    if(varValue)
+                    if(1) // Check value of id here.
                         fprintf(fp, "\tmov rdi, outputBooleanTrue\n");
                     else
                         fprintf(fp, "\tmov rdi, outputBooleanFalse\n");
@@ -174,19 +212,19 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 else if(idVarType.baseType == g_INTEGER) {
 
                     fprintf(fp, "\tmov rdi, outputInt\n");
-                    fprintf(fp, "\tmov rsi, %d\n", varValue);
+                    fprintf(fp, "\tmov rsi, [inta]\n");
                     fprintf(fp, "\tcall printf\n");
                 }
-                else /* RNUM */{
+                else if(idVarType.baseType == g_REAL) {
                     fprintf(fp, "\tmov rdi, outputFloat\n");
-                    fprintf(fp, "\tmov rsi, %f\n", varValue);
+                    fprintf(fp, "\tmov rsi, [floatb]\n");
                     fprintf(fp, "\tcall printf\n");
                 }
 
                 fprintf(fp, "\tpop rbp\n");
             }
             else /* Arrays */ {
-
+                // Use whichId AST Node here.
             }
 
             return;
