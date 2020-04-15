@@ -6,6 +6,8 @@
 #include "symbolTable.h"
 #include "typeCheck.h"
 
+extern char *inverseMappingTable[];
+
 
 void printLeaf(ASTNode* leaf, FILE* fp) {
 
@@ -15,7 +17,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     if(root == NULL) return;
 
     gSymbol gs = root->gs;
-
+    printf("%s \n", inverseMappingTable[gs]);
     switch(gs) {
         case g_program:
         {
@@ -144,7 +146,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             // Need changes here!
             ASTNode* siblingId = root->next;
             
-            if(siblingId->stNode) {
+            if(siblingId->stNode == NULL) {
                 // TODO(apb7): Handle BOOL, NUM, RNUM constant
                 return;
             }
@@ -187,6 +189,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+
+        default:
+            printf("Default : %s \n", inverseMappingTable[gs]);
     }
 
 }
