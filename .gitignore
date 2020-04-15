@@ -77,4 +77,3 @@ CMakeLists.txt~
 .idea
 *.iml
 /Testcases_stage2/
-code.asm
