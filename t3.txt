@@ -6,6 +6,13 @@ start
 	print(v_1_2_3);
 	declare result:real;
 	print(result);
+
+	declare a:boolean;
+	get_value(a);
+	print(a);
+	print(1);
+	print(true);
+	print(false);
 end
 
 **notice that this test case does not declare the module before the driver module, still it is syntactically correct as moduleDeclarations is optional. Testing whether a module is declared before its use is a matter of semantic analysis**
