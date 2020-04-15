@@ -29,7 +29,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\tmsgFloat: db \"Input: Enter a float value:\", 10, 0\n");
             fprintf(fp,"\tinputFloat: db \"%f\",0\n");
 
-            fprintf(fp,"\toutputBoolean: db \"Output: %s\", 10, 0,\n");
+            fprintf(fp,"\toutputBooleanTrue: db \"Output: true\", 10, 0,\n");
+            fprintf(fp,"\toutputBooleanFalse: db \"Output: false\", 10, 0,\n");
 
             fprintf(fp,"\toutputInt: db \"Output: %d\", 10, 0,\n");
 
@@ -102,31 +103,31 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             varType idVarType = siblingId->stNode->info.var.vtype;
 
             if(idVarType.vaType == VARIABLE) {
-                // More registers need to me pushed due to preserve
+                // More registers need to me pushed to preserve
                 // their values.
                 // BEWARE: Number of pushes here should be odd.
                 // push rbx
                 fprintf(fp, "\tpush rbp\n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    fprintf(fp, '\tlea rdi, [msgBoolean]\n');
-                    fprintf(fp, '\tcall printf\n');
-                    fprintf(fp, '\tlea rdi, [inputBoolean]\n');
-                    fprintf(fp, '\tcall scanf\n');
+                    fprintf(fp, "\tmov rdi, msgBoolean\n");
+                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "\tmov rdi, inputBoolean\n");
+                    fprintf(fp, "\tcall scanf\n");
                     // Scanned int goes to rax or rdx:rax.
                     // Scanned float goes to xmm0 or xmm1:xmm0.
                 }
                 else if(idVarType.baseType == g_NUM) {
-                    fprintf(fp, '\tlea rdi, [msgInt]\n');
-                    fprintf(fp, '\tcall printf\n');
-                    fprintf(fp, '\tlea rdi, [inputInt]\n');
-                    fprintf(fp, '\tcall scanf\n');
+                    fprintf(fp, "\tmov rdi, msgInt\n");
+                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "\tmov rdi, inputInt\n");
+                    fprintf(fp, "\tcall scanf\n");
                 }
                 else /* RNUM */{
-                    fprintf(fp, '\tlea rdi, [msgFloat]\n');
-                    fprintf(fp, '\tcall printf\n');
-                    fprintf(fp, '\tlea rdi, [inputFloat]\n');
-                    fprintf(fp, '\tcall scanf\n');
+                    fprintf(fp, "\tmov rdi, msgFloat\n");
+                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "\tmov rdi, inputFloat\n");
+                    fprintf(fp, "\tcall scanf\n");
                 }
 
                 fprintf(fp, "\tpop rbp\n");
@@ -139,7 +140,51 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         }
 
         case g_PRINT:
-        {
+        {   
+            // Need changes here!
+            ASTNode* siblingId = root->next;
+            
+            if(siblingId->stNode) {
+                // TODO(apb7): Handle BOOL, NUM, RNUM constant
+                return;
+            }
+
+            varType idVarType = siblingId->stNode->info.var.vtype;
+
+            if(idVarType.vaType == VARIABLE) {
+                unsigned int varValue = idVarType.si.vt_num;
+                // More registers need to me pushed to preserve
+                // their values.
+                // BEWARE: Number of pushes here should be odd.
+                // push rbx
+                fprintf(fp, "\tpush rbp\n");
+
+                if(idVarType.baseType == g_BOOLEAN) {
+                    if(varValue)
+                        fprintf(fp, "\tmov rdi, outputBooleanTrue\n");
+                    else
+                        fprintf(fp, "\tmov rdi, outputBooleanFalse\n");
+
+                    fprintf(fp, "\tcall printf\n");
+                }
+                else if(idVarType.baseType == g_NUM) {
+
+                    fprintf(fp, "\tmov rdi, outputInt\n");
+                    fprintf(fp, "\tmov rsi, %d\n", varValue);
+                    fprintf(fp, "\tcall printf\n");
+                }
+                else /* RNUM */{
+                    fprintf(fp, "\tmov rdi, outputFloat\n");
+                    fprintf(fp, "\tmov rsi, %f\n", varValue);
+                    fprintf(fp, "\tcall printf\n");
+                }
+
+                fprintf(fp, "\tpop rbp\n");
+            }
+            else /* Arrays */ {
+
+            }
+
             return;
         }
     }
