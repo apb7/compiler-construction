@@ -25,6 +25,9 @@
 #include "archive.h"
 #include "codeGen.h"
 
+#include "codeGen.h"
+
+
 // Variables defined in lexer.c
 extern unsigned int fp;
 extern unsigned int bp;
@@ -189,6 +192,35 @@ int main(int argc, char *argv[]) {
                 FILE *fptest = fopen("test.asm","w");
                 genExpr(ASTroot,fptest,true,0,g_INTEGER);
                 fclose(fptest);
+            }
+            break;
+            
+            case '8':
+            {
+                // Initialise lexer every time.
+                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
+
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+
+                extern bool stage1ErrorFree;
+                if(!stage1ErrorFree)
+                    break;
+                ASTNode *ASTroot = buildASTTree(root);
+
+                extern symbolTable funcTable;
+//                makeSampleSymTableForTest(&funcTable);
+                buildSymbolTable(ASTroot);
+
+                if(ASTroot != NULL) {
+                    printf("symbol table built\n");
+                }
+
+                //checkType(ASTroot);
+
+                //printf("Type check done\n");
+                FILE *fpout = fopen("code.asm","w");
+                generateCode(ASTroot, &funcTable, fpout);
+                fclose(fpout);
             }
             break;
 
