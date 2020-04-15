@@ -23,6 +23,7 @@
 #include "symbolHash.h"
 #include "symbolTable.h"
 #include "archive.h"
+#include "codeGen.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
@@ -185,6 +186,9 @@ int main(int argc, char *argv[]) {
                 FILE *fpout = fopen(argv[2],"w");
                 printSymbolTable(&funcTable,fpout);
                 fclose(fpout);
+                FILE *fptest = fopen("test.asm","w");
+                genExpr(ASTroot,fptest,true,0,g_INTEGER);
+                fclose(fptest);
             }
             break;
 
