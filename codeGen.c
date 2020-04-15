@@ -191,7 +191,11 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+        case g_conditionalStmt:{
 
+        }
+
+            return;
         default:
             printf("Default : %s \n", inverseMappingTable[gs]);
     }

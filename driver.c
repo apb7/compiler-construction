@@ -23,6 +23,7 @@
 #include "symbolHash.h"
 #include "symbolTable.h"
 #include "archive.h"
+#include "codeGen.h"
 
 // Variables defined in lexer.c
 extern unsigned int fp;
