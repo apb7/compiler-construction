@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     char userInput;
 
     while(1) {
-        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree.\n\t Press 6 to build and print ma'am's Symbol Table.\n\t Press # to build and printSymTable1 (testing).\n\t Press $ to build and printSymTable2 (testing).\n");
+        printf("\n\t Press 0 to exit.\n\t Press 1 to remove comments.\n\t Press 2 to print all tokens.\n\t Press 3 to parse source code. \n\t Press 4 to print time taken.\n\t Press 5 to build AST tree.\n\t Press 6 to build and print ma'am's Symbol Table.\n\t Press 8 to generate NASM code.\n\t Press # to build and printSymTable1 (testing).\n\t Press $ to build and printSymTable2 (testing).\n");
         scanf(" %c", &userInput);
         switch(userInput) {
 
@@ -191,7 +191,31 @@ int main(int argc, char *argv[]) {
                 fclose(fpout);
             }
             break;
-            
+//            TODO: the following will become the case 6 to print the AR size of each function
+            case '7':
+            {
+                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                extern bool stage1ErrorFree;
+                if(!stage1ErrorFree)
+                    break;
+                ASTNode *ASTroot = buildASTTree(root);
+
+                extern symbolTable funcTable;
+//                makeSampleSymTableForTest(&funcTable);
+                buildSymbolTable(ASTroot);
+
+                if(ASTroot != NULL) {
+                    printf("symbol table built\n");
+                }
+
+                FILE *fpout = fopen(argv[2],"w");
+                // TODO: implement this method printARSizes(..) Only need to print the function name and AR size field from the function table as two separate columns in formatted output
+//                printARSizes(&funcTable,fpout);
+                fprintf(fpout, "\nNOTE: The Activation record size also includes width of input and output parameters of each function.\n");
+                fclose(fpout);
+            }
+            break;
             case '8':
             {
                 // Initialise lexer every time.
