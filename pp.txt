@@ -1,0 +1,65 @@
+
+
+####################################################################### SYMBOL TABLE #######################################################################
+
+SNO   VAR-NAME            SCOPE: FUNC-NAME         SCOPE: LINES   WIDTH   IS ARRAY? STAT/DYN   RANGE               TYPE      OFFSET LEVEL  
+
+1     a                   @driver                  [85,117]       2       No        ---        ---                 INTEGER   92     1      
+2     b                   @driver                  [85,117]       2       No        ---        ---                 INTEGER   94     1      
+3     v_1_2_3             @driver                  [85,117]       2       No        ---        ---                 INTEGER   0      1      
+4     k                   @driver                  [85,117]       1       No        ---        ---                 BOOLEAN   5      1      
+5     p                   @driver                  [85,117]       4       No        ---        ---                 REAL      6      1      
+6     q                   @driver                  [85,117]       4       No        ---        ---                 REAL      100    1      
+7     r                   @driver                  [85,117]       4       No        ---        ---                 REAL      104    1      
+8     w                   @driver                  [85,117]       2       No        ---        ---                 INTEGER   108    1      
+9     u1                  @driver                  [85,117]       1       No        ---        ---                 BOOLEAN   4      1      
+10    A                   @driver                  [85,117]       2       No        ---        ---                 INTEGER   2      1      
+11    B                   @driver                  [85,117]       39      Yes       Static     [2,20]              INTEGER   10     1      
+12    value               @driver                  [85,117]       4       No        ---        ---                 REAL      96     1      
+13    C                   @driver                  [85,117]       39      Yes       Static     [2,20]              INTEGER   49     1      
+14    D                   @driver                  [85,117]       43      Yes       Static     [20,40]             INTEGER   110    1      
+15    H                   @driver                  [85,117]       2       No        ---        ---                 INTEGER   90     1      
+16    L                   @driver                  [85,117]       2       No        ---        ---                 INTEGER   88     1      
+17    M                   @driver                  [85,117]       ---     Yes       Dynamic    [L,H]               INTEGER   ---    1      
+
+1     x                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   0      0      
+2     m                   var_demo_array           [8,31]         39      Yes       Static     [2,20]              INTEGER   2      0      
+3     p                   var_demo_array           [8,31]         4       No        ---        ---                 REAL      41     0      
+4     z1                  var_demo_array           [8,31]         ---     Yes       Dynamic    [NULL,NULL]         REAL      ---    0      
+5     n                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   49     0      
+6     k                   var_demo_array           [8,31]         1       No        ---        ---                 BOOLEAN   51     0      
+7     a                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   52     1      
+8     b                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   54     1      
+9     h                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   56     1      
+10    p                   var_demo_array           [8,31]         39      Yes       Static     [2,20]              INTEGER   58     1      
+11    z2                  var_demo_array           [8,31]         ---     Yes       Dynamic    [a,b]               INTEGER   ---    1      
+12    z3                  var_demo_array           [8,31]         ---     Yes       Dynamic    [a,b]               INTEGER   ---    1      
+13    x1                  var_demo_array           [8,31]         4       No        ---        ---                 REAL      140    1      
+14    b                   var_demo_array           [18,24]        39      Yes       Static     [2,20]              INTEGER   101    2      
+15    p                   var_demo_array           [18,24]        2       No        ---        ---                 INTEGER   97     2      
+16    u                   var_demo_array           [18,24]        2       No        ---        ---                 INTEGER   99     2      
+
+1     a                   f1                       [37,80]        ---     Yes       Dynamic    [NULL,NULL]         INTEGER   ---    0      
+2     b                   f1                       [37,80]        43      Yes       Static     [10,30]             INTEGER   2      0      
+3     c                   f1                       [37,80]        4       No        ---        ---                 REAL      45     0      
+4     m                   f1                       [37,80]        1       No        ---        ---                 BOOLEAN   49     0      
+5     n                   f1                       [37,80]        2       No        ---        ---                 INTEGER   50     0      
+6     k                   f1                       [37,80]        2       No        ---        ---                 INTEGER   64     1      
+7     p                   f1                       [37,80]        4       No        ---        ---                 REAL      60     1      
+8     x                   f1                       [37,80]        4       No        ---        ---                 REAL      52     1      
+9     y                   f1                       [37,80]        4       No        ---        ---                 REAL      56     1      
+10    A                   f1                       [37,80]        15      Yes       Static     [4,10]              INTEGER   66     1      
+11    B                   f1                       [37,80]        15      Yes       Static     [4,10]              INTEGER   81     1      
+12    C                   f1                       [37,80]        43      Yes       Static     [10,30]             INTEGER   139    1      
+13    D                   f1                       [37,80]        43      Yes       Static     [10,30]             INTEGER   96     1      
+14    G                   f1                       [37,80]        ---     Yes       Dynamic    [NULL,NULL]         REAL      ---    1      
+15    u                   f1                       [49,73]        4       No        ---        ---                 REAL      182    2      
+16    v                   f1                       [49,73]        4       No        ---        ---                 REAL      186    2      
+17    A                   f1                       [55,71]        4       No        ---        ---                 REAL      190    3      
+18    B                   f1                       [55,71]        43      Yes       Static     [10,30]             INTEGER   196    3      
+19    E                   f1                       [55,71]        15      Yes       Static     [4,10]              INTEGER   239    3      
+20    F                   f1                       [55,71]        ---     Yes       Dynamic    [NULL,NULL]         BOOLEAN   ---    3      
+21    Q                   f1                       [55,71]        2       No        ---        ---                 INTEGER   194    3      
+
+########################################################################## ~ ** ~ ##########################################################################
+
