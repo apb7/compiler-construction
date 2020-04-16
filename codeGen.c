@@ -80,7 +80,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
                     else{
                         if(astNode->stNode->info.var.vtype.vaType != VARIABLE){
                             if(astNode->next->gs == g_ID){
-                                fprintf(fp,"\tMOV %s, x_%x\n",expreg[3],astNode->next->stNode);
+                                fprintf(fp,"\tMOV %s, x_%x\n",expreg[2],astNode->next->stNode);
                             }
                             else{
                                 //g_num
