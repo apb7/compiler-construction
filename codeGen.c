@@ -21,12 +21,13 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 char *expreg[3] = {"AX","BX","CX"};
 char *expscale = "word";
+
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType){
     if(firstCall){
         if(astNode == NULL)
             return;
         else if(astNode->gs != g_assignmentStmt){
-//            printf("%d\n",astNode->gs);
+            //            printf("%d\n",astNode->gs);
             genExpr(astNode->next,fp,true,lr,expType);
             genExpr(astNode->child,fp,true,lr,expType);
             return;
@@ -120,8 +121,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_program:
         {
             fprintf(fp, "section .bss\n");
-            fprintf(fp, "\tinta: resb 4\n");
+            fprintf(fp, "\tinta: resb 2\n");
             fprintf(fp, "\tfloatb: resb 8\n");
+            fprintf(fp, "\tboolc: resb 2\n");
 
             fprintf(fp, "section .data\n");
 
@@ -131,10 +133,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
 
             fprintf(fp,"\tmsgBoolean: db \"Input: Enter a boolean value:\", 10, 0\n");
-            fprintf(fp,"\tinputBoolean: db \"%%d\", 0\n");
+            fprintf(fp,"\tinputBoolean: db \"%%hd\", 0\n");
 
             fprintf(fp,"\tmsgInt: db \"Input: Enter an integer value:\", 10, 0\n");
-            fprintf(fp,"\tinputInt: db \"%%d\", 0\n");
+            fprintf(fp,"\tinputInt: db \"%%hd\", 0\n");
 
             fprintf(fp,"\tmsgFloat: db \"Input: Enter a float value:\", 10, 0\n");
             fprintf(fp,"\tinputFloat: db \"%%lf\",0\n");
@@ -142,7 +144,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\toutputBooleanTrue: db \"Output: true\", 10, 0,\n");
             fprintf(fp,"\toutputBooleanFalse: db \"Output: false\", 10, 0,\n");
 
-            fprintf(fp,"\toutputInt: db \"Output: %%d\", 10, 0,\n");
+            fprintf(fp,"\toutputInt: db \"Output: %%hd\", 10, 0,\n");
 
             fprintf(fp,"\toutputFloat: db \"Output: %%lf\", 10, 0,\n");
 
@@ -227,22 +229,24 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\tmov rdi, msgBoolean\n");
                     fprintf(fp, "\tcall printf\n");
                     fprintf(fp, "\tmov rdi, inputBoolean\n");
+                    fprintf(fp, "\tmov rsi, %s\n", "boolc"); // To be fixed!
                     fprintf(fp, "\tcall scanf\n");
                     // Scanned int goes to rax or rdx:rax.
                     // Scanned float goes to xmm0 or xmm1:xmm0.
+                    // Note by Hasan: doesn't work with regs
                 }
                 else if(idVarType.baseType == g_INTEGER) {
                     fprintf(fp, "\tmov rdi, msgInt\n");
                     fprintf(fp, "\tcall printf\n");
                     fprintf(fp, "\tmov rdi, inputInt\n");
-                    fprintf(fp, "\tmov rsi, inta\n");
+                    fprintf(fp, "\tmov rsi, inta\n"); // To be fixed!
                     fprintf(fp, "\tcall scanf\n");
-/*
+
                     // Check the value being scanned
-                    fprintf(fp, "\tmov rdi, outputInt\n");
-                    fprintf(fp, "\tmov rsi, [inta]\n");
-                    fprintf(fp, "\tcall printf\n");
-*/
+                    // fprintf(fp, "\tmov rdi, outputInt\n");
+                    // fprintf(fp, "\tmov rsi, [inta]\n");
+                    // fprintf(fp, "\tcall printf\n");
+
 
                 }
                 else if(idVarType.baseType == g_REAL) {
@@ -250,14 +254,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\tcall printf\n");
 
                     fprintf(fp, "\tmov rdi, inputFloat\n");
-                    fprintf(fp, "\tmov rsi, floatb\n");
+                    fprintf(fp, "\tmov rsi, floatb\n"); // To be fixed!
                     fprintf(fp, "\tcall scanf\n");
-/*
+
                     // Check the value being scanned
-                    fprintf(fp, "\tmov rdi, outputFloat\n");
-                    fprintf(fp, "\tmov xmm0, [floatb]\n");
-                    fprintf(fp, "\tcall printf\n");
-*/
+                    // fprintf(fp, "\tmov rdi, outputFloat\n");
+                    // fprintf(fp, "\tmov xmm0, [floatb]\n");
+                    // fprintf(fp, "\tcall printf\n");
+
                 }
 
                 fprintf(fp, "\tpop rbp\n");
@@ -338,12 +342,18 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\tpush rbp\n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    if(1) // Check value of id here.(code needs to be generated to check at runtime!)
-                        fprintf(fp, "\tmov rdi, outputBooleanTrue\n");
-                    else
-                        fprintf(fp, "\tmov rdi, outputBooleanFalse\n");
+                    fprintf(fp, "\tcmp word[%s], 0 \n", "boolc");
+                    fprintf(fp, "\tjz boolPrintFalse%d \n", siblingId->tkinfo->lno);
 
-                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "boolPrintTrue%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\tmov rdi, outputBooleanTrue \n");
+                    fprintf(fp, "\tjmp boolPrintEnd%d\n", siblingId->tkinfo->lno);
+
+                    fprintf(fp, "boolPrintFalse%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\tmov rdi, outputBooleanFalse \n");
+
+                    fprintf(fp, "boolPrintEnd%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\tcall printf \n");
                 }
                 else if(idVarType.baseType == g_INTEGER) {
 
