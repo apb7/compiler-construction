@@ -109,6 +109,7 @@ struct symVarInfo{
     int offset;
     bool isAssigned;
     bool isLoopVar;
+    bool isIOlistVar;
 };
 typedef struct symVarInfo symVarInfo;
 

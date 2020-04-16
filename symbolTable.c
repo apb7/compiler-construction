@@ -45,6 +45,7 @@ void initSymVarInfo(symVarInfo *varInfo) {
     varInfo->lno = -1;
     varInfo->isLoopVar = false;
     varInfo->offset = -1;
+    varInfo->isIOlistVar = false;
 }
 
 int getSizeByType(gSymbol gs) {
@@ -533,6 +534,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
     else{
         paramInpNode *ptr = (paramInpNode *) (malloc(sizeof(paramInpNode)));
         initSymVarInfo(&((ptr->info).var));
+        ptr->info.var.isIOlistVar = true;
         if(idNode->tkinfo)
             (ptr->info).var.lno = idNode->tkinfo->lno;
         strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
@@ -588,6 +590,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
     else{
         paramOutNode *ptr = (paramOutNode *) (malloc(sizeof(paramOutNode)));
         initSymVarInfo(&((ptr->info).var));
+        ptr->info.var.isIOlistVar = true;
         if(idNode->tkinfo)
             (ptr->info).var.lno = idNode->tkinfo->lno;
         strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
