@@ -1,4 +1,5 @@
 // nasm -felf64 code.asm && gcc code.o && ./a.out
+// nasm -felf64 code.asm && gcc -no-pie code.o && ./a.out
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -280,12 +281,50 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             // <whichId> -> SQBO <index> SQBC | ε
             // <index> -> NUM | ID
 
-            if(sibling->gs == g_boolConstt || sibling->child->gs == NUM || sibling->child->gs == RNUM) {
-                // TODO(apb7): Handle TRUE, FALSE, NUM, RNUM constant
+
+
+            if(sibling->gs == g_TRUE) {
+                fprintf(fp, "\tpush rbp\n");
+                fprintf(fp, "\tmov rdi, outputBooleanTrue\n");
+                fprintf(fp, "\tcall printf\n");
+                fprintf(fp, "\tpop rbp\n");
+                return;
+            }
+
+            if(sibling->gs == g_FALSE) {
+                fprintf(fp, "\tpush rbp\n");
+                fprintf(fp, "\tmov rdi, outputBooleanFalse\n");
+                fprintf(fp, "\tcall printf\n");
+                fprintf(fp, "\tpop rbp\n");
                 return;
             }
 
             ASTNode *siblingId = sibling->child;
+
+            if(siblingId->gs == g_NUM) {
+                fprintf(fp, "\tpush rbp\n");
+                fprintf(fp, "\tmov rdi, outputInt\n");
+                fprintf(fp, "\tmov rsi, %d\n", siblingId->tkinfo->value.num);
+                fprintf(fp, "\tcall printf\n");
+                fprintf(fp, "\tpop rbp\n");
+                return;
+            }
+
+            // TODO: see how floating pt values can be assigned!
+
+            if(siblingId->gs == g_RNUM) {
+                fprintf(fp, "\tpush rbp\n");
+                fprintf(fp, "\tmov rdi, outputFloat\n");
+                fprintf(fp, "\tmov rsi, __float64__(%s)\n", siblingId->tkinfo->lexeme);
+                // printf expects double but rsi has float. Therefore, output is 0.000
+                // Need to find a way around this using fld instr but be careful with stack.
+                fprintf(fp, "\tcall printf\n");
+                fprintf(fp, "\tpop rbp\n");
+                return;
+            }
+
+
+
             varType idVarType = siblingId->stNode->info.var.vtype;
 
             if(idVarType.vaType == VARIABLE) {
@@ -297,7 +336,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\tpush rbp\n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    if(1) // Check value of id here.
+                    if(1) // Check value of id here.(code needs to be generated to check at runtime!)
                         fprintf(fp, "\tmov rdi, outputBooleanTrue\n");
                     else
                         fprintf(fp, "\tmov rdi, outputBooleanFalse\n");
@@ -324,7 +363,11 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+        case g_conditionalStmt:{
 
+        }
+
+            return;
         default:
             printf("Default : %s \n", inverseMappingTable[gs]);
     }

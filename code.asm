@@ -38,3 +38,26 @@ main:
 	mov rsi, [floatb]
 	call printf
 	pop rbp
+	push rbp
+	mov rdi, msgBoolean
+	call printf
+	mov rdi, inputBoolean
+	call scanf
+	pop rbp
+	push rbp
+	mov rdi, outputBooleanTrue
+	call printf
+	pop rbp
+	push rbp
+	mov rdi, outputFloat
+	mov rsi, __float64__(1.3)
+	call printf
+	pop rbp
+	push rbp
+	mov rdi, outputBooleanTrue
+	call printf
+	pop rbp
+	push rbp
+	mov rdi, outputBooleanFalse
+	call printf
+	pop rbp

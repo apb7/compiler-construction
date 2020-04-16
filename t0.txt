@@ -1,0 +1,14 @@
+declare module compute;
+<<<driver program>>>
+start
+    declare a,b,c:integer;
+    switch(b)
+        start
+            case 1 : a := 4;
+                        break;
+            case 2 :b:=2;
+                        break;
+            default: c:=6;
+                     break;
+        end
+end

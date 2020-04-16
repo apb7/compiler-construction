@@ -12,10 +12,9 @@ void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, int
     fprintf(fp, "%-6d%-20s%-25s", sno, stNode->lexeme,funcName);
     char scl[30];
     sprintf(scl,"[%d,%d]",startNode->start_line_no,startNode->end_line_no);
-    if(stNode->info.var.vtype.vaType == VARIABLE || stNode->info.var.vtype.vaType == STAT_ARR)
-        fprintf(fp,"%-15s%-8d",scl,stNode->info.var.vtype.width);
-    else
-        fprintf(fp,"%-15s%-8s",scl,"---");
+    // earlier width was printed only for VARIABLE and STAT_ARR, now we print for all
+    fprintf(fp,"%-15s%-8d",scl,stNode->info.var.vtype.width);
+
     char *va, *sd, *ty;
     if(stNode->info.var.vtype.vaType == VARIABLE){
         va = "No";
@@ -62,10 +61,9 @@ void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, int
                 sprintf(rng+strlen(rng),"%s]","NULL");
             break;
     }
-    if(stNode->info.var.vtype.vaType == VARIABLE || stNode->info.var.vtype.vaType == STAT_ARR)
-        fprintf(fp,"%-20s%-10s%-7d%-7d\n",rng,ty,stNode->info.var.offset,level);
-    else
-        fprintf(fp,"%-20s%-10s%-7s%-7d\n",rng,ty,"---",level);
+    // earlier offset was printed only for VARIABLE and STAT_ARR, now we print for all
+    fprintf(fp,"%-20s%-10s%-7d%-7d\n",rng,ty,stNode->info.var.offset,level);
+
 }
 
 void printSymbolTable(symbolTable* st, FILE *fp){

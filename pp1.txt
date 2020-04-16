@@ -1,0 +1,79 @@
+################################# SYMBOL TABLE #################################
+
+################################# FUNCTION TABLE #################################
+
+SNO Func-Name           Status Line  
+1   var_demo_array      2      5     
+2   f1                  2      34    
+
+################################# MODULE 'var_demo_array' #################################
+
+################################# I/O VARS #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    x                    Variable   INTEGER    ----                      ----                      6     0     
+2    m                    Array      INTEGER    2                         20                        6     2     
+3    p                    Variable   REAL       ----                      ----                      6     7     
+4    z1                   Array      REAL       NULL                      NULL                      6     11    
+5    n                    Variable   INTEGER    ----                      ----                      7     16    
+6    k                    Variable   BOOLEAN    ----                      ----                      7     18    
+
+################################# Level 0 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    a                    Variable   INTEGER    ----                      ----                      9     19    
+2    b                    Variable   INTEGER    ----                      ----                      9     21    
+3    h                    Variable   INTEGER    ----                      ----                      9     23    
+4    p                    Array      INTEGER    2                         20                        11    25    
+5    z2                   Array      INTEGER    a                         b                         28    -1    
+6    z3                   Array      INTEGER    a                         b                         28    -1    
+7    x1                   Variable   REAL       ----                      ----                      29    107   
+
+################################# Level 1 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    b                    Array      INTEGER    2                         20                        20    68    
+2    p                    Variable   INTEGER    ----                      ----                      19    64    
+3    u                    Variable   INTEGER    ----                      ----                      19    66    
+
+################################# MODULE 'f1' #################################
+
+################################# I/O VARS #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    a                    Array      INTEGER    NULL                      NULL                      35    0     
+2    b                    Array      INTEGER    10                        30                        35    5     
+3    c                    Variable   REAL       ----                      ----                      35    10    
+4    m                    Variable   BOOLEAN    ----                      ----                      36    14    
+5    n                    Variable   INTEGER    ----                      ----                      36    15    
+
+################################# Level 0 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    k                    Variable   INTEGER    ----                      ----                      39    29    
+2    p                    Variable   REAL       ----                      ----                      38    25    
+3    x                    Variable   REAL       ----                      ----                      38    17    
+4    y                    Variable   REAL       ----                      ----                      38    21    
+5    A                    Array      INTEGER    4                         10                        42    31    
+6    B                    Array      INTEGER    4                         10                        42    46    
+7    C                    Array      INTEGER    10                        30                        44    104   
+8    D                    Array      INTEGER    10                        30                        44    61    
+9    G                    Array      REAL       NULL                      NULL                      77    -1    
+
+################################# Level 1 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    u                    Variable   REAL       ----                      ----                      51    147   
+2    v                    Variable   REAL       ----                      ----                      51    151   
+
+################################# Level 2 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    A                    Variable   REAL       ----                      ----                      56    155   
+2    B                    Array      INTEGER    10                        30                        58    161   
+3    E                    Array      INTEGER    4                         10                        59    204   
+4    F                    Array      BOOLEAN    NULL                      NULL                      66    -1    
+5    Q                    Variable   INTEGER    ----                      ----                      57    159   
+
+##################################### ~ ** ~ #####################################
+
