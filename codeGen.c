@@ -216,17 +216,19 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
 
             // TODO: see how floating pt values can be assigned!
-            /*
+
             if(siblingId->gs == g_RNUM) {
                 fprintf(fp, "\tpush rbp\n");
                 fprintf(fp, "\tmov rdi, outputFloat\n");
-                fprintf(fp, "\tmov rsi, %f\n", siblingId->tkinfo->value.rnum);
+                fprintf(fp, "\tmov rsi, __float64__(%s)\n", siblingId->tkinfo->lexeme);
+                // printf expects double but rsi has float. Therefore, output is 0.000
+                // Need to find a way around this using fld instr but be careful with stack.
                 fprintf(fp, "\tcall printf\n");
                 fprintf(fp, "\tpop rbp\n");
                 return;
             }
 
-            */
+
 
             varType idVarType = siblingId->stNode->info.var.vtype;
 

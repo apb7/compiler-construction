@@ -49,8 +49,8 @@ main:
 	call printf
 	pop rbp
 	push rbp
-	mov rdi, outputInt
-	mov rsi, 1
+	mov rdi, outputFloat
+	mov rsi, __float64__(1.3)
 	call printf
 	pop rbp
 	push rbp
