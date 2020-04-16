@@ -1,81 +1,79 @@
+################################# SYMBOL TABLE #################################
 
+################################# FUNCTION TABLE #################################
 
-####################################################################### SYMBOL TABLE #######################################################################
+SNO Func-Name           Status Line  
+1   var_demo_array      2      5     
+2   f1                  2      34    
 
-Module 'var_demo_array', slot 22
-   [
-       Module status: DEFINED, line 5
-       Input Parameters List:
-       [
-          [ Name: 'x', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
-          [ Name: 'm', Line No.: 6, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [2..20], width: 39 ], offset: 2, isAssigned: false, isLoopVar: false ],
-          [ Name: 'p', Line No.: 6, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 41, isAssigned: false, isLoopVar: false ],
-          [ Name: 'z1', Line No.: 6, Type: [ baseType: real, vaType: DYN_ARR, bounds: [NULL..NULL], width: 4 ], offset: 45, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ]
-       ]
+################################# MODULE 'var_demo_array' #################################
 
-       Output Parameters List:
-       [
-          [ Name: 'n', Line No.: 7, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 49, isAssigned: true, isLoopVar: false ],
-          [ Name: 'k', Line No.: 7, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 51, isAssigned: true, isLoopVar: false ]
-       ]
-   ]
-   Scope Hierarchy:
-      --- LEVEL 1 ---
-      [ Name: 'a', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 52, isAssigned: false, isLoopVar: false ]
-      [ Name: 'b', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 54, isAssigned: false, isLoopVar: false ]
-      [ Name: 'h', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 56, isAssigned: false, isLoopVar: false ]
-      [ Name: 'p', Line No.: 11, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [2..20], width: 39 ], offset: 58, isAssigned: false, isLoopVar: false ]
-      [ Name: 'z2', Line No.: 28, Type: [ baseType: integer, vaType: DYN_ARR, bounds: [a..b], width: 2 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: [ Name: 'a', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 52, isAssigned: false, isLoopVar: false ], Right Bound: [ Name: 'b', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 54, isAssigned: false, isLoopVar: false ] ] ]
-      [ Name: 'z3', Line No.: 28, Type: [ baseType: integer, vaType: DYN_ARR, bounds: [a..b], width: 2 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: [ Name: 'a', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 52, isAssigned: false, isLoopVar: false ], Right Bound: [ Name: 'b', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 54, isAssigned: false, isLoopVar: false ] ] ]
-      [ Name: 'x1', Line No.: 29, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 140, isAssigned: false, isLoopVar: false ]
-           --- LEVEL 2 ---
-           [ Name: 'b', Line No.: 20, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [2..20], width: 39 ], offset: 101, isAssigned: false, isLoopVar: false ]
-           [ Name: 'p', Line No.: 19, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 97, isAssigned: false, isLoopVar: false ]
-           [ Name: 'u', Line No.: 19, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 99, isAssigned: false, isLoopVar: false ]
+################################# I/O VARS #################################
 
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    x                    Variable   INTEGER    ----                      ----                      6     0     
+2    m                    Array      INTEGER    2                         20                        6     2     
+3    p                    Variable   REAL       ----                      ----                      6     7     
+4    z1                   Array      REAL       NULL                      NULL                      6     11    
+5    n                    Variable   INTEGER    ----                      ----                      7     16    
+6    k                    Variable   BOOLEAN    ----                      ----                      7     18    
 
+################################# Level 0 #################################
 
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    a                    Variable   INTEGER    ----                      ----                      9     19    
+2    b                    Variable   INTEGER    ----                      ----                      9     21    
+3    h                    Variable   INTEGER    ----                      ----                      9     23    
+4    p                    Array      INTEGER    2                         20                        11    25    
+5    z2                   Array      INTEGER    a                         b                         28    -1    
+6    z3                   Array      INTEGER    a                         b                         28    -1    
+7    x1                   Variable   REAL       ----                      ----                      29    107   
 
-Module 'f1', slot 72
-   [
-       Module status: DEFINED, line 34
-       Input Parameters List:
-       [
-          [ Name: 'a', Line No.: 35, Type: [ baseType: integer, vaType: DYN_ARR, bounds: [NULL..NULL], width: 2 ], offset: 0, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ],
-          [ Name: 'b', Line No.: 35, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 2, isAssigned: false, isLoopVar: false ],
-          [ Name: 'c', Line No.: 35, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 45, isAssigned: false, isLoopVar: false ]
-       ]
+################################# Level 1 #################################
 
-       Output Parameters List:
-       [
-          [ Name: 'm', Line No.: 36, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 49, isAssigned: true, isLoopVar: false ],
-          [ Name: 'n', Line No.: 36, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 50, isAssigned: true, isLoopVar: false ]
-       ]
-   ]
-   Scope Hierarchy:
-      --- LEVEL 1 ---
-      [ Name: 'k', Line No.: 39, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 64, isAssigned: false, isLoopVar: false ]
-      [ Name: 'p', Line No.: 38, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 60, isAssigned: false, isLoopVar: false ]
-      [ Name: 'x', Line No.: 38, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 52, isAssigned: false, isLoopVar: false ]
-      [ Name: 'y', Line No.: 38, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 56, isAssigned: false, isLoopVar: false ]
-      [ Name: 'A', Line No.: 42, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 66, isAssigned: false, isLoopVar: false ]
-      [ Name: 'B', Line No.: 42, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 81, isAssigned: false, isLoopVar: false ]
-      [ Name: 'C', Line No.: 44, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 139, isAssigned: false, isLoopVar: false ]
-      [ Name: 'D', Line No.: 44, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 96, isAssigned: false, isLoopVar: false ]
-      [ Name: 'G', Line No.: 77, Type: [ baseType: real, vaType: DYN_ARR, bounds: [NULL..NULL], width: 4 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ]
-           --- LEVEL 2 ---
-           [ Name: 'u', Line No.: 51, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 182, isAssigned: false, isLoopVar: false ]
-           [ Name: 'v', Line No.: 51, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 186, isAssigned: false, isLoopVar: false ]
-                --- LEVEL 3 ---
-                [ Name: 'A', Line No.: 56, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 190, isAssigned: false, isLoopVar: false ]
-                [ Name: 'B', Line No.: 58, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 196, isAssigned: false, isLoopVar: false ]
-                [ Name: 'E', Line No.: 59, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 239, isAssigned: false, isLoopVar: false ]
-                [ Name: 'F', Line No.: 66, Type: [ baseType: boolean, vaType: DYN_ARR, bounds: [NULL..NULL], width: 1 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ]
-                [ Name: 'Q', Line No.: 57, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 194, isAssigned: false, isLoopVar: false ]
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    b                    Array      INTEGER    2                         20                        20    68    
+2    p                    Variable   INTEGER    ----                      ----                      19    64    
+3    u                    Variable   INTEGER    ----                      ----                      19    66    
 
+################################# MODULE 'f1' #################################
 
+################################# I/O VARS #################################
 
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    a                    Array      INTEGER    NULL                      NULL                      35    0     
+2    b                    Array      INTEGER    10                        30                        35    5     
+3    c                    Variable   REAL       ----                      ----                      35    10    
+4    m                    Variable   BOOLEAN    ----                      ----                      36    14    
+5    n                    Variable   INTEGER    ----                      ----                      36    15    
 
+################################# Level 0 #################################
 
-########################################################################## ~ ** ~ ##########################################################################
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    k                    Variable   INTEGER    ----                      ----                      39    29    
+2    p                    Variable   REAL       ----                      ----                      38    25    
+3    x                    Variable   REAL       ----                      ----                      38    17    
+4    y                    Variable   REAL       ----                      ----                      38    21    
+5    A                    Array      INTEGER    4                         10                        42    31    
+6    B                    Array      INTEGER    4                         10                        42    46    
+7    C                    Array      INTEGER    10                        30                        44    104   
+8    D                    Array      INTEGER    10                        30                        44    61    
+9    G                    Array      REAL       NULL                      NULL                      77    -1    
+
+################################# Level 1 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    u                    Variable   REAL       ----                      ----                      51    147   
+2    v                    Variable   REAL       ----                      ----                      51    151   
+
+################################# Level 2 #################################
+
+SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
+1    A                    Variable   REAL       ----                      ----                      56    155   
+2    B                    Array      INTEGER    10                        30                        58    161   
+3    E                    Array      INTEGER    4                         10                        59    204   
+4    F                    Array      BOOLEAN    NULL                      NULL                      66    -1    
+5    Q                    Variable   INTEGER    ----                      ----                      57    159   
+
+##################################### ~ ** ~ #####################################
 

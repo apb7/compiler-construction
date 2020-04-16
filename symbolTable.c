@@ -478,10 +478,10 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                     default:
                         fprintf(stderr, "getVType: Unexpected ASTNode found representing left bound of array.\n");
                 }
-//                if(typeOrDataTypeNode->parent->gs == g_input_plist){
-//                    // if we were dealing with the input list, then array width (static or dynamic) is 1 (base address) + 2*sizeof(int)
-//                    vt.width = 1 + 2*SIZE_INTEGER;
-//                }
+                if(typeOrDataTypeNode->parent->gs == g_input_plist){
+                    // if we were dealing with the input list, then array width (static or dynamic) is 1 (base address) + 2*sizeof(int)
+                    vt.width = 1 + 2*SIZE_INTEGER;
+                }
             }
             break;
         }
