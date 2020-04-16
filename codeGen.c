@@ -19,6 +19,8 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 //EXPERIMENTAL CODE _ IGNORE FOR NOW _ STARTS
 
+char *baseRegister[2] = {"RBP", "RSI"};
+
 char *expreg[3] = {"AX","BX","CX"};
 char *expscale = "word";
 
@@ -121,7 +123,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_program:
         {
             fprintf(fp, "section .bss \n");
-            fprintf(fp, "\t inta: resb 2 \n");
+            fprintf(fp, "\t inta: resb 4 \n");
             fprintf(fp, "\t floatb: resb 8 \n");
             fprintf(fp, "\t boolc: resb 2 \n");
 
@@ -136,7 +138,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t inputBoolean: db \"%%hd\", 0 \n");
 
             fprintf(fp,"\t msgInt: db \"Input: Enter an integer value:\", 10, 0 \n");
-            fprintf(fp,"\t inputInt: db \"%%hd\", 0 \n");
+            fprintf(fp,"\t inputInt: db \"%%d\", 0 \n");
 
             fprintf(fp,"\t msgFloat: db \"Input: Enter a float value:\", 10, 0 \n");
             fprintf(fp,"\t inputFloat: db \"%%lf\",0 \n");
@@ -144,7 +146,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t outputBooleanTrue: db \"Output: true\", 10, 0, \n");
             fprintf(fp,"\t outputBooleanFalse: db \"Output: false\", 10, 0, \n");
 
-            fprintf(fp,"\t outputInt: db \"Output: %%hd\", 10, 0, \n");
+            fprintf(fp,"\t outputInt: db \"Output: %%d\", 10, 0, \n");
 
             fprintf(fp,"\t outputFloat: db \"Output: %%lf\", 10, 0, \n");
 
@@ -156,7 +158,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             ASTNode* ASTChild = root->child;
 
             // Might need to change its position.
-            fprintf(fp, " \nmain: \n");
             while(ASTChild) {
                 generateCode(ASTChild, symT, fp);
                 ASTChild = ASTChild->next;
@@ -184,6 +185,18 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         }
 
         case g_DRIVER:
+        {
+            fprintf(fp, " \nmain: \n");
+            fprintf(fp, "\t mov rbp, rsp \n");
+            fprintf(fp, "\t mov rdx, rsp \n");
+            fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+
+            generateCode(root->child, symT, fp);
+
+            fprintf(fp, "\t mov rsp, rbp \n");
+
+            return;
+        }
         case g_moduleDef:
         case g_START:
         {
@@ -217,6 +230,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
 
             varType idVarType = siblingId->stNode->info.var.vtype;
+            symVarInfo idVar = siblingId->stNode->info.var;
 
             if(idVarType.vaType == VARIABLE) {
                 // More registers need to me pushed to preserve
@@ -229,7 +243,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, msgBoolean  \n ");
                     fprintf(fp, "\t call printf  \n ");
                     fprintf(fp, "\t mov rdi, inputBoolean \n");
-                    fprintf(fp, "\t mov rsi, %s \n", "boolc"); // To be fixed!
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]);
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t call scanf \n");
                     // Scanned int goes to rax or rdx:rax.
                     // Scanned float goes to xmm0 or xmm1:xmm0.
@@ -239,7 +254,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, msgInt \n");
                     fprintf(fp, "\t call printf \n");
                     fprintf(fp, "\t mov rdi, inputInt \n");
-                    fprintf(fp, "\t mov rsi, inta \n"); // To be fixed!
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]);
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t call scanf \n");
 
                     // Check the value being scanned
@@ -254,7 +270,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t call printf \n");
 
                     fprintf(fp, "\t mov rdi, inputFloat \n");
-                    fprintf(fp, "\t mov rsi, floatb \n"); // To be fixed!
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]);
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t call scanf \n");
 
                     // Check the value being scanned
@@ -329,9 +346,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 return;
             }
 
-
-
             varType idVarType = siblingId->stNode->info.var.vtype;
+            symVarInfo idVar = siblingId->stNode->info.var;
 
             if(idVarType.vaType == VARIABLE) {
                 // More registers need to me pushed to preserve
@@ -342,7 +358,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t push rbp \n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    fprintf(fp, "\t cmp word[%s], 0 \n", "boolc");
+                    fprintf(fp, "\t cmp word[%s - %d], 0 \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t jz boolPrintFalse%d \n", siblingId->tkinfo->lno);
 
                     fprintf(fp, "boolPrintTrue%d: \n", siblingId->tkinfo->lno);
@@ -358,12 +374,12 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 else if(idVarType.baseType == g_INTEGER) {
 
                     fprintf(fp, "\t mov rdi, outputInt \n");
-                    fprintf(fp, "\t mov rsi, [inta] \n");
+                    fprintf(fp, "\t mov rsi, [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t call printf \n");
                 }
                 else if(idVarType.baseType == g_REAL) {
                     fprintf(fp, "\t mov rdi, outputFloat \n");
-                    fprintf(fp, "\t mov rsi, [floatb] \n");
+                    fprintf(fp, "\t mov rsi, [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t call printf \n");
                 }
 
