@@ -1,4 +1,5 @@
 // nasm -felf64 code.asm && gcc code.o && ./a.out
+// nasm -felf64 code.asm && gcc -no-pie code.o && ./a.out
 
 #include <stdlib.h>
 #include <stdio.h>
