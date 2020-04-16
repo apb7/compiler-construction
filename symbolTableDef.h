@@ -93,6 +93,7 @@ struct symFuncInfo{
     paramOutNode *outPListHead;
     symbolTable *st;
     ASTNodeListNode *pendingCallListHead;
+    int arSize;
 };
 
 
@@ -132,6 +133,7 @@ struct symbolTable{
     symbolTable *next;  //parallel scope tables
     ASTNode *startNode; //start node from AST
     char funcName[30];
+    int scopeSize;
 };
 
 

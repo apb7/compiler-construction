@@ -100,6 +100,9 @@ void initSymbolTable(symbolTable *st){
     (st->headChild) = NULL;
     (st->lastChild) = NULL;
     (st->next) = NULL;
+    (st->startNode) = NULL;
+    (st->scopeSize) = 0;
+    strcpy(st->funcName,"<EMPTY>");
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         (st->tb)[i] = NULL;
     }

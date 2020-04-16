@@ -1071,11 +1071,12 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                         fv.var.vtype = vtype;
                         fv.var.isLoopVar=false;
                         //TODO: check Offset Calculation
-                        if(vtype.vaType == VARIABLE || vtype.vaType == STAT_ARR){
-                            fv.var.offset = nextGlobalOffset;
-                            nextGlobalOffset += fv.var.vtype.width;
-                        }
+//                        if(vtype.vaType == VARIABLE || vtype.vaType == STAT_ARR){
+                        fv.var.offset = nextGlobalOffset;
+                        nextGlobalOffset += fv.var.vtype.width;
+//                        }
                         stAdd(idNode->tkinfo->lexeme,fv,currST);
+                        currST->scopeSize += vtype.width;
                         //adding symTableNode pointer in ASTNode
                         idNode->stNode = stSearchCurrent(idNode->tkinfo->lexeme,currST);
                     }
@@ -1355,6 +1356,7 @@ void handleOtherModule(ASTNode *moduleNode){
     //adding symTableNode pointer in ASTNode
     idNode->stNode = stSearchCurrent(idNode->tkinfo->lexeme,&funcTable);
     handlePendingCalls(finfo);
+    nextGlobalOffset = 0;   //resetting the offset for local variables as instructed
     handleModuleDef(moduleDefNode->child,finfo);
 }
 
@@ -1376,6 +1378,42 @@ void handleUndefinedModules(){
 
 }
 
+int computeARSize(symbolTable *st, bool isFuncTable){
+    if(st == NULL)
+        return 0;
+    if(isFuncTable){
+        symTableNode *currSTN;
+        for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
+            currSTN = (st->tb)[i];
+            while(currSTN != NULL){
+                int *arSize = &(currSTN->info.func.arSize);
+                *arSize = 0;
+                symTableNode *iohead = currSTN->info.func.inpPListHead;
+                while(iohead != NULL){
+                    *arSize += iohead->info.var.vtype.width;
+                    iohead = iohead->next;
+                }
+                iohead = currSTN->info.func.outPListHead;
+                while(iohead != NULL){
+                    *arSize += iohead->info.var.vtype.width;
+                    iohead = iohead->next;
+                }
+                *arSize += computeARSize(currSTN->info.func.st,false);
+                currSTN = currSTN->next;
+            }
+        }
+        return 0;
+    }
+    else{
+        symbolTable *curr = st->headChild;
+        while(curr != NULL){
+            st->scopeSize += computeARSize(curr,false);
+            curr = curr->next;
+        }
+        return st->scopeSize;
+    }
+}
+
 void buildSymbolTable(ASTNode *root){
     if(root == NULL){
         printf("NULL pointer provided to buildSymbolTable(..).\n");
@@ -1392,6 +1430,7 @@ void buildSymbolTable(ASTNode *root){
                 ptr = ptr->next;
             }
             handleUndefinedModules();
+            computeARSize(&funcTable,true);
         }
             break;
         case g_moduleDeclarations:

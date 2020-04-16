@@ -78,7 +78,7 @@ void printSymbolTable(symbolTable* st, FILE *fp){
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         currSTN = (st->tb)[i];
         while(currSTN != NULL){
-
+            fprintf(fp,"[DEBUG] ACTIVATION RECORD SIZE = %d\n",currSTN->info.func.arSize);
             sno = 1;
             symTableNode *iohead = currSTN->info.func.inpPListHead;
             while(iohead != NULL){

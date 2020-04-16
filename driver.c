@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
                 printSymbolTable(&funcTable,fpout);
                 fclose(fpout);
                 FILE *fptest = fopen("test.asm","w");
-                genExpr(ASTroot,fptest,true,0,g_INTEGER);
+                //genExpr(ASTroot,fptest,true,0,g_INTEGER);
                 fclose(fptest);
             }
             break;
