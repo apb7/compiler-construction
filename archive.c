@@ -128,9 +128,9 @@ void printCurrSymTable1(symbolTable *st,int level, FILE *fp){
 #define FUNC_ALIGN 3 // how farther from the left to align the [ of the function.
 #define LEVEL_STRING 20 // just to print "--- LEVEL %d ---"
 #define TYPE_STRING_WO_BOUND_INFO 150 // type string without bound info
-#define SYM_NODE_FOR_ONE_BOUND 180 // for the symbol table node of one bound (this ID will be INTEGER VARIABLE type) of dynamic array
+#define SYM_NODE_FOR_ONE_BOUND 200 // for the symbol table node of one bound (this ID will be INTEGER VARIABLE type) of dynamic array
 #define BOUND_STRING SYM_NODE_FOR_ONE_BOUND*2 + 50 // for dynamic array's bounds' info
-#define GENERAL_SYM_NODE TYPE_STRING_WO_BOUND_INFO +  BOUND_STRING + 100 // for any general symbol table node (possibly a dynamic array requiring both bounds as VARIABLE INTEGER symbol table nodes i.e. the largest possible)
+#define GENERAL_SYM_NODE TYPE_STRING_WO_BOUND_INFO +  BOUND_STRING + 120 // for any general symbol table node (possibly a dynamic array requiring both bounds as VARIABLE INTEGER symbol table nodes i.e. the largest possible)
 
 void printSymbolTable2(symbolTable* st, FILE *fp){
     // prints the whole SymbolTable Structure by calling printCurrSymTable2
@@ -225,14 +225,14 @@ void getSymNode(symTableNode *node, char *pstr){
     char boundStr[BOUND_STRING];
     setSymNodeTypeStr(node->info.var.vtype, typeStr, boundStr);
     if(node->info.var.vtype.vaType == VARIABLE || node->info.var.vtype.vaType == STAT_ARR) {
-        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s ]",
+        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s, isIOlistVar: %s ]",
                 node->lexeme, node->info.var.lno, typeStr, node->info.var.offset,
-                node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false");
+                node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false");
     }
     else{
-        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s%s ]",
+        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s, isIOlistVar: %s%s ]",
                 node->lexeme, node->info.var.lno, typeStr, node->info.var.offset,
-                node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false", boundStr);
+                node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false", boundStr);
     }
 }
 
@@ -253,7 +253,7 @@ void printParamList(symTableNode *head, int baseAlign, FILE *fp){
 }
 
 void printSymNode(symTableNode *stn, int align, FILE *fp){
-    char pstr[500];
+    char pstr[GENERAL_SYM_NODE];
     getSymNode(stn, pstr);
     printAtAlignment(pstr, align, fp);
     fprintf(fp,"\n");
@@ -293,13 +293,13 @@ void printFuncVar(union funcVar *fvinfo, int baseAlign, FILE *fp){
 
     switch(fvinfo->func.status){
         case F_DECLARED:
-            fprintf(fp,"DECLARED, line %d\n",fvinfo->func.lno);// line 1
+            fprintf(fp,"DECLARED, line %d. AR Size: %d\n",fvinfo->func.lno, fvinfo->func.arSize);// line 1
             break;
         case F_DECLARATION_VALID:
-            fprintf(fp,"DECLARATION VALID, line %d\n",fvinfo->func.lno);// line 1
+            fprintf(fp,"DECLARATION VALID, line %d. AR Size: %d\n",fvinfo->func.lno, fvinfo->func.arSize);// line 1
             break;
         case F_DEFINED:
-            fprintf(fp,"DEFINED, line %d\n",fvinfo->func.lno);// line 1
+            fprintf(fp,"DEFINED, line %d. AR Size: %d\n",fvinfo->func.lno, fvinfo->func.arSize);// line 1
             break;
         default: break;
     }
