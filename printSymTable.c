@@ -98,6 +98,7 @@ void printSymbolTable(symbolTable* st, FILE *fp){
         }
     }
     fprintf(fp,"########################################################################## ~ ** ~ ##########################################################################\n\n");
+    fprintf(fp,"NOTE: The variables which are undeclared and used as array indices are stated as NULL under RANGE header.\n");
 }
 
 void printCurrSymTable(symbolTable *st, int level, FILE *fp){
