@@ -27,14 +27,14 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
         if(astNode == NULL)
             return;
         else if(astNode->gs != g_assignmentStmt){
-            //            printf("%d\n",astNode->gs);
+            //            printf("%d \n",astNode->gs);
             genExpr(astNode->next,fp,true,lr,expType);
             genExpr(astNode->child,fp,true,lr,expType);
             return;
         }
         //assignmentStatement Node will be passed
         ASTNode *idNode = astNode->child->child->child;
-        printf("%s\n",idNode->tkinfo->lexeme);
+        printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
             //array element and static index
             expType = idNode->stNode->info.var.vtype.baseType;
@@ -44,7 +44,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
 
             }
             else{
-                fprintf(fp,"\tMOV %s[x_%x+%d], %s\n",expscale,idNode->stNode,idNode->next->tkinfo->value.num,expreg[1]);
+                fprintf(fp,"\t MOV %s[x_%x+%d], %s \n",expscale,idNode->stNode,idNode->next->tkinfo->value.num,expreg[1]);
                 return;
             }
         }
@@ -56,7 +56,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
             if(idNode->stNode->info.var.vtype.vaType == VARIABLE){
                 //variable
                 genExpr(idNode->next,fp,false,1,expType);
-                fprintf(fp,"\tMOV [x_%x], %s\n",idNode->stNode,expreg[1]);
+                fprintf(fp,"\t MOV [x_%x], %s \n",idNode->stNode,expreg[1]);
                 return;
             }
             else{
@@ -69,7 +69,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
             astNode = astNode->child;
             switch(astNode->gs){
                 case g_NUM:
-                    fprintf(fp,"\tMOV %s, %d\n",expreg[lr],astNode->tkinfo->value.num);
+                    fprintf(fp,"\t MOV %s, %d \n",expreg[lr],astNode->tkinfo->value.num);
                     break;
                 case g_RNUM:
                     break;
@@ -81,16 +81,16 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
                     else{
                         if(astNode->stNode->info.var.vtype.vaType != VARIABLE){
                             if(astNode->next->gs == g_ID){
-                                fprintf(fp,"\tMOV %s, x_%x\n",expreg[2],astNode->next->stNode);
+                                fprintf(fp,"\t MOV %s, x_%x \n",expreg[2],astNode->next->stNode);
                             }
                             else{
                                 //g_num
-                                fprintf(fp,"\tMOV %s, %d\n",expreg[2],astNode->next->tkinfo->value.num);
+                                fprintf(fp,"\t MOV %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
                             }
                         }
                         else
-                            fprintf(fp,"\tMOV %s,0\n",expreg[2]);
-                        fprintf(fp,"\tMOV %s, %s[x_%x + %s]\n",expreg[lr],expscale,astNode->stNode,expreg[2]);
+                            fprintf(fp,"\t MOV %s,0 \n",expreg[2]);
+                        fprintf(fp,"\t MOV %s, %s[x_%x + %s] \n",expreg[lr],expscale,astNode->stNode,expreg[2]);
                     }
                 }
                 break;
@@ -102,7 +102,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
             genExpr(astNode->child->next,fp,false,1,expType);
             switch(astNode->gs){
                 case g_PLUS:
-                    fprintf(fp,"\tADD %s, %s\n",expreg[lr],expreg[lr^1]);
+                    fprintf(fp,"\t ADD %s, %s \n",expreg[lr],expreg[lr^1]);
                     break;
             }
             return;
@@ -116,47 +116,47 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     if(root == NULL) return;
 
     gSymbol gs = root->gs;
-    printf("%s \n", inverseMappingTable[gs]);
+    printf("%s  \n", inverseMappingTable[gs]);
     switch(gs) {
         case g_program:
         {
-            fprintf(fp, "section .bss\n");
-            fprintf(fp, "\tinta: resb 2\n");
-            fprintf(fp, "\tfloatb: resb 8\n");
-            fprintf(fp, "\tboolc: resb 2\n");
+            fprintf(fp, "section .bss \n");
+            fprintf(fp, "\t inta: resb 2 \n");
+            fprintf(fp, "\t floatb: resb 8 \n");
+            fprintf(fp, "\t boolc: resb 2 \n");
 
-            fprintf(fp, "section .data\n");
+            fprintf(fp, "section .data \n");
 
             // To be removed
-            fprintf(fp, "\tsampleInt: db 5,0\n");
-            fprintf(fp, "\tsampleFloat: db -5.2,0\n");
+            fprintf(fp, "\t sampleInt: db 5,0 \n");
+            fprintf(fp, "\t sampleFloat: db -5.2,0 \n");
 
 
-            fprintf(fp,"\tmsgBoolean: db \"Input: Enter a boolean value:\", 10, 0\n");
-            fprintf(fp,"\tinputBoolean: db \"%%hd\", 0\n");
+            fprintf(fp,"\t msgBoolean: db \"Input: Enter a boolean value:\", 10, 0 \n");
+            fprintf(fp,"\t inputBoolean: db \"%%hd\", 0 \n");
 
-            fprintf(fp,"\tmsgInt: db \"Input: Enter an integer value:\", 10, 0\n");
-            fprintf(fp,"\tinputInt: db \"%%hd\", 0\n");
+            fprintf(fp,"\t msgInt: db \"Input: Enter an integer value:\", 10, 0 \n");
+            fprintf(fp,"\t inputInt: db \"%%hd\", 0 \n");
 
-            fprintf(fp,"\tmsgFloat: db \"Input: Enter a float value:\", 10, 0\n");
-            fprintf(fp,"\tinputFloat: db \"%%lf\",0\n");
+            fprintf(fp,"\t msgFloat: db \"Input: Enter a float value:\", 10, 0 \n");
+            fprintf(fp,"\t inputFloat: db \"%%lf\",0 \n");
 
-            fprintf(fp,"\toutputBooleanTrue: db \"Output: true\", 10, 0,\n");
-            fprintf(fp,"\toutputBooleanFalse: db \"Output: false\", 10, 0,\n");
+            fprintf(fp,"\t outputBooleanTrue: db \"Output: true\", 10, 0, \n");
+            fprintf(fp,"\t outputBooleanFalse: db \"Output: false\", 10, 0, \n");
 
-            fprintf(fp,"\toutputInt: db \"Output: %%hd\", 10, 0,\n");
+            fprintf(fp,"\t outputInt: db \"Output: %%hd\", 10, 0, \n");
 
-            fprintf(fp,"\toutputFloat: db \"Output: %%lf\", 10, 0,\n");
+            fprintf(fp,"\t outputFloat: db \"Output: %%lf\", 10, 0, \n");
 
-            fprintf(fp, "\nsection .text\n");
-            fprintf(fp, "\tglobal main\n");
-            fprintf(fp, "\textern scanf\n");
-            fprintf(fp, "\textern printf\n");
+            fprintf(fp, " \nsection .text \n");
+            fprintf(fp, "\t global main \n");
+            fprintf(fp, "\t extern scanf \n");
+            fprintf(fp, "\t extern printf \n");
 
             ASTNode* ASTChild = root->child;
 
             // Might need to change its position.
-            fprintf(fp, "\nmain:\n");
+            fprintf(fp, " \nmain: \n");
             while(ASTChild) {
                 generateCode(ASTChild, symT, fp);
                 ASTChild = ASTChild->next;
@@ -211,7 +211,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             // <ioStmt> -> GET_VALUE BO ID BC SEMICOL
 
             if(! siblingId->stNode) {
-                // printf("ERROR: Undeclared variable\n");
+                // printf("ERROR: Undeclared variable \n");
                 // Already being handled.
                 return;
             }
@@ -223,48 +223,48 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 // their values.
                 // BEWARE: Number of pushes here should be odd.
                 // push rbx
-                fprintf(fp, "\tpush rbp\n");
+                fprintf(fp, "\t push rbp \n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    fprintf(fp, "\tmov rdi, msgBoolean\n");
-                    fprintf(fp, "\tcall printf\n");
-                    fprintf(fp, "\tmov rdi, inputBoolean\n");
-                    fprintf(fp, "\tmov rsi, %s\n", "boolc"); // To be fixed!
-                    fprintf(fp, "\tcall scanf\n");
+                    fprintf(fp, "\t mov rdi, msgBoolean  \n ");
+                    fprintf(fp, "\t call printf  \n ");
+                    fprintf(fp, "\t mov rdi, inputBoolean \n");
+                    fprintf(fp, "\t mov rsi, %s \n", "boolc"); // To be fixed!
+                    fprintf(fp, "\t call scanf \n");
                     // Scanned int goes to rax or rdx:rax.
                     // Scanned float goes to xmm0 or xmm1:xmm0.
                     // Note by Hasan: doesn't work with regs
                 }
                 else if(idVarType.baseType == g_INTEGER) {
-                    fprintf(fp, "\tmov rdi, msgInt\n");
-                    fprintf(fp, "\tcall printf\n");
-                    fprintf(fp, "\tmov rdi, inputInt\n");
-                    fprintf(fp, "\tmov rsi, inta\n"); // To be fixed!
-                    fprintf(fp, "\tcall scanf\n");
+                    fprintf(fp, "\t mov rdi, msgInt \n");
+                    fprintf(fp, "\t call printf \n");
+                    fprintf(fp, "\t mov rdi, inputInt \n");
+                    fprintf(fp, "\t mov rsi, inta \n"); // To be fixed!
+                    fprintf(fp, "\t call scanf \n");
 
                     // Check the value being scanned
-                    // fprintf(fp, "\tmov rdi, outputInt\n");
-                    // fprintf(fp, "\tmov rsi, [inta]\n");
-                    // fprintf(fp, "\tcall printf\n");
+                    // fprintf(fp, "\t mov rdi, outputInt \n");
+                    // fprintf(fp, "\t mov rsi, [inta] \n");
+                    // fprintf(fp, "\t call printf \n");
 
 
                 }
                 else if(idVarType.baseType == g_REAL) {
-                    fprintf(fp, "\tmov rdi, msgFloat\n");
-                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "\t mov rdi, msgFloat \n");
+                    fprintf(fp, "\t call printf \n");
 
-                    fprintf(fp, "\tmov rdi, inputFloat\n");
-                    fprintf(fp, "\tmov rsi, floatb\n"); // To be fixed!
-                    fprintf(fp, "\tcall scanf\n");
+                    fprintf(fp, "\t mov rdi, inputFloat \n");
+                    fprintf(fp, "\t mov rsi, floatb \n"); // To be fixed!
+                    fprintf(fp, "\t call scanf \n");
 
                     // Check the value being scanned
-                    // fprintf(fp, "\tmov rdi, outputFloat\n");
-                    // fprintf(fp, "\tmov xmm0, [floatb]\n");
-                    // fprintf(fp, "\tcall printf\n");
+                    // fprintf(fp, "\t mov rdi, outputFloat \n");
+                    // fprintf(fp, "\t mov xmm0, [floatb] \n");
+                    // fprintf(fp, "\t call printf \n");
 
                 }
 
-                fprintf(fp, "\tpop rbp\n");
+                fprintf(fp, "\t pop rbp \n");
             }
             else /* Arrays */ {
 
@@ -288,44 +288,44 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
 
             if(sibling->gs == g_TRUE) {
-                fprintf(fp, "\tpush rbp\n");
-                fprintf(fp, "\tmov rdi, outputBooleanTrue\n");
-                fprintf(fp, "\tcall printf\n");
-                fprintf(fp, "\tpop rbp\n");
+                fprintf(fp, "\t push rbp \n");
+                fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
+                fprintf(fp, "\t call printf \n");
+                fprintf(fp, "\t pop rbp \n");
                 return;
             }
 
             if(sibling->gs == g_FALSE) {
-                fprintf(fp, "\tpush rbp\n");
-                fprintf(fp, "\tmov rdi, outputBooleanFalse\n");
-                fprintf(fp, "\tcall printf\n");
-                fprintf(fp, "\tpop rbp\n");
+                fprintf(fp, "\t push rbp \n");
+                fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
+                fprintf(fp, "\t call printf \n");
+                fprintf(fp, "\t pop rbp \n");
                 return;
             }
 
             ASTNode *siblingId = sibling->child;
 
             if(siblingId->gs == g_NUM) {
-                fprintf(fp, "\tpush rbp\n");
-                fprintf(fp, "\tmov rdi, outputInt\n");
-                fprintf(fp, "\tmov rsi, %d\n", siblingId->tkinfo->value.num);
-                fprintf(fp, "\tcall printf\n");
-                fprintf(fp, "\tpop rbp\n");
+                fprintf(fp, "\t push rbp \n");
+                fprintf(fp, "\t mov rdi, outputInt \n");
+                fprintf(fp, "\t mov rsi, %d \n", siblingId->tkinfo->value.num);
+                fprintf(fp, "\t call printf \n");
+                fprintf(fp, "\t pop rbp \n");
                 return;
             }
 
             // TODO: see how floating pt values can be assigned!
 
             if(siblingId->gs == g_RNUM) {
-                fprintf(fp, "\tpush rbp\n");
-                fprintf(fp, "\tmov rdi, outputFloat\n");
-                fprintf(fp, "\tmov rsi, __float64__(%s)\n", siblingId->tkinfo->lexeme);
-                fprintf(fp, "\tmovq xmm0, rsi \n");
-                fprintf(fp, "\tmov rax, 1 \n");
+                fprintf(fp, "\t push rbp \n");
+                fprintf(fp, "\t mov rdi, outputFloat \n");
+                fprintf(fp, "\t mov rsi, __float64__(%s) \n", siblingId->tkinfo->lexeme);
+                fprintf(fp, "\t movq xmm0, rsi  \n");
+                fprintf(fp, "\t mov rax, 1  \n");
                 // printf expects double but rsi has float. Therefore, output is 0.000
                 // Need to find a way around this using fld instr but be careful with stack.
-                fprintf(fp, "\tcall printf\n");
-                fprintf(fp, "\tpop rbp\n");
+                fprintf(fp, "\t call printf \n");
+                fprintf(fp, "\t pop rbp \n");
                 return;
             }
 
@@ -339,35 +339,35 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 // BEWARE: Number of pushes here should be odd.
                 // push rbx
 
-                fprintf(fp, "\tpush rbp\n");
+                fprintf(fp, "\t push rbp \n");
 
                 if(idVarType.baseType == g_BOOLEAN) {
-                    fprintf(fp, "\tcmp word[%s], 0 \n", "boolc");
-                    fprintf(fp, "\tjz boolPrintFalse%d \n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\t cmp word[%s], 0 \n", "boolc");
+                    fprintf(fp, "\t jz boolPrintFalse%d \n", siblingId->tkinfo->lno);
 
                     fprintf(fp, "boolPrintTrue%d: \n", siblingId->tkinfo->lno);
-                    fprintf(fp, "\tmov rdi, outputBooleanTrue \n");
-                    fprintf(fp, "\tjmp boolPrintEnd%d\n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
+                    fprintf(fp, "\t jmp boolPrintEnd%d \n", siblingId->tkinfo->lno);
 
                     fprintf(fp, "boolPrintFalse%d: \n", siblingId->tkinfo->lno);
-                    fprintf(fp, "\tmov rdi, outputBooleanFalse \n");
+                    fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
 
                     fprintf(fp, "boolPrintEnd%d: \n", siblingId->tkinfo->lno);
-                    fprintf(fp, "\tcall printf \n");
+                    fprintf(fp, "\t call printf \n");
                 }
                 else if(idVarType.baseType == g_INTEGER) {
 
-                    fprintf(fp, "\tmov rdi, outputInt\n");
-                    fprintf(fp, "\tmov rsi, [inta]\n");
-                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "\t mov rdi, outputInt \n");
+                    fprintf(fp, "\t mov rsi, [inta] \n");
+                    fprintf(fp, "\t call printf \n");
                 }
                 else if(idVarType.baseType == g_REAL) {
-                    fprintf(fp, "\tmov rdi, outputFloat\n");
-                    fprintf(fp, "\tmov rsi, [floatb]\n");
-                    fprintf(fp, "\tcall printf\n");
+                    fprintf(fp, "\t mov rdi, outputFloat \n");
+                    fprintf(fp, "\t mov rsi, [floatb] \n");
+                    fprintf(fp, "\t call printf \n");
                 }
 
-                fprintf(fp, "\tpop rbp\n");
+                fprintf(fp, "\t pop rbp \n");
             }
             else /* Arrays */ {
                 // Use whichId AST Node here.
