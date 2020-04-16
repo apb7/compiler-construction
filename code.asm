@@ -51,6 +51,8 @@ main:
 	push rbp
 	mov rdi, outputFloat
 	mov rsi, __float64__(1.3)
+	movq xmm0, rsi 
+	mov rax, 1 
 	call printf
 	pop rbp
 	push rbp

@@ -221,6 +221,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\tpush rbp\n");
                 fprintf(fp, "\tmov rdi, outputFloat\n");
                 fprintf(fp, "\tmov rsi, __float64__(%s)\n", siblingId->tkinfo->lexeme);
+                fprintf(fp, "\tmovq xmm0, rsi \n");
+                fprintf(fp, "\tmov rax, 1 \n");
                 // printf expects double but rsi has float. Therefore, output is 0.000
                 // Need to find a way around this using fld instr but be careful with stack.
                 fprintf(fp, "\tcall printf\n");
