@@ -16,6 +16,8 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 }
 
+//EXPERIMENTAL CODE _ IGNORE FOR NOW _ STARTS
+
 char *expreg[3] = {"AX","BX","CX"};
 char *expscale = "word";
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType){
@@ -106,6 +108,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType
     }
 }
 
+//EXPERIMENTAL CODE _ ENDS
 
 void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     if(root == NULL) return;
