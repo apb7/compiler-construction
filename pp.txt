@@ -2,46 +2,80 @@
 
 ####################################################################### SYMBOL TABLE #######################################################################
 
-SNO   VAR-NAME            SCOPE: FUNC-NAME         SCOPE: LINES   WIDTH   IS ARRAY? STAT/DYN   RANGE               TYPE      OFFSET LEVEL  
+Module 'var_demo_array', slot 22
+   [
+       Module status: DEFINED, line 5
+       Input Parameters List:
+       [
+          [ Name: 'x', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, isLoopVar: false ],
+          [ Name: 'm', Line No.: 6, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [2..20], width: 5 ], offset: 2, isAssigned: false, isLoopVar: false ],
+          [ Name: 'p', Line No.: 6, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 7, isAssigned: false, isLoopVar: false ],
+          [ Name: 'z1', Line No.: 6, Type: [ baseType: real, vaType: DYN_ARR, bounds: [NULL..NULL], width: 5 ], offset: 11, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ]
+       ]
 
-1     x                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   0      0      
-2     m                   var_demo_array           [8,31]         5       Yes       Static     [2,20]              INTEGER   2      0      
-3     p                   var_demo_array           [8,31]         4       No        ---        ---                 REAL      7      0      
-4     z1                  var_demo_array           [8,31]         5       Yes       Dynamic    [NULL,NULL]         REAL      11     0      
-5     n                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   16     0      
-6     k                   var_demo_array           [8,31]         1       No        ---        ---                 BOOLEAN   18     0      
-7     a                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   19     1      
-8     b                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   21     1      
-9     h                   var_demo_array           [8,31]         2       No        ---        ---                 INTEGER   23     1      
-10    p                   var_demo_array           [8,31]         39      Yes       Static     [2,20]              INTEGER   25     1      
-11    z2                  var_demo_array           [8,31]         1       Yes       Dynamic    [a,b]               INTEGER   -1     1      
-12    z3                  var_demo_array           [8,31]         1       Yes       Dynamic    [a,b]               INTEGER   -1     1      
-13    x1                  var_demo_array           [8,31]         4       No        ---        ---                 REAL      107    1      
-14    b                   var_demo_array           [18,24]        39      Yes       Static     [2,20]              INTEGER   68     2      
-15    p                   var_demo_array           [18,24]        2       No        ---        ---                 INTEGER   64     2      
-16    u                   var_demo_array           [18,24]        2       No        ---        ---                 INTEGER   66     2      
+       Output Parameters List:
+       [
+          [ Name: 'n', Line No.: 7, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 16, isAssigned: true, isLoopVar: false ],
+          [ Name: 'k', Line No.: 7, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 18, isAssigned: true, isLoopVar: false ]
+       ]
+   ]
+   Scope Hierarchy:
+      --- LEVEL 1 ---
+      [ Name: 'a', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 19, isAssigned: false, isLoopVar: false ]
+      [ Name: 'b', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 21, isAssigned: false, isLoopVar: false ]
+      [ Name: 'h', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 23, isAssigned: false, isLoopVar: false ]
+      [ Name: 'p', Line No.: 11, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [2..20], width: 39 ], offset: 25, isAssigned: false, isLoopVar: false ]
+      [ Name: 'z2', Line No.: 28, Type: [ baseType: integer, vaType: DYN_ARR, bounds: [a..b], width: 1 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: [ Name: 'a', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 19, isAssigned: false, isLoopVar: false ], Right Bound: [ Name: 'b', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 21, isAssigned: false, isLoopVar: false ] ] ]
+      [ Name: 'z3', Line No.: 28, Type: [ baseType: integer, vaType: DYN_ARR, bounds: [a..b], width: 1 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: [ Name: 'a', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 19, isAssigned: false, isLoopVar: false ], Right Bound: [ Name: 'b', Line No.: 9, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 21, isAssigned: false, isLoopVar: false ] ] ]
+      [ Name: 'x1', Line No.: 29, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 107, isAssigned: false, isLoopVar: false ]
+           --- LEVEL 2 ---
+           [ Name: 'b', Line No.: 20, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [2..20], width: 39 ], offset: 68, isAssigned: false, isLoopVar: false ]
+           [ Name: 'p', Line No.: 19, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 64, isAssigned: false, isLoopVar: false ]
+           [ Name: 'u', Line No.: 19, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 66, isAssigned: false, isLoopVar: false ]
 
-1     a                   f1                       [37,80]        5       Yes       Dynamic    [NULL,NULL]         INTEGER   0      0      
-2     b                   f1                       [37,80]        5       Yes       Static     [10,30]             INTEGER   5      0      
-3     c                   f1                       [37,80]        4       No        ---        ---                 REAL      10     0      
-4     m                   f1                       [37,80]        1       No        ---        ---                 BOOLEAN   14     0      
-5     n                   f1                       [37,80]        2       No        ---        ---                 INTEGER   15     0      
-6     k                   f1                       [37,80]        2       No        ---        ---                 INTEGER   29     1      
-7     p                   f1                       [37,80]        4       No        ---        ---                 REAL      25     1      
-8     x                   f1                       [37,80]        4       No        ---        ---                 REAL      17     1      
-9     y                   f1                       [37,80]        4       No        ---        ---                 REAL      21     1      
-10    A                   f1                       [37,80]        15      Yes       Static     [4,10]              INTEGER   31     1      
-11    B                   f1                       [37,80]        15      Yes       Static     [4,10]              INTEGER   46     1      
-12    C                   f1                       [37,80]        43      Yes       Static     [10,30]             INTEGER   104    1      
-13    D                   f1                       [37,80]        43      Yes       Static     [10,30]             INTEGER   61     1      
-14    G                   f1                       [37,80]        1       Yes       Dynamic    [NULL,NULL]         REAL      -1     1      
-15    u                   f1                       [49,73]        4       No        ---        ---                 REAL      147    2      
-16    v                   f1                       [49,73]        4       No        ---        ---                 REAL      151    2      
-17    A                   f1                       [55,71]        4       No        ---        ---                 REAL      155    3      
-18    B                   f1                       [55,71]        43      Yes       Static     [10,30]             INTEGER   161    3      
-19    E                   f1                       [55,71]        15      Yes       Static     [4,10]              INTEGER   204    3      
-20    F                   f1                       [55,71]        1       Yes       Dynamic    [NULL,NULL]         BOOLEAN   -1     3      
-21    Q                   f1                       [55,71]        2       No        ---        ---                 INTEGER   159    3      
+
+
+
+Module 'f1', slot 72
+   [
+       Module status: DEFINED, line 34
+       Input Parameters List:
+       [
+          [ Name: 'a', Line No.: 35, Type: [ baseType: integer, vaType: DYN_ARR, bounds: [NULL..NULL], width: 5 ], offset: 0, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ],
+          [ Name: 'b', Line No.: 35, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 5 ], offset: 5, isAssigned: false, isLoopVar: false ],
+          [ Name: 'c', Line No.: 35, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 10, isAssigned: false, isLoopVar: false ]
+       ]
+
+       Output Parameters List:
+       [
+          [ Name: 'm', Line No.: 36, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 14, isAssigned: true, isLoopVar: false ],
+          [ Name: 'n', Line No.: 36, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 15, isAssigned: true, isLoopVar: false ]
+       ]
+   ]
+   Scope Hierarchy:
+      --- LEVEL 1 ---
+      [ Name: 'k', Line No.: 39, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 29, isAssigned: false, isLoopVar: false ]
+      [ Name: 'p', Line No.: 38, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 25, isAssigned: false, isLoopVar: false ]
+      [ Name: 'x', Line No.: 38, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 17, isAssigned: false, isLoopVar: false ]
+      [ Name: 'y', Line No.: 38, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 21, isAssigned: false, isLoopVar: false ]
+      [ Name: 'A', Line No.: 42, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 31, isAssigned: false, isLoopVar: false ]
+      [ Name: 'B', Line No.: 42, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 46, isAssigned: false, isLoopVar: false ]
+      [ Name: 'C', Line No.: 44, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 104, isAssigned: false, isLoopVar: false ]
+      [ Name: 'D', Line No.: 44, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 61, isAssigned: false, isLoopVar: false ]
+      [ Name: 'G', Line No.: 77, Type: [ baseType: real, vaType: DYN_ARR, bounds: [NULL..NULL], width: 1 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ]
+           --- LEVEL 2 ---
+           [ Name: 'u', Line No.: 51, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 147, isAssigned: false, isLoopVar: false ]
+           [ Name: 'v', Line No.: 51, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 151, isAssigned: false, isLoopVar: false ]
+                --- LEVEL 3 ---
+                [ Name: 'A', Line No.: 56, Type: [ baseType: real, vaType: VARIABLE, width: 4 ], offset: 155, isAssigned: false, isLoopVar: false ]
+                [ Name: 'B', Line No.: 58, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [10..30], width: 43 ], offset: 161, isAssigned: false, isLoopVar: false ]
+                [ Name: 'E', Line No.: 59, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [4..10], width: 15 ], offset: 204, isAssigned: false, isLoopVar: false ]
+                [ Name: 'F', Line No.: 66, Type: [ baseType: boolean, vaType: DYN_ARR, bounds: [NULL..NULL], width: 1 ], offset: -1, isAssigned: false, isLoopVar: false, boundInfo: [ Left Bound: NULL, Right Bound: NULL ] ]
+                [ Name: 'Q', Line No.: 57, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 159, isAssigned: false, isLoopVar: false ]
+
+
+
+
 
 ########################################################################## ~ ** ~ ##########################################################################
 

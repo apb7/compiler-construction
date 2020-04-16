@@ -399,9 +399,8 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
             else
             {
                 // we're dealing with an array
-                // for a dynamic array, vt.width will store the size occupied by single element of its base type
                 vt.baseType = baseTypeOrNull->gs;
-                vt.width = 1; // 1 is the default for width of non-static arrays
+                vt.width = 1; // 1 is the default for width of non-static local arrays
                 ASTNode *numOrId = rangeArrOrBaseType->child;
                 switch(numOrId->gs)
                 {   // check the left bound
@@ -415,7 +414,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                                 vt.vaType = STAT_ARR;
                                 vt.si.vt_num = lb;
                                 vt.ei.vt_num = rb;
-                                // if the array is static its width is 1(base address) + (high-low +1) * sizeof(array element)
+                                // if the array is local and static its width is 1(base address) + (high-low +1) * sizeof(array element)
                                 vt.width = getSizeByType(vt.baseType) * (rb - lb + 1) + 1;// +1 for storing address of the array
                                 break;
                             }
