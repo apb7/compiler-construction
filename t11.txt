@@ -1,34 +1,21 @@
 ** This testcase demonstrates the syntactic correctness of the constructs such as modules, simple and declaration statements, and expressions**
 
-declare module compute;
 <<<driver program>>>
 start
-	declare var_1_, var_2_, var_3_:integer;
-	declare s: integer;
-	[s] := use module compute with parameters var_1_, var_2_, var_3;
-	** do not bother that the last variable is not declared. It will be taken care of later in the semantic analysis phase**
+	declare b:integer;
+	b:= 4 + (12 - 2);
+	get_value(b);
+	print(b);
+	**switch(b)
+    	start
+    		case 1 :
+                print(b);
+                break;
+    		case 2 :
+    		    print(b);
+    			break;
+    		default:
+    		    print(b);
+    			break;
+    	end**
 end
-<<module compute>>
-takes input[r1:integer, r2:integer, r3:integer];
-returns [a:integer];
-start
-	declare flag : boolean;
-	declare b,c: integer;
-	a := 25;
-	b := 10;
-	c := 5;
-	flag := a <=  b AND c >= a OR  a<0 AND false;
-	switch(b)
-	start
-		case 1 : a := 4;
-					break;
-		case 2 :b:=2;
-					break;
-		default: c:=6;
-				 break;
-	end
-end
-
-**verify the output of the lexical analyzer as well**
-**check the correctness of the parse tree**
-

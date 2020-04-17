@@ -3,10 +3,31 @@
 declare module compute;
 <<<driver program>>>
 start
-	declare a,b,c,d,e: integer;
-
-	a:=10;
-	b:=3+5;
-	c:=a+b;
+    declare var_1_, var_2_, var_3:integer;
+    declare s: integer;
+    [s] := use module compute with parameters var_1_, var_2_, var_3;
+    ** do not bother that the last variable is not declared. It will be taken care of later in the semantic analysis phase**
 end
+<<module compute>>
+takes input[r1:integer, r2:integer, r3:integer];
+returns [a:integer];
+start
+    declare flag : boolean;
+    declare b: array[5..8] of integer;
+    declare c:integer;
+    for (c in 2..5)
+    start
+        while(b[6]<b[5])
+        start
+            get_value(c);
+            **b[7]:=5;**
+            **b[9]:=4;**
+        end
+    end
+    a:=8;
+end
+
+**verify the output of the lexical analyzer as well**
+**check the correctness of the parse tree**
+
 

@@ -128,7 +128,7 @@ void printCurrSymTable1(symbolTable *st,int level, FILE *fp){
 #define FUNC_ALIGN 3 // how farther from the left to align the [ of the function.
 #define LEVEL_STRING 20 // just to print "--- LEVEL %d ---"
 #define TYPE_STRING_WO_BOUND_INFO 150 // type string without bound info
-#define SYM_NODE_FOR_ONE_BOUND 200 // for the symbol table node of one bound (this ID will be INTEGER VARIABLE type) of dynamic array
+#define SYM_NODE_FOR_ONE_BOUND 250 // for the symbol table node of one bound (this ID will be INTEGER VARIABLE type) of dynamic array
 #define BOUND_STRING SYM_NODE_FOR_ONE_BOUND*2 + 50 // for dynamic array's bounds' info
 #define GENERAL_SYM_NODE TYPE_STRING_WO_BOUND_INFO +  BOUND_STRING + 120 // for any general symbol table node (possibly a dynamic array requiring both bounds as VARIABLE INTEGER symbol table nodes i.e. the largest possible)
 
@@ -225,16 +225,16 @@ void getSymNode(symTableNode *node, char *pstr){
     char boundStr[BOUND_STRING];
     setSymNodeTypeStr(node->info.var.vtype, typeStr, boundStr);
     if(node->info.var.vtype.vaType == VARIABLE || node->info.var.vtype.vaType == STAT_ARR) {
-        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, forLoop: %s, whileLoop: %s, isIOlistVar: %s ]",
+        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, forLoop: %s, whileLevel: %d, isIOlistVar: %s ]",
                 node->lexeme, node->info.var.lno, typeStr, node->info.var.offset,
-                node->info.var.isAssigned ? "true" : "false", (node->info.var.forLoop == NOT_FOR) ? "true" : "false", 
-                (node->info.var.whileLoop == NOT_WHILE) ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false");
+                node->info.var.isAssigned ? "true" : "false", node->info.var.forLoop ? ((node->info.var.forLoop == 1) ? "FOR_IN" : "FOR_OUT")  : "NOT_FOR",
+                node->info.var.whileLevel, node->info.var.isIOlistVar ? "true" : "false");
     }
     else{
-        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, forLoop: %s, whileLoop: %s, isIOlistVar: %s%s ]",
+        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, forLoop: %s, whileLevel: %d, isIOlistVar: %s%s ]",
                 node->lexeme, node->info.var.lno, typeStr, node->info.var.offset,
-                node->info.var.isAssigned ? "true" : "false", (node->info.var.forLoop == NOT_FOR) ? "true" : "false", 
-                (node->info.var.whileLoop == NOT_WHILE) ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false", boundStr);
+                node->info.var.isAssigned ? "true" : "false", node->info.var.forLoop ? ((node->info.var.forLoop == 1) ? "FOR_IN" : "FOR_OUT")  : "NOT_FOR",
+                node->info.var.whileLevel, node->info.var.isIOlistVar ? "true" : "false", boundStr);
     }
 }
 

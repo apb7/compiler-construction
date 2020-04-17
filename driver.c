@@ -155,7 +155,10 @@ int main(int argc, char *argv[]) {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                ASTNode *ASTroot =buildASTTree(root);
+                extern bool stage1ErrorFree;
+                if(!stage1ErrorFree)
+                    break;
+                ASTNode *ASTroot = buildASTTree(root);
                 print_ASTTree(ASTroot);
 
                 printf("No of nodes in AST Tree : %d \n", count_nodes_ASTTree(ASTroot));
@@ -189,9 +192,9 @@ int main(int argc, char *argv[]) {
                 FILE *fpout = fopen(argv[2],"w");
                 printSymbolTable(&funcTable,fpout);
                 fclose(fpout);
-                FILE *fptest = fopen("test.asm","w");
+//                FILE *fptest = fopen("test.asm","w");
                 //genExpr(ASTroot,fptest,true,0,g_INTEGER);
-                fclose(fptest);
+//                fclose(fptest);
             }
             break;
 //            TODO: the following will become the case 6 to print the AR size of each function
@@ -213,7 +216,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 FILE *fpout = fopen(argv[2],"w");
-                // TODO: implement this method printARSizes(..) Only need to print the function name and AR size field from the function table as two separate columns in formatted output
+                // TODO: implement this method printARSizes(..) Only need to print the function name and scopeSize field of the symbolTable *st inside symFuncInfo of each function
 //                printARSizes(&funcTable,fpout);
                 fprintf(fpout, "\nNOTE: The Activation record size also includes width of input and output parameters of each function.\n");
                 fclose(fpout);

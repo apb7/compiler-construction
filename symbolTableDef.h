@@ -30,10 +30,6 @@ typedef enum {
     NOT_FOR, FOR_IN, FOR_OUT
 }forInfo;
 
-typedef enum {
-    NOT_WHILE, WHILE_NOTASSIGNED, WHILE_ASSIGNED
-}whileInfo;
-
 union numOrId {
     unsigned int vt_num;
     symTableNode *vt_id;
@@ -58,27 +54,6 @@ struct ASTNodeListNode{
     struct ASTNodeListNode *next;
 };
 typedef struct ASTNodeListNode ASTNodeListNode;
-
-//for an input parameter node of a function
-//struct paramInpNode{
-//    char lexeme[30];
-//    varType vtype;
-//    unsigned int lno;    //line number
-//    int offset;
-//    struct paramInpNode *next;
-//};
-//typedef struct paramInpNode paramInpNode;
-
-//for an output parameter node of a function
-//struct paramOutNode{
-//    char lexeme[30];
-//    varType vtype;
-//    unsigned int lno;
-//    int offset;
-//    bool isAssigned;
-//    struct paramOutNode *next;
-//};
-//typedef struct paramOutNode paramOutNode;
 
 typedef symTableNode paramInpNode;
 typedef symTableNode paramOutNode;
@@ -116,9 +91,8 @@ struct symVarInfo{
     varType vtype;
     int offset;
     bool isAssigned;
-    // bool isLoopVar;
     forInfo forLoop;
-    whileInfo whileLoop;
+    int whileLevel;
     bool isIOlistVar;
 };
 typedef struct symVarInfo symVarInfo;
