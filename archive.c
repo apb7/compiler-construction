@@ -225,14 +225,16 @@ void getSymNode(symTableNode *node, char *pstr){
     char boundStr[BOUND_STRING];
     setSymNodeTypeStr(node->info.var.vtype, typeStr, boundStr);
     if(node->info.var.vtype.vaType == VARIABLE || node->info.var.vtype.vaType == STAT_ARR) {
-        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s, isIOlistVar: %s ]",
+        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, forLoop: %s, whileLoop: %s, isIOlistVar: %s ]",
                 node->lexeme, node->info.var.lno, typeStr, node->info.var.offset,
-                node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false");
+                node->info.var.isAssigned ? "true" : "false", (node->info.var.forLoop == NOT_FOR) ? "true" : "false", 
+                (node->info.var.whileLoop == NOT_WHILE) ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false");
     }
     else{
-        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, isLoopVar: %s, isIOlistVar: %s%s ]",
+        sprintf(pstr, "[ Name: '%s', Line No.: %d, Type: [ %s ], offset: %d, isAssigned: %s, forLoop: %s, whileLoop: %s, isIOlistVar: %s%s ]",
                 node->lexeme, node->info.var.lno, typeStr, node->info.var.offset,
-                node->info.var.isAssigned ? "true" : "false", node->info.var.isLoopVar ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false", boundStr);
+                node->info.var.isAssigned ? "true" : "false", (node->info.var.forLoop == NOT_FOR) ? "true" : "false", 
+                (node->info.var.whileLoop == NOT_WHILE) ? "true" : "false", node->info.var.isIOlistVar ? "true" : "false", boundStr);
     }
 }
 
