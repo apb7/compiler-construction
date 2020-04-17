@@ -62,7 +62,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         ASTNode *idNode = astNode->child->child->child;
         expType = idNode->stNode->info.var.vtype.baseType;
         setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
-//        printf("%s \n",idNode->tkinfo->lexeme);
+        // printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
             //array element and static index
             genExpr(idNode->next->next,fp,false,expType);
@@ -262,7 +262,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
 
-            fprintf(fp, " \nsection .text \n");
+            fprintf(fp, "\n section .text \n");
             fprintf(fp, "\t global main \n");
             fprintf(fp, "\t extern scanf \n");
             fprintf(fp, "\t extern printf \n");
@@ -298,7 +298,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_DRIVER:
         {
-            fprintf(fp, " \nmain: \n");
+            fprintf(fp, "\n main: \n");
             fprintf(fp, "\t mov rbp, rsp \n");
             fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
             fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
@@ -332,7 +332,24 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_FOR:
         {
-            
+            ASTNode* idNode = root->next; // ID
+            ASTNode* rangeNode = idNode->next;
+            ASTNode* startNode = rangeNode->child;
+            ASTNode* endNode = startNode->next;
+            ASTNode* statementsNode = rangeNode->next->child;
+
+            symVarInfo startNodeVar = startNode->stNode->info.var;
+// Experimental
+            fprintf(fp, "\t mov dword[%s - %d], %s \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset), startNode->tkinfo->lexeme);
+            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset), endNode->tkinfo->lexeme);
+            fprintf(fp, "\t ja forLoopEnd \n");
+            fprintf(fp, "forLoopStart: \n");
+            generateCode(statementsNode, symT, fp);
+            fprintf(fp, "\t inc dword[%s - %d] \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset));
+            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset), endNode->tkinfo->lexeme);
+            fprintf(fp, "\t jna forLoopStart \n");
+            fprintf(fp, "forLoopEnd: \n");
+
             return;
         }
 

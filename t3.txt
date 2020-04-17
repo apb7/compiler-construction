@@ -1,15 +1,10 @@
 ** This testcase demonstrates correctness of module structure with declaration and simple statements**
 <<<driver program>>>
 start
-	declare a :integer;
-
+	declare a,index:integer;
 	get_value(a);
-	print(a);
-
-
-	declare arr2:array[a..8] of integer;
-
-
-	get_value(arr2);
-
+	for(index in  1..15)
+	start
+		print(index);
+	end
 end
