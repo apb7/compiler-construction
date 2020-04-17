@@ -17,102 +17,148 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 }
 
-//EXPERIMENTAL CODE _ IGNORE FOR NOW _ STARTS
 
 char *baseRegister[2] = {"RBP", "RSI"};
 
-char *expreg[3] = {"AX","BX","CX"};
-char *expscale = "word";
+char *expreg[3] = {"r8","r9","r10"};
+char *expSizeStr = "word";
+char *expSizeRegSuffix = "";    //"d","w",""
+int scale = 2;
 
-void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, int lr, gSymbol expType){
+void setExpSize(gSymbol etype){
+    switch(etype){
+        case g_INTEGER:
+            expSizeStr = "dword";
+            expSizeRegSuffix = "d";
+            break;
+        case g_BOOLEAN:
+            expSizeStr = "word";
+            expSizeRegSuffix = "w";
+            break;
+        case g_REAL:
+            expSizeStr = "qword";
+            expSizeRegSuffix = "";
+            break;
+        default:
+            expSizeStr = "word";
+            expSizeRegSuffix = "w";
+            break;
+    }
+}
+
+void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
     if(firstCall){
         if(astNode == NULL)
             return;
         else if(astNode->gs != g_assignmentStmt){
             //            printf("%d \n",astNode->gs);
-            genExpr(astNode->next,fp,true,lr,expType);
-            genExpr(astNode->child,fp,true,lr,expType);
+            genExpr(astNode->next,fp,true,expType);
+            genExpr(astNode->child,fp,true,expType);
             return;
         }
         //assignmentStatement Node will be passed
         ASTNode *idNode = astNode->child->child->child;
-        printf("%s \n",idNode->tkinfo->lexeme);
+        expType = idNode->stNode->info.var.vtype.baseType;
+        setExpSize(expType);
+//        printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
             //array element and static index
-            expType = idNode->stNode->info.var.vtype.baseType;
-            //it can be boolean/int/real
-            genExpr(idNode->next->next,fp,false,1,expType);
-            if(expType == g_REAL){
-
-            }
-            else{
-                fprintf(fp,"\t MOV %s[x_%x+%d], %s \n",expscale,idNode->stNode,idNode->next->tkinfo->value.num,expreg[1]);
-                return;
-            }
+            genExpr(idNode->next->next,fp,false,expType);
+            //TODO: Handle Array elements with static index
         }
         else if(idNode->next->next != NULL && idNode->next->gs == g_ID){
-            //array element and dynamic index
+            //TODO: handle array element with dynamic index
+
         }
         else{
             //array or variable
             if(idNode->stNode->info.var.vtype.vaType == VARIABLE){
                 //variable
-                genExpr(idNode->next,fp,false,1,expType);
-                fprintf(fp,"\t MOV [x_%x], %s \n",idNode->stNode,expreg[1]);
+                genExpr(idNode->next,fp,false,expType);
+                bool isIOlistVar = idNode->stNode->info.var.isIOlistVar;
+                int toSub = scale * (idNode->stNode->info.var.offset + idNode->stNode->info.var.vtype.width);
+                fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+                fprintf(fp,"\t pop %s \n",expreg[1]);
+                fprintf(fp, "\t mov %s[%s-%d], %s%s \n", expSizeStr, baseRegister[isIOlistVar], toSub, expreg[1],expSizeRegSuffix);
                 return;
             }
             else{
-
+                //array
+                //TODO: just put data from right array to left array
             }
         }
     }
     else{
-        if(astNode->gs == g_var_id_num){
+        if(astNode->gs == g_u){
+            //TODO: Handle unary
+        }
+        else if(astNode->gs == g_var_id_num){
             astNode = astNode->child;
             switch(astNode->gs){
                 case g_NUM:
-                    fprintf(fp,"\t MOV %s, %d \n",expreg[lr],astNode->tkinfo->value.num);
+                    fprintf(fp,"\t push %d \n",astNode->tkinfo->value.num);
                     break;
                 case g_RNUM:
+                    //TODO: Mov real constant to stack
                     break;
                 case g_ID:
                 {
-                    if(astNode->stNode->info.var.vtype.baseType == g_REAL){
-
+                    if(astNode->stNode->info.var.vtype.vaType == VARIABLE){
+                        bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
+                        int toSub = scale * (astNode->stNode->info.var.offset + astNode->stNode->info.var.vtype.width);
+                        switch(astNode->stNode->info.var.vtype.baseType){
+                            case g_REAL:
+                                //TODO: Handle real variables
+                                break;
+                            case g_INTEGER:
+                            case g_BOOLEAN:
+                                fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
+                                fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[0],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
+                                fprintf(fp,"\t push %s \n",expreg[0]);
+                                break;
+                        }
                     }
                     else{
-                        if(astNode->stNode->info.var.vtype.vaType != VARIABLE){
-                            if(astNode->next->gs == g_ID){
-                                fprintf(fp,"\t MOV %s, x_%x \n",expreg[2],astNode->next->stNode);
-                            }
-                            else{
-                                //g_num
-                                fprintf(fp,"\t MOV %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
-                            }
-                        }
-                        else
-                            fprintf(fp,"\t MOV %s,0 \n",expreg[2]);
-                        fprintf(fp,"\t MOV %s, %s[x_%x + %s] \n",expreg[lr],expscale,astNode->stNode,expreg[2]);
+                        //TODO: Array element handling
                     }
                 }
                 break;
             }
         }
+        else if(astNode->gs == g_TRUE){
+            fprintf(fp,"\t push 1 \n");
+        }
+        else if(astNode->gs == g_FALSE){
+            fprintf(fp,"\t push 0 \n");
+        }
         else{
             //astnode is an operator
-            genExpr(astNode->child,fp,false,0,expType);
-            genExpr(astNode->child->next,fp,false,1,expType);
-            switch(astNode->gs){
-                case g_PLUS:
-                    fprintf(fp,"\t ADD %s, %s \n",expreg[lr],expreg[lr^1]);
-                    break;
+            genExpr(astNode->child,fp,false,expType);
+            genExpr(astNode->child->next,fp,false,expType);
+            if(expType == g_REAL){
+                //handle real operations
+            }
+            else{
+                fprintf(fp,"\t xor %s,%s \n",expreg[1],expreg[1]);
+                fprintf(fp,"\t pop %s \n",expreg[1]);
+                fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
+                fprintf(fp,"\t pop %s \n",expreg[0]);
+                switch(astNode->gs){
+                    case g_PLUS:
+                        fprintf(fp,"\t add %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_MINUS:
+                        fprintf(fp,"\t sub %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                        //Many more cases to come...
+                }
+                fprintf(fp,"\t push %s \n",expreg[0]);
             }
             return;
         }
     }
 }
 
-//EXPERIMENTAL CODE _ ENDS
 
 void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     if(root == NULL) return;
@@ -199,6 +245,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
         case g_moduleDef:
+        case g_simpleStmt:
         case g_START:
         {
             generateCode(root->child, symT, fp);
@@ -418,6 +465,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
 
         }
+        
+        case g_assignmentStmt:
+            genExpr(root,fp,true,0);
+            return;
 
         case g_conditionalStmt:{
 
