@@ -285,6 +285,20 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
 
+        case g_iterativeStmt:
+        {
+            generateCode(root->child, symT, fp);
+
+            return;
+        }
+
+        case g_FOR:
+        {
+            
+            return;
+        }
+
+
         case g_ioStmt:
         {
             generateCode(root->child, symT, fp);
@@ -455,16 +469,12 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 return;
             }
 
-            // TODO: see how floating pt values can be assigned!
-
             if(siblingId->gs == g_RNUM) {
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputFloat \n");
                 fprintf(fp, "\t mov rsi, __float64__(%s) \n", siblingId->tkinfo->lexeme);
-                fprintf(fp, "\t movq xmm0, rsi  \n");
-                fprintf(fp, "\t mov rax, 1  \n");
-                // printf expects double but rsi has float. Therefore, output is 0.000
-                // Need to find a way around this using fld instr but be careful with stack.
+                fprintf(fp, "\t movq xmm0, rsi \n");
+                fprintf(fp, "\t mov rax, 1 \n");
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
                 return;
