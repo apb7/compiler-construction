@@ -26,6 +26,14 @@ typedef enum{
     VARIABLE, STAT_ARR, DYN_L_ARR, DYN_R_ARR, DYN_ARR
 }varOrArr;
 
+typedef enum {
+    NOT_FOR, FOR_IN, FOR_OUT
+}forInfo;
+
+typedef enum {
+    NOT_WHILE, WHILE_NOTASSIGNED, WHILE_ASSIGNED
+}whileInfo;
+
 union numOrId {
     unsigned int vt_num;
     symTableNode *vt_id;
@@ -108,7 +116,9 @@ struct symVarInfo{
     varType vtype;
     int offset;
     bool isAssigned;
-    bool isLoopVar;
+    // bool isLoopVar;
+    forInfo forLoop;
+    whileInfo whileLoop;
     bool isIOlistVar;
 };
 typedef struct symVarInfo symVarInfo;
@@ -135,6 +145,12 @@ struct symbolTable{
     ASTNode *startNode; //start node from AST
     char funcName[30];
     int scopeSize;
+};
+
+typedef struct whileVarList whileVarList;
+struct whileVarList {
+    symTableNode* node;
+    whileVarList* next;
 };
 
 

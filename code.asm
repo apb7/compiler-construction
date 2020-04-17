@@ -1,4 +1,5 @@
 section .bss 
+	 stack_top: resb 8 
 	 inta: resb 4 
 	 floatb: resb 8 
 	 boolc: resb 2 
@@ -23,118 +24,25 @@ section .text
  
 main: 
 	 mov rbp, rsp 
-	 mov rdx, rsp 
+	 mov QWORD[stack_top], rsp 
 	 sub rsp, 192 
-	 push rbp 
-	 mov rdi, msgFloat 
-	 call printf 
-	 mov rdi, inputFloat 
 	 mov rsi, RBP 
-	 sub rsi, 8 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputFloat 
-	 mov rsi, [RBP - 8] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, msgFloat 
-	 call printf 
-	 mov rdi, inputFloat 
-	 mov rsi, RBP 
-	 sub rsi, 16 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputFloat 
-	 mov rsi, [RBP - 16] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, msgFloat 
-	 call printf 
-	 mov rdi, inputFloat 
-	 mov rsi, RBP 
-	 sub rsi, 24 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputFloat 
-	 mov rsi, [RBP - 24] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, msgBoolean  
- 	 call printf  
- 	 mov rdi, inputBoolean 
-	 mov rsi, RBP 
-	 sub rsi, 26 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 cmp word[RBP - 26], 0 
-	 jz boolPrintFalse17 
-boolPrintTrue17: 
-	 mov rdi, outputBooleanTrue 
-	 jmp boolPrintEnd17 
-boolPrintFalse17: 
-	 mov rdi, outputBooleanFalse 
-boolPrintEnd17: 
-	 call printf 
-	 pop rbp 
+	 mov rdi, rsi 
+	 sub rdi, 14 
+	 sub rsi, 18 
+	 sub rsi, stack_top 
+	 mov word[rdi], si 
 	 push rbp 
 	 mov rdi, msgInt 
 	 call printf 
 	 mov rdi, inputInt 
 	 mov rsi, RBP 
-	 sub rsi, 30 
+	 sub rsi, 4 
 	 call scanf 
 	 pop rbp 
 	 push rbp 
 	 mov rdi, outputInt 
-	 mov rsi, [RBP - 30] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, msgInt 
-	 call printf 
-	 mov rdi, inputInt 
-	 mov rsi, RBP 
-	 sub rsi, 30 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputInt 
-	 mov rsi, [RBP - 30] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, msgInt 
-	 call printf 
-	 mov rdi, inputInt 
-	 mov rsi, RBP 
-	 sub rsi, 34 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputInt 
-	 mov rsi, [RBP - 34] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputFloat 
-	 mov rsi, __float64__(1.3) 
-	 movq xmm0, rsi  
-	 mov rax, 1  
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputBooleanTrue 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputBooleanFalse 
+	 mov rsi, [RBP - 4] 
 	 call printf 
 	 pop rbp 
 	 mov rsp, rbp 

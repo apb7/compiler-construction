@@ -43,7 +43,8 @@ void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
 void initSymVarInfo(symVarInfo *varInfo) {
     varInfo->isAssigned = false;
     varInfo->lno = -1;
-    varInfo->isLoopVar = false;
+    varInfo->forLoop = NOT_FOR;
+    varInfo->whileLoop = NOT_WHILE;
     varInfo->offset = -1;
     varInfo->isIOlistVar = false;
 }
@@ -670,7 +671,8 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
     }
     gSymbol ty; int isVar = 0;
     symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
-    if(varNode->info.var.isLoopVar) {
+    varNode->info.var.isAssigned=true;
+    if(varNode->info.var.forLoop==FOR_IN) {
         throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_LOOP_VAR_REDEFINED);
         // TODO: ERROR loop var redefined
         return false;
@@ -1050,7 +1052,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
         //loop variable redeclare check
         gSymbol ty; int isVar=0;
         symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
-        if(varNode!=NULL && varNode->info.var.isLoopVar) {
+        if(varNode!=NULL && varNode->info.var.forLoop==FOR_IN) {
             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_LOOP_VAR_REDECLARED);
             // TOCHECK: ERROR Loop variable redeclared
         }
@@ -1072,7 +1074,8 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                         initSymVarInfo(&(fv.var));
                         fv.var.lno = idNode->tkinfo->lno;
                         fv.var.vtype = vtype;
-                        fv.var.isLoopVar=false;
+                        fv.var.forLoop=NOT_FOR;
+                        fv.var.whileLoop=NOT_WHILE;
                         //TODO: check Offset Calculation
 //                        if(vtype.vaType == VARIABLE || vtype.vaType == STAT_ARR){
                         fv.var.offset = nextGlobalOffset;
@@ -1181,7 +1184,21 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     }
 
 }
-
+void traverse(whileVarList* cur, ASTNode* it, symFuncInfo *funcInfo, symbolTable *currST) {
+    int isVar; gSymbol ty;
+    while(it!=NULL) {
+        if(it->gs==g_ID) {
+            whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
+            tmp->node=findType(it,currST,funcInfo,&isVar,&ty);
+            tmp->next=NULL;
+            cur->next=tmp;
+            traverse(tmp,it->child,funcInfo,currST);
+        }
+        else 
+            traverse(cur,it->child,funcInfo,currST);
+        it=it->next;
+    }
+}
 void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(iterativeStmtNode==NULL || iterativeStmtNode->child==NULL) {
         fprintf(stderr,"handleIterativeStmt: NULL node found.\n");
@@ -1213,7 +1230,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             // TOCHECK: ERROR handle not valid data type
         }
 
-        varNode->info.var.isLoopVar=true;
+        varNode->info.var.forLoop=FOR_IN;
         ptr=ptr->next->next;
         if(ptr->gs==g_START){
             currST=newScope(currST);
@@ -1223,7 +1240,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
 
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
-        varNode->info.var.isLoopVar=false;
+        varNode->info.var.forLoop=FOR_OUT;
         return;
     }
     else if(ptr->gs==g_WHILE) {
@@ -1235,6 +1252,17 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             // if vt is NULL, short-circuiting saves the evaluation of second preposition and hence segFault is avoided
             throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
+        //LIST OF VARIABLES IN EXPRESSION
+        gSymbol ty; int isVar;
+        whileVarList* ls;
+        ASTNode* it=ptr->child;
+        if(ptr->gs==g_ID) {
+            ls = (whileVarList*)malloc(sizeof(whileVarList));
+            ls->node=findType(ptr,currST,funcInfo,&isVar,&ty);
+            ls->next=NULL;
+        }
+        traverse(ls,it,funcInfo,currST);
+
         ptr=ptr->next;
         if(ptr->gs==g_START){
             currST=newScope(currST);
@@ -1243,6 +1271,26 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         }
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
+        int change=0;
+        whileVarList* cur=ls;
+        while(cur!=NULL) {
+            if(cur->node->info.var.isAssigned) {
+                change=1;
+                cur->node->info.var.whileLoop=WHILE_ASSIGNED;
+            } else {
+                cur->node->info.var.whileLoop=WHILE_NOTASSIGNED;
+            }
+            cur=cur->next;
+        }
+        if(!change) {
+            // TODO: ERROR while loop variables not changed inside loop
+        }
+        cur=ls;
+        while(cur!=NULL) {
+            whileVarList* tmp=cur->next;
+            free(cur);
+            cur=tmp;
+        }
         return;
     }
 }
