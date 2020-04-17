@@ -17,7 +17,6 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 }
 
-//EXPERIMENTAL CODE _ IGNORE FOR NOW _ STARTS
 
 char *baseRegister[2] = {"RBP", "RSI"};
 
@@ -78,8 +77,8 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 genExpr(idNode->next,fp,false,expType);
                 bool isIOlistVar = idNode->stNode->info.var.isIOlistVar;
                 int toSub = scale * (idNode->stNode->info.var.offset + idNode->stNode->info.var.vtype.width);
-                fprintf(fp,"xor %s, %s",expreg[1],expreg[1]);
-                fprintf(fp,"\t pop %s%s \n",expreg[1],expSizeRegSuffix);
+                fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+                fprintf(fp,"\t pop %s \n",expreg[1]);
                 fprintf(fp, "\t mov %s[%s-%d], %s%s \n", expSizeStr, baseRegister[isIOlistVar], toSub, expreg[1],expSizeRegSuffix);
                 return;
             }
@@ -97,7 +96,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
             astNode = astNode->child;
             switch(astNode->gs){
                 case g_NUM:
-                    fprintf(fp,"\t push %s %d \n",expSizeStr,astNode->tkinfo->value.num);
+                    fprintf(fp,"\t push %d \n",astNode->tkinfo->value.num);
                     break;
                 case g_RNUM:
                     //TODO: Mov real constant to stack
@@ -115,7 +114,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                             case g_BOOLEAN:
                                 fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
                                 fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[0],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
-                                fprintf(fp,"\t push %s%s \n",expreg[0],expSizeRegSuffix);
+                                fprintf(fp,"\t push %s \n",expreg[0]);
                                 break;
                         }
                     }
@@ -126,6 +125,12 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 break;
             }
         }
+        else if(astNode->gs == g_TRUE){
+            fprintf(fp,"\t push 1 \n");
+        }
+        else if(astNode->gs == g_FALSE){
+            fprintf(fp,"\t push 0 \n");
+        }
         else{
             //astnode is an operator
             genExpr(astNode->child,fp,false,expType);
@@ -135,9 +140,9 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
             }
             else{
                 fprintf(fp,"\t xor %s,%s \n",expreg[1],expreg[1]);
-                fprintf(fp,"\t pop %s%s \n",expreg[1],expSizeRegSuffix);
+                fprintf(fp,"\t pop %s \n",expreg[1]);
                 fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
-                fprintf(fp,"\t pop %s%s \n",expreg[0],expSizeRegSuffix);
+                fprintf(fp,"\t pop %s \n",expreg[0]);
                 switch(astNode->gs){
                     case g_PLUS:
                         fprintf(fp,"\t add %s, %s \n",expreg[0],expreg[1]);
@@ -147,14 +152,13 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         break;
                         //Many more cases to come...
                 }
-                fprintf(fp,"\t push %s%s \n",expreg[0],expSizeRegSuffix);
+                fprintf(fp,"\t push %s \n",expreg[0]);
             }
             return;
         }
     }
 }
 
-//EXPERIMENTAL CODE _ ENDS
 
 void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     if(root == NULL) return;
@@ -240,6 +244,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
         case g_moduleDef:
+        case g_simpleStmt:
         case g_START:
         {
             generateCode(root->child, symT, fp);
@@ -433,6 +438,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+        case g_assignmentStmt:
+            genExpr(root,fp,true,0);
+            return;
+
         case g_conditionalStmt:{
 
         }
