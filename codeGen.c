@@ -436,7 +436,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
             // Need changes here!
             ASTNode* sibling = root->next;
-            fprintf(fp,"\t ; PRINT(%s) starts\n", sibling->tkinfo->lexeme);
 
             // <ioStmt> -> PRINT BO <var> BC SEMICOL
             // <boolConstt> -> TRUE | FALSE
@@ -448,33 +447,50 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
 
             if(sibling->gs == g_TRUE) {
+                fprintf(fp,"\t ; PRINT(true) starts\n");
+
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
+
+                fprintf(fp,"\t ; PRINT ends\n");
+
                 return;
             }
 
             if(sibling->gs == g_FALSE) {
+                fprintf(fp,"\t ; PRINT(false) starts\n");
+
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
+
+                fprintf(fp,"\t ; PRINT ends\n");
+
                 return;
             }
 
             ASTNode *siblingId = sibling->child;
 
             if(siblingId->gs == g_NUM) {
+                fprintf(fp,"\t ; PRINT(%d) starts\n",siblingId->tkinfo->value.num);
+
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputInt \n");
                 fprintf(fp, "\t mov rsi, %d \n", siblingId->tkinfo->value.num);
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
+
+                fprintf(fp,"\t ; PRINT ends\n");
+
                 return;
             }
 
             if(siblingId->gs == g_RNUM) {
+                fprintf(fp,"\t ; PRINT(%lf) starts\n",siblingId->tkinfo->value.rnum);
+
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputFloat \n");
                 fprintf(fp, "\t mov rsi, __float64__(%s) \n", siblingId->tkinfo->lexeme);
@@ -482,6 +498,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t mov rax, 1 \n");
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
+
+                fprintf(fp,"\t ; PRINT ends\n");
+
                 return;
             }
 
@@ -489,6 +508,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             symVarInfo idVar = siblingId->stNode->info.var;
 
             if(idVarType.vaType == VARIABLE) {
+                fprintf(fp,"\t ; PRINT(%s) starts\n",siblingId->tkinfo->lexeme);
+
                 // More registers need to me pushed to preserve
                 // their values.
                 // BEWARE: Number of pushes here should be odd.
@@ -525,7 +546,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t pop rbp \n");
             }
 
+
             else if(idVarType.vaType == STAT_ARR) {
+                fprintf(fp,"\t ; PRINT(array %s) starts\n",siblingId->tkinfo->lexeme);
+
                 fprintf(fp, "\t push rbp \n");
     
                 // The only registers that the called function is required to preserve (the calle-save registers) are:
@@ -580,7 +604,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             else /* Arrays */ {
                 // Use whichId AST Node here.
             }
-            fprintf(fp,"\t ; PRINT(%s) starts\n", sibling->tkinfo->lexeme);
+            fprintf(fp,"\t ; PRINT ends\n", sibling->tkinfo->lexeme);
 
             return;
         }
@@ -628,15 +652,16 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t sub rsi, [ %s - %d ] \n",baseRegister[vi.isIOlistVar], 2*(vi.offset + vi.vtype.width));
             // rsi now points to where the data will be extracted from
             char regStr[5];
+            getAptReg(regStr, 8, vi.vtype.width);
+            fprintf(fp, "\t mov %s, [ rsi ] \n", regStr);
+
             switch(idNode->stNode->info.var.vtype.baseType){
                 case g_INTEGER: {
-                    getAptReg(regStr, 8, vi.vtype.width);
-                    fprintf(fp, "\t mov %s, [ rsi ] \n", regStr);
                     ASTNode *valList = idNode->next->child->child; // On NUM or TRUE or FALSE
                     ASTNode *ptr = valList;
                     fprintf(fp, "\t ; comparisons start for cases \n");
                     while(ptr!=NULL){
-                        fprintf(fp, "\t cmp %s, [ rsi ] \n", regStr);
+                        fprintf(fp, "\t cmp %s,  \n", regStr);
                     }
                 }
                 break;

@@ -57,7 +57,8 @@ typedef enum{
     SEME_MODULE_USED_NOT_DEFINED,
     SEME_FUNCTION_NOT_FOUND,
     SEME_NOT_A_ARRAY,
-    SEME_WHILE_COND_TYPE_MISMATCH//add others here
+    SEME_WHILE_COND_TYPE_MISMATCH,
+    SEME_WHILE_COND_VARS_UNASSIGNED//add others here
 } SemanticErrorType;
 
 typedef struct{

@@ -172,6 +172,9 @@ void printError(error e){
                 case SEME_WHILE_COND_TYPE_MISMATCH:
                     fprintf(stderr,"WHILE loop condition type is not 'boolean'.\n");
                     break;
+                case SEME_WHILE_COND_VARS_UNASSIGNED:
+                    fprintf(stderr,"None of the variables in WHILE loop condition is assigned inside the loop.\n");
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;

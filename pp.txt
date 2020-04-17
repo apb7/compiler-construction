@@ -2,18 +2,48 @@
 
 ####################################################################### SYMBOL TABLE #######################################################################
 
-SNO   VAR-NAME            SCOPE: FUNC-NAME         SCOPE: LINES   WIDTH   IS ARRAY? STAT/DYN   RANGE               TYPE      OFFSET LEVEL  
+Module '@driver', slot 20
+   [
+       Module status: DEFINED, line 4. AR Size: 8
+       Input Parameters List Empty.
 
-[DEBUG] ACTIVATION RECORD SIZE = 21
-1     b                   @driver                  [9,15]         2       No        ---        ---                 INTEGER   0      1      
-2     brr                 @driver                  [9,15]         19      Yes       Static     [2,10]              INTEGER   2      1      
+       Output Parameters List Empty.
+   ]
+   Scope Hierarchy:
+      --- LEVEL 1 ---
+      [ Name: 'var_1_', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: false ]
+      [ Name: 's', Line No.: 7, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 6, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: false ]
+      [ Name: 'var_2_', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 2, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: false ]
+      [ Name: 'var_3', Line No.: 6, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 4, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: false ]
 
-[DEBUG] ACTIVATION RECORD SIZE = 11
-1     lo                  bro                      [4,6]          2       No        ---        ---                 INTEGER   0      0      
-2     hi                  bro                      [4,6]          2       No        ---        ---                 INTEGER   2      0      
-3     arr                 bro                      [4,6]          5       Yes       Dynamic    [lo,hi]             INTEGER   4      0      
-4     a                   bro                      [4,6]          2       No        ---        ---                 INTEGER   9      0      
+
+
+Module 'compute', slot 54
+   [
+       Module status: DEFINED, line 11. AR Size: 20
+       Input Parameters List:
+       [
+          [ Name: 'r1', Line No.: 12, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 0, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: true ],
+          [ Name: 'r2', Line No.: 12, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 2, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: true ],
+          [ Name: 'r3', Line No.: 12, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 4, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: true ]
+       ]
+
+       Output Parameters List:
+       [
+          [ Name: 'a', Line No.: 13, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 6, isAssigned: true, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: true ]
+       ]
+   ]
+   Scope Hierarchy:
+      --- LEVEL 1 ---
+      [ Name: 'b', Line No.: 16, Type: [ baseType: integer, vaType: STAT_ARR, bounds: [5..8], width: 9 ], offset: 1, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: false ]
+      [ Name: 'c', Line No.: 17, Type: [ baseType: integer, vaType: VARIABLE, width: 2 ], offset: 10, isAssigned: false, forLoop: FOR_OUT, whileLevel: 0, isIOlistVar: false ]
+      [ Name: 'flag', Line No.: 15, Type: [ baseType: boolean, vaType: VARIABLE, width: 1 ], offset: 0, isAssigned: false, forLoop: NOT_FOR, whileLevel: -1, isIOlistVar: false ]
+           --- LEVEL 2 ---
+                --- LEVEL 3 ---
+
+
+
+
 
 ########################################################################## ~ ** ~ ##########################################################################
 
-NOTE: The variables which are undeclared and used as array indices are stated as NULL under RANGE header.
