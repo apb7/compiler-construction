@@ -77,3 +77,5 @@ CMakeLists.txt~
 .idea
 *.iml
 /cgt
+*.asm
+test

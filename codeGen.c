@@ -90,7 +90,14 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
     }
     else{
         if(astNode->gs == g_u){
-            //TODO: Handle unary
+            ASTNode *uOp = astNode->child;
+            genExpr(uOp->next,fp,false,expType);
+            if(uOp->gs == g_MINUS){
+                fprintf(fp,"\t pop %s \n",expreg[1]);
+                fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+                fprintf(fp,"\t sub %s,%s \n",expreg[0],expreg[1]);
+                fprintf(fp,"\t push %s \n", expreg[0]);
+            }
         }
         else if(astNode->gs == g_var_id_num){
             astNode = astNode->child;
@@ -149,6 +156,20 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         break;
                     case g_MINUS:
                         fprintf(fp,"\t sub %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_MUL:
+                        fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
+                        fprintf(fp,"\t mov rax, %s \n",expreg[0]);
+                        fprintf(fp,"\t imul %s%s \n",expreg[1],expSizeRegSuffix);
+                        fprintf(fp,"\t mov %s, rax \n",expreg[0]);
+                        fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
+                        break;
+                    case g_DIV:
+                        fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
+                        fprintf(fp,"\t mov rax, %s \n",expreg[0]);
+                        fprintf(fp,"\t idiv %s%s \n",expreg[1],expSizeRegSuffix);
+                        fprintf(fp,"\t mov %s, rax \n",expreg[0]);
+                        fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
                         //Many more cases to come...
                 }
@@ -266,6 +287,20 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
             return;
         }
+
+        case g_iterativeStmt:
+        {
+            generateCode(root->child, symT, fp);
+
+            return;
+        }
+
+        case g_FOR:
+        {
+            
+            return;
+        }
+
 
         case g_ioStmt:
         {
@@ -439,16 +474,12 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 return;
             }
 
-            // TODO: see how floating pt values can be assigned!
-
             if(siblingId->gs == g_RNUM) {
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputFloat \n");
                 fprintf(fp, "\t mov rsi, __float64__(%s) \n", siblingId->tkinfo->lexeme);
-                fprintf(fp, "\t movq xmm0, rsi  \n");
-                fprintf(fp, "\t mov rax, 1  \n");
-                // printf expects double but rsi has float. Therefore, output is 0.000
-                // Need to find a way around this using fld instr but be careful with stack.
+                fprintf(fp, "\t movq xmm0, rsi \n");
+                fprintf(fp, "\t mov rax, 1 \n");
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
                 return;

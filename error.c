@@ -97,9 +97,6 @@ void printError(error e){
                 case SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH:
                     fprintf(stderr,"The primitive types of formal parameter array '%s' and actual parameter array '%s' do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
                     break;
-                case SEME_UNEXPECTED_DYN_ARR_IN_INP_LIST:
-                    fprintf(stderr,"A dynamic array '%s' is found in the input parameter list '%s' of module called here.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
-                    break;
                 case SEME_PARAM_RECV_VAR_IN_ARR:
                     fprintf(stderr,"Returned primitive type variable '%s' is assigned to a variable '%s' of array type.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
                     break;
