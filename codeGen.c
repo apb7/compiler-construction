@@ -21,32 +21,34 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 char *baseRegister[2] = {"RBP", "RSI"};
 
 char *expreg[3] = {"r8","r9","r10"};
-char *expSizeStr = "word";
-char *expSizeRegSuffix = "";    //"d","w",""
+
 int scale = 2;
 
-void setExpSize(gSymbol etype){
+void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
     switch(etype){
         case g_INTEGER:
-            expSizeStr = "dword";
-            expSizeRegSuffix = "d";
+            *expSizeStr = "dword";
+            *expSizeRegSuffix = "d";
             break;
         case g_BOOLEAN:
-            expSizeStr = "word";
-            expSizeRegSuffix = "w";
+            *expSizeStr = "word";
+            *expSizeRegSuffix = "w";
             break;
         case g_REAL:
-            expSizeStr = "qword";
-            expSizeRegSuffix = "";
+            *expSizeStr = "qword";
+            *expSizeRegSuffix = "";
             break;
         default:
-            expSizeStr = "word";
-            expSizeRegSuffix = "w";
+            *expSizeStr = "word";
+            *expSizeRegSuffix = "w";
             break;
     }
 }
 
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
+    char *expSizeStr = "word";
+    char *expSizeRegSuffix = "";    //"d","w",""
+    setExpSize(expType,&expSizeStr,&expSizeRegSuffix);
     if(firstCall){
         if(astNode == NULL)
             return;
@@ -59,7 +61,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         //assignmentStatement Node will be passed
         ASTNode *idNode = astNode->child->child->child;
         expType = idNode->stNode->info.var.vtype.baseType;
-        setExpSize(expType);
+        setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
 //        printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
             //array element and static index
@@ -110,6 +112,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     break;
                 case g_ID:
                 {
+                    setExpSize(astNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
                     if(astNode->stNode->info.var.vtype.vaType == VARIABLE){
                         bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
                         int toSub = scale * (astNode->stNode->info.var.offset + astNode->stNode->info.var.vtype.width);
@@ -150,6 +153,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t pop %s \n",expreg[1]);
                 fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
                 fprintf(fp,"\t pop %s \n",expreg[0]);
+                char *jCmd = NULL;
                 switch(astNode->gs){
                     case g_PLUS:
                         fprintf(fp,"\t add %s, %s \n",expreg[0],expreg[1]);
@@ -158,6 +162,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         fprintf(fp,"\t sub %s, %s \n",expreg[0],expreg[1]);
                         break;
                     case g_MUL:
+                        setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
                         fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
                         fprintf(fp,"\t imul %s%s \n",expreg[1],expSizeRegSuffix);
@@ -165,13 +170,47 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
                     case g_DIV:
+                        setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
                         fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
                         fprintf(fp,"\t idiv %s%s \n",expreg[1],expSizeRegSuffix);
                         fprintf(fp,"\t mov %s, rax \n",expreg[0]);
                         fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
-                        //Many more cases to come...
+                    case g_AND:
+                        fprintf(fp,"\t and %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_OR:
+                        fprintf(fp,"\t or %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_GT:
+                        jCmd = "jg";
+                        break;
+                    case g_LT:
+                        jCmd = "jl";
+                        break;
+                    case g_GE:
+                        jCmd = "jge";
+                        break;
+                    case g_LE:
+                        jCmd = "jle";
+                        break;
+                    case g_EQ:
+                        jCmd = "je";
+                        break;
+                    case g_NE:
+                        jCmd = "jne";
+                        break;
+                }
+                if(jCmd != NULL){
+                    setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+                    fprintf(fp,"\t cmp %s%s, %s%s \n",expreg[0],expSizeRegSuffix,expreg[1],expSizeRegSuffix);
+                    fprintf(fp,"\t %s exp_t_%p \n",jCmd,(void *)astNode);
+                    fprintf(fp,"\t mov %s, 0 \n",expreg[0]);
+                    fprintf(fp,"\t jmp exp_f_%p \n",(void *)astNode);
+                    fprintf(fp,"exp_t_%p:\n",(void*)astNode);
+                    fprintf(fp,"\t mov %s, 1 \n",expreg[0]);
+                    fprintf(fp,"exp_f_%p:\n",(void*)astNode);
                 }
                 fprintf(fp,"\t push %s \n",expreg[0]);
             }
