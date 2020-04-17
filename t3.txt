@@ -1,6 +1,12 @@
 ** This testcase demonstrates correctness of module structure with declaration and simple statements**
 <<<driver program>>>
 start
+	declare a,index:integer;
+	get_value(a);
+	for(index in  1..15)
+	start
+		print(index);
+	end
 	declare a,b :integer;
 
 	get_value(a);
