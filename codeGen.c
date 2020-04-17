@@ -97,11 +97,11 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
 }
 
 //prereq: lower bound in expreg[0], index in expreg[2]
-//outcome: array value at idx in expreg[0]
-void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
+//outcome: address of array element at idx in expreg[1]
+void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
-    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
+//    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
     fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
     setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
     if(arrNode->stNode->info.var.vtype.baseType == g_INTEGER){
@@ -112,17 +112,22 @@ void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
         fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
         fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
     }
-    fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+    fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
     //br[isiolvar] - 2*(offset + arrBaseSize)
     int toSub = scale * (arrNode->stNode->info.var.offset + arrBaseSize);
     bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
-    fprintf(fp,"\t mov %sw, word[%s-%d] \n",expreg[0],baseRegister[isIOlistVar],toSub);
-    fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
-    fprintf(fp,"\t mov %sw, stack_top \n",expreg[1]);
-    fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[0]);
+    fprintf(fp,"\t movsx %s, word[%s-%d] \n",expreg[1],baseRegister[isIOlistVar],toSub);
+    fprintf(fp,"\t add %s, stack_top \n",expreg[1]);
     fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[2]);
-    fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+}
 
+//prereq: lower bound in expreg[0], index in expreg[2]
+//outcome: array value at idx in expreg[0]
+void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
+    char *expSizeStr, *expSizeRegSuffix;
+    getArrAddrAtIdx(arrNode,fp);
+    setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
+    fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
     fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[0],expSizeRegSuffix,expSizeStr,expreg[1]);
 }
 
@@ -144,14 +149,28 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         expType = idNode->stNode->info.var.vtype.baseType;
         setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
         // printf("%s \n",idNode->tkinfo->lexeme);
-        if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
-            //array element and static index
+        if(idNode->next->next != NULL){
             genExpr(idNode->next->next,fp,false,expType);
-            //TODO: Handle Array elements with static index
-        }
-        else if(idNode->next->next != NULL && idNode->next->gs == g_ID){
-            //TODO: handle array element with dynamic index
-
+            //TODO: Handle Array elements with static/dynamic index
+            getArrBoundsInExpReg(idNode,fp);
+            if(idNode->next->gs == g_ID){
+                ASTNode *idxIdNode = idNode->next;
+                bool isIOlistVar = idxIdNode->stNode->info.var.isIOlistVar;
+                int toSub = scale * (idxIdNode->stNode->info.var.offset + idxIdNode->stNode->info.var.vtype.width);
+                setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+                fprintf(fp,"\t xor %s,%s \n",expreg[2],expreg[2]);
+                fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[2],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
+            }
+            else{
+                fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
+            }
+            //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
+            //TODO: Do bound checking and throw runtime error if needed
+            getArrAddrAtIdx(idNode,fp);
+            setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
+            fprintf(fp,"\t pop %s \n",expreg[0]);
+            fprintf(fp, "\t mov %s[%s], %s%s \n", expSizeStr, expreg[1],expreg[0], expSizeRegSuffix);
+            return;
         }
         else{
             //array or variable
