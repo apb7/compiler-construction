@@ -91,8 +91,17 @@ void printError(error e){
                 case SEME_PARAM_PASS_ARR_TO_VAR:
                     fprintf(stderr, "The formal parameter '%s' is a primitive type variable while the passed parameter '%s' is an array.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
                     break;
-                case SEME_PARAM_PASS_VAR_TO_ARR:
-                    fprintf(stderr, "The formal parameter '%s' is an array while the passed parameter '%s' is a primitive type variable.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                case SEME_PARAM_PASS_VAR_TO_STAT_ARR:
+                    fprintf(stderr, "The formal parameter '%s' is a static array while the passed parameter '%s' is a primitive type variable.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_VAR_TO_DYN_L_ARR:
+                    fprintf(stderr, "The formal parameter '%s' is a Dynamic array (in left bound) while the passed parameter '%s' is a primitive type variable.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_VAR_TO_DYN_R_ARR:
+                    fprintf(stderr, "The formal parameter '%s' is a Dynamic array (in right bound) while the passed parameter '%s' is a primitive type variable.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
+                    break;
+                case SEME_PARAM_PASS_VAR_TO_DYN_ARR:
+                    fprintf(stderr, "The formal parameter '%s' is a Dynamic array (in both bounds) while the passed parameter '%s' is a primitive type variable.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);
                     break;
                 case SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH:
                     fprintf(stderr,"The primitive types of formal parameter array '%s' and actual parameter array '%s' do not match.\n",e.edata.seme.errStr1,e.edata.seme.errStr2);

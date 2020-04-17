@@ -1,5 +1,5 @@
 <<module bro>>
-takes input[lo:integer, hi:integer, arr:array[lo..hi] of integer];
+takes input[lo:integer, hi:integer, arr:array[lll..5] of integer];
 returns [a:integer];
 start
 	a := 4;
@@ -9,7 +9,7 @@ end
 start
 	declare b:integer;
 	b := 4 + 12 - 2;
-	declare brr: array[2..10] of integer;
+	declare brr: array[b..8] of integer;
 	[b] := use module bro with parameters b,b,brr;
 
 end

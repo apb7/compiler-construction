@@ -18,6 +18,7 @@
 //TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
 //TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
 //TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
+//TODO: destroy (free) the symbol table and other constructs for continuous execution in driver. Every loop iteration must be a fresh start.
 //DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
 /* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
  *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,
@@ -133,7 +134,6 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
                         return false;
                     }
                     return true;
-                    break;
                 case DYN_L_ARR:
                     if(passedParam->info.var.vtype.ei.vt_num != rb){
 //                        TODO: throw arrayRightRangeMismatchError
@@ -141,7 +141,6 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
                         return false;
                     }
                     return true;
-                    break;
                 case DYN_R_ARR:
                     if(passedParam->info.var.vtype.si.vt_num != lb){
 //                        TODO: throw arrayLeftRangeMismatchError
@@ -149,11 +148,84 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
                         return false;
                     }
                     return true;
-                    break;
                 case DYN_ARR:
                     // can't do anything here
                     return true;
-                    break;
+                default:
+                    fprintf(stderr, "matchStaticBounds: Received a non array type passedParam Node.\n");
+                    return false;
+            }
+            break;
+
+        }
+        case DYN_L_ARR: {
+            unsigned int rb = (inplistNode->info).var.vtype.ei.vt_num;
+            switch(passedParam->info.var.vtype.vaType){
+                case STAT_ARR:
+                    if(passedParam->info.var.vtype.ei.vt_num != rb){
+//                        TODO: throw arrayRightRangeMismatchError
+                        throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_RBOUND_MISMATCH);
+                        return false;
+                    }
+                    return true;
+                case DYN_L_ARR:
+                    if(passedParam->info.var.vtype.ei.vt_num != rb){
+//                        TODO: throw arrayRightRangeMismatchError
+                        throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_RBOUND_MISMATCH);
+                        return false;
+                    }
+                    return true;
+                case DYN_R_ARR:
+                    // can't do anything here
+                    return true;
+                case DYN_ARR:
+                    // can't do anything here
+                    return true;
+                default:
+                    fprintf(stderr, "matchStaticBounds: Received a non array type passedParam Node.\n");
+                    return false;
+            }
+            break;
+
+        }
+        case DYN_R_ARR: {
+            unsigned int lb = (inplistNode->info).var.vtype.si.vt_num;
+            switch(passedParam->info.var.vtype.vaType){
+                case STAT_ARR:
+                    if(passedParam->info.var.vtype.si.vt_num != lb){
+//                        TODO: throw arrayLeftRangeMismatchError
+                        throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_LBOUND_MISMATCH);
+                        return false;
+                    }
+                    return true;
+                case DYN_L_ARR:
+                    // can't do anything here
+                    return true;
+                case DYN_R_ARR:
+                    if(passedParam->info.var.vtype.si.vt_num != lb){
+//                        TODO: throw arrayLeftRangeMismatchError
+                        throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_LBOUND_MISMATCH);
+                        return false;
+                    }
+                    return true;
+                case DYN_ARR:
+                    // can't do anything here
+                    return true;
+                default:
+                    fprintf(stderr, "matchStaticBounds: Received a non array type passedParam Node.\n");
+                    return false;
+            }
+            break;
+
+        }
+        case DYN_ARR: {
+            switch(passedParam->info.var.vtype.vaType){
+                case STAT_ARR:
+                case DYN_L_ARR:
+                case DYN_R_ARR:
+                case DYN_ARR:
+                    // can't do anything here
+                    return true;
                 default:
                     fprintf(stderr, "matchStaticBounds: Received a non array type passedParam Node.\n");
                     return false;
@@ -161,7 +233,7 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
             break;
         }
         default:
-            fprintf(stderr, "matchStaticBounds: Received a non STAT_ARR type paramInpNode.\n");
+            fprintf(stderr, "matchStaticBounds: Received an unexpected array type paramInpNode.\n");
             return false;
     }
 }
@@ -205,7 +277,7 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                 case STAT_ARR:
                     switch(passedOrGot->info.var.vtype.vaType){
                         case VARIABLE:
-                            throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_ARR);
+                            throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_STAT_ARR);
 //                          TODO: throw PasssedVariableToAnArray
                             return false;
                             break;
@@ -223,10 +295,75 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                             return true;
                     }
                     break;
-                default:
                     //TODO: *NEW* Handle base type checking and partial bounds checking for dynamic arrays
-//                    throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_UNEXPECTED_DYN_ARR_IN_INP_LIST);
-                    return true;
+                case DYN_L_ARR:
+                    switch(passedOrGot->info.var.vtype.vaType){
+                        case VARIABLE:
+                            throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_DYN_L_ARR);
+//                          TODO: throw PasssedVariableToAnArray
+                            return false;
+                            break;
+                        default:
+                            // passedOrGot is an array; gotta match static bounds
+                            if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
+                                throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
+//                                TODO throw FuncVariableBaseTypeMismatchError
+                                return false;
+                            }
+                            if(!matchStaticBounds(passedOrGot, plistNode, lno)){
+//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+                                return false;
+                            }
+                            return true;
+                    }
+                    break;
+                case DYN_R_ARR:
+                    switch(passedOrGot->info.var.vtype.vaType){
+                        case VARIABLE:
+                            throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_DYN_R_ARR);
+//                          TODO: throw PasssedVariableToAnArray
+                            return false;
+                            break;
+                        default:
+                            // passedOrGot is an array; gotta match static bounds
+                            if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
+                                throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
+//                                TODO throw FuncVariableBaseTypeMismatchError
+                                return false;
+                            }
+                            if(!matchStaticBounds(passedOrGot, plistNode, lno)){
+//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+                                return false;
+                            }
+                            return true;
+                    }
+                    break;
+                case DYN_ARR:
+                    switch(passedOrGot->info.var.vtype.vaType){
+                        case VARIABLE:
+                            throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_DYN_ARR);
+//                          TODO: throw PasssedVariableToAnArray
+                            return false;
+                            break;
+                        default:
+                            // passedOrGot is an array; gotta match static bounds
+                            if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
+                                throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
+//                                TODO throw FuncVariableBaseTypeMismatchError
+                                return false;
+                            }
+                            if(!matchStaticBounds(passedOrGot, plistNode, lno)){
+//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+                                return false;
+                            }
+                            return true;
+                    }
+
+                    break;
+
+                default:
+                    printf("matchDataType: Unexpected vaType in input list.\n");
+                    return false;
 
             }
             break;
