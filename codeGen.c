@@ -9,7 +9,15 @@
 #include "symbolTable.h"
 #include "typeCheck.h"
 #include "lexerDef.h"
-
+# define RUNTIME_EXIT_WITH_ERROR(e) printf(e)
+/*
+#define  RUNTIME_EXIT_WITH_ERROR (e) \
+    fprintf(fp, "\t mov rdi, %s \n", e); \
+    fprintf(fp, "\t call printf \n"); \
+    fprintf(fp, "\t mov rax, 60 \n"); \
+    fprintf(fp, "\t xor rdi, rdi \n"); \
+    fprintf(fp, "\t syscall \n")
+*/
 extern char *inverseMappingTable[];
 
 
@@ -569,7 +577,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             symVarInfo idVar = siblingId->stNode->info.var;
 
             if(siblingId->next != NULL) {
-                // Array element access
+                // Individual element of array is being accessed! 
 
                 ASTNode *idOrNum = siblingId->next;
 
@@ -604,15 +612,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                                 fprintf(fp, "\t movsx r12, DWORD [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
                             }
-                            fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
 
-                            // jump if less or equal
-                            // kill
+                            fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+                            fprintf(fp, "\t jbe stat_valid_%p: \n", idOrNum);
+                            RUNTIME_EXIT_WITH_ERROR ("OUT_OF_BOUNDS");
 
                             fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
-
-                            // jmp if greator or equal
-                            // kill
+                            fprintf(fp, "\t jae stat_valid_%p: \n", idOrNum);
+                            RUNTIME_EXIT_WITH_ERROR ("OUT_OF_BOUNDS");
 
                             fprintf(fp, "stat_valid_%p: \n", idOrNum);
                             fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
