@@ -9,7 +9,15 @@
 #include "symbolTable.h"
 #include "typeCheck.h"
 #include "lexerDef.h"
-
+# define RUNTIME_EXIT_WITH_ERROR(e) printf(e)
+/*
+#define  RUNTIME_EXIT_WITH_ERROR (e) \
+    fprintf(fp, "\t mov rdi, %s \n", e); \
+    fprintf(fp, "\t call printf \n"); \
+    fprintf(fp, "\t mov rax, 60 \n"); \
+    fprintf(fp, "\t xor rdi, rdi \n"); \
+    fprintf(fp, "\t syscall \n")
+*/
 extern char *inverseMappingTable[];
 
 
@@ -104,7 +112,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         ASTNode *idNode = astNode->child->child->child;
         expType = idNode->stNode->info.var.vtype.baseType;
         setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
-//        printf("%s \n",idNode->tkinfo->lexeme);
+        // printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
             //array element and static index
             genExpr(idNode->next->next,fp,false,expType);
@@ -335,7 +343,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
 
-            fprintf(fp, " \nsection .text \n");
+            fprintf(fp, "\n section .text \n");
             fprintf(fp, "\t global main \n");
             fprintf(fp, "\t extern scanf \n");
             fprintf(fp, "\t extern printf \n");
@@ -371,7 +379,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_DRIVER:
         {
-            fprintf(fp, " \nmain: \n");
+            fprintf(fp, "\n main: \n");
             fprintf(fp, "\t mov rbp, rsp \n");
             fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
             fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
@@ -405,7 +413,24 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_FOR:
         {
-            
+            ASTNode* idNode = root->next; // ID
+            ASTNode* rangeNode = idNode->next;
+            ASTNode* startNode = rangeNode->child;
+            ASTNode* endNode = startNode->next;
+            ASTNode* statementsNode = rangeNode->next->child;
+
+            symVarInfo idNodeVar = idNode->stNode->info.var;
+// Experimental
+            fprintf(fp, "\t mov dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), startNode->tkinfo->lexeme);
+            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), endNode->tkinfo->lexeme);
+            fprintf(fp, "\t ja forLoopEnd_%p \n", endNode);
+            fprintf(fp, "forLoopStart_%p: \n", startNode);
+            generateCode(statementsNode, symT, fp);
+            fprintf(fp, "\t inc dword[%s - %d] \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset));
+            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), endNode->tkinfo->lexeme);
+            fprintf(fp, "\t jna forLoopStart_%p \n", startNode);
+            fprintf(fp, "forLoopEnd_%p: \n", endNode);
+
             return;
         }
 
@@ -513,7 +538,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t jz statarrExit_%p \n", siblingId);
 
                     fprintf(fp, "\t inc r12 \n");
-                    fprintf(fp, "\t sub rsi, -4 \n"); // address of n-th elem 
+                    fprintf(fp, "\t sub rsi, 4 \n"); // address of n-th elem 
 
                     fprintf(fp, "\t jmp statarr_%p \n", siblingId);
 
@@ -556,7 +581,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t jz scan_dyn_exit_%p \n", siblingId);
 
                     fprintf(fp, "\t inc r12 \n");
-                    fprintf(fp, "\t sub rsi, -4 \n"); // address of n-th elem 
+                    fprintf(fp, "\t sub rsi, 4 \n"); // address of n-th elem 
 
                     fprintf(fp, "\t jmp scan_dyn_%p \n", siblingId);
 
@@ -573,7 +598,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_PRINT:
         {   
-            // Need changes here!
             ASTNode* sibling = root->next;
 
             // <ioStmt> -> PRINT BO <var> BC SEMICOL
@@ -582,7 +606,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             // <var> -> <var_id_num> | <boolConstt>
             // <whichId> -> SQBO <index> SQBC | ε
             // <index> -> NUM | ID
-
 
 
             if(sibling->gs == g_TRUE) {
@@ -626,6 +649,68 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             varType idVarType = siblingId->stNode->info.var.vtype;
             symVarInfo idVar = siblingId->stNode->info.var;
 
+            if(siblingId->next != NULL) {
+                // Individual element of array is being accessed! 
+
+                ASTNode *idOrNum = siblingId->next;
+
+                if(idVarType.vaType == STAT_ARR) {
+
+                    fprintf(fp, "\t push rbp \n");
+        
+                    // The only registers that the called function is required to preserve (the calle-save registers) are:
+                    // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
+                    if(idVarType.baseType == g_INTEGER) {
+                        
+                        fprintf(fp, "\t mov rdi, outputInt \n");
+
+                        fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                        fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
+                        fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                        fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+
+                        // Bound check done at compile time
+                        if (idOrNum->gs == g_NUM) {
+                            fprintf(fp, "\t mov r12, %d \n", idOrNum->tkinfo->value.num );
+                            fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
+                            fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
+                            fprintf(fp, "\t sub rsi, r12 \n");
+                        }
+
+                        // ID, we need to do bounds check!
+                        else {
+                            { // Create scope for array index!
+                                varType idVarType = idOrNum->stNode->info.var.vtype;
+                                symVarInfo idVar = idOrNum->stNode->info.var;
+
+                                fprintf(fp, "\t movsx r12, DWORD [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
+                            }
+
+                            fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+                            fprintf(fp, "\t jbe stat_valid_%p: \n", idOrNum);
+                            RUNTIME_EXIT_WITH_ERROR ("OUT_OF_BOUNDS");
+
+                            fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
+                            fprintf(fp, "\t jae stat_valid_%p: \n", idOrNum);
+                            RUNTIME_EXIT_WITH_ERROR ("OUT_OF_BOUNDS");
+
+                            fprintf(fp, "stat_valid_%p: \n", idOrNum);
+                            fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
+                            fprintf(fp, "\t sub rsi, r12 \n");
+                        }
+
+                        fprintf(fp, "\t movsx rsi, DWORD[rsi] \n");
+                        fprintf(fp, "\t call printf \n");
+
+                    }
+
+                    fprintf(fp, "\t pop rbp \n");
+                }
+
+
+                return;
+            }
+
             if(idVarType.vaType == VARIABLE) {
                 // More registers need to me pushed to preserve
                 // their values.
@@ -664,6 +749,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
 
             else if(idVarType.vaType == STAT_ARR) {
+
                 fprintf(fp, "\t push rbp \n");
     
                 // The only registers that the called function is required to preserve (the calle-save registers) are:
@@ -693,7 +779,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t jz statarrExit_%p \n", siblingId);
 
                     fprintf(fp, "\t inc r12 \n");
-                    fprintf(fp, "\t sub rsi, -4 \n"); // address of n-th elem 
+                    fprintf(fp, "\t sub rsi, 4 \n"); // address of n-th elem 
                     fprintf(fp, "\t jmp statarr_%p \n", siblingId);
 
                     fprintf(fp, "statarrExit_%p: \n", siblingId);
@@ -807,6 +893,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 }
 
                 id = id->next;
+                fprintf(fp, "\t ;array declaration done \n\n");
+
             }
 
             return;
