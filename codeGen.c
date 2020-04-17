@@ -21,32 +21,34 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 char *baseRegister[2] = {"RBP", "RSI"};
 
 char *expreg[3] = {"r8","r9","r10"};
-char *expSizeStr = "word";
-char *expSizeRegSuffix = "";    //"d","w",""
+
 int scale = 2;
 
-void setExpSize(gSymbol etype){
+void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
     switch(etype){
         case g_INTEGER:
-            expSizeStr = "dword";
-            expSizeRegSuffix = "d";
+            *expSizeStr = "dword";
+            *expSizeRegSuffix = "d";
             break;
         case g_BOOLEAN:
-            expSizeStr = "word";
-            expSizeRegSuffix = "w";
+            *expSizeStr = "word";
+            *expSizeRegSuffix = "w";
             break;
         case g_REAL:
-            expSizeStr = "qword";
-            expSizeRegSuffix = "";
+            *expSizeStr = "qword";
+            *expSizeRegSuffix = "";
             break;
         default:
-            expSizeStr = "word";
-            expSizeRegSuffix = "w";
+            *expSizeStr = "word";
+            *expSizeRegSuffix = "w";
             break;
     }
 }
 
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
+    char *expSizeStr = "word";
+    char *expSizeRegSuffix = "";    //"d","w",""
+    setExpSize(expType,&expSizeStr,&expSizeRegSuffix);
     if(firstCall){
         if(astNode == NULL)
             return;
@@ -59,7 +61,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         //assignmentStatement Node will be passed
         ASTNode *idNode = astNode->child->child->child;
         expType = idNode->stNode->info.var.vtype.baseType;
-        setExpSize(expType);
+        setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
 //        printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
             //array element and static index
@@ -110,6 +112,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     break;
                 case g_ID:
                 {
+                    setExpSize(astNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
                     if(astNode->stNode->info.var.vtype.vaType == VARIABLE){
                         bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
                         int toSub = scale * (astNode->stNode->info.var.offset + astNode->stNode->info.var.vtype.width);
@@ -150,6 +153,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t pop %s \n",expreg[1]);
                 fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
                 fprintf(fp,"\t pop %s \n",expreg[0]);
+                char *jCmd = NULL;
                 switch(astNode->gs){
                     case g_PLUS:
                         fprintf(fp,"\t add %s, %s \n",expreg[0],expreg[1]);
@@ -158,6 +162,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         fprintf(fp,"\t sub %s, %s \n",expreg[0],expreg[1]);
                         break;
                     case g_MUL:
+                        setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
                         fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
                         fprintf(fp,"\t imul %s%s \n",expreg[1],expSizeRegSuffix);
@@ -165,13 +170,47 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
                     case g_DIV:
+                        setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
                         fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
                         fprintf(fp,"\t idiv %s%s \n",expreg[1],expSizeRegSuffix);
                         fprintf(fp,"\t mov %s, rax \n",expreg[0]);
                         fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
-                        //Many more cases to come...
+                    case g_AND:
+                        fprintf(fp,"\t and %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_OR:
+                        fprintf(fp,"\t or %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_GT:
+                        jCmd = "jg";
+                        break;
+                    case g_LT:
+                        jCmd = "jl";
+                        break;
+                    case g_GE:
+                        jCmd = "jge";
+                        break;
+                    case g_LE:
+                        jCmd = "jle";
+                        break;
+                    case g_EQ:
+                        jCmd = "je";
+                        break;
+                    case g_NE:
+                        jCmd = "jne";
+                        break;
+                }
+                if(jCmd != NULL){
+                    setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+                    fprintf(fp,"\t cmp %s%s, %s%s \n",expreg[0],expSizeRegSuffix,expreg[1],expSizeRegSuffix);
+                    fprintf(fp,"\t %s exp_t_%p \n",jCmd,(void *)astNode);
+                    fprintf(fp,"\t mov %s, 0 \n",expreg[0]);
+                    fprintf(fp,"\t jmp exp_f_%p \n",(void *)astNode);
+                    fprintf(fp,"exp_t_%p:\n",(void*)astNode);
+                    fprintf(fp,"\t mov %s, 1 \n",expreg[0]);
+                    fprintf(fp,"exp_f_%p:\n",(void*)astNode);
                 }
                 fprintf(fp,"\t push %s \n",expreg[0]);
             }
@@ -210,7 +249,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp,"\t msgFloat: db \"Input: Enter a float value:\", 10, 0 \n");
             fprintf(fp,"\t inputFloat: db \"%%lf\",0 \n");
-
 
             fprintf(fp,"\t outputBooleanTrue: db \"Output: true\", 10, 0, \n");
             fprintf(fp,"\t outputBooleanFalse: db \"Output: false\", 10, 0, \n");
@@ -386,7 +424,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, msgInt \n");
                     fprintf(fp, "\t call printf \n");
 
-                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                     fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
@@ -398,9 +436,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     
                     fprintf(fp, "\t push rsi \n");
                     fprintf(fp, "\t push rdi \n");
-                    
                     fprintf(fp, "\t call scanf \n");
-
                     fprintf(fp, "\t pop rdi \n");
                     fprintf(fp, "\t pop rsi \n");
 
@@ -413,19 +449,53 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t jmp statarr_%p \n", siblingId);
 
                     fprintf(fp, "statarrExit_%p: \n", siblingId);
-
-
-                    // Check the value being scanned
-                    // fprintf(fp, "\t mov rdi, outputInt \n");
-                    // fprintf(fp, "\t mov rsi, [inta] \n");
-                    // fprintf(fp, "\t call printf \n");
-
-
                 }
 
                 fprintf(fp, "\t pop rbp \n");
             }
             else /* Dynamic Arrays */ {
+
+                fprintf(fp, "\t push rbp \n");
+
+                if(idVarType.baseType == g_INTEGER) {
+
+                    fprintf(fp, "\t mov rdi, msgInt \n");
+                    fprintf(fp, "\t call printf \n");
+
+                    fprintf(fp, "\t mov rcx, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                    fprintf(fp, "\t sub rcx, %d \n", 2 * (1 + idVar.offset));
+                    fprintf(fp, "\t movsx rsi, word[rcx] \n"); 
+                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    
+                    fprintf(fp, "\t sub rcx, 4 \n");
+                    fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
+
+                    fprintf(fp, "\t sub rcx, 4 \n");
+                    fprintf(fp, "\t movsx r13, DWORD [rcx] \n"); // ub
+
+                    fprintf(fp, "\t mov rdi, inputInt \n");
+
+                    fprintf(fp, "scan_dyn_%p: \n", siblingId);
+                    
+                    fprintf(fp, "\t push rsi \n");
+                    fprintf(fp, "\t push rdi \n");
+                    fprintf(fp, "\t call scanf \n");
+                    fprintf(fp, "\t pop rdi \n");
+                    fprintf(fp, "\t pop rsi \n");
+                    
+                    fprintf(fp, "\t cmp r12, r13 \n"); // ub
+                    fprintf(fp, "\t jz scan_dyn_exit_%p \n", siblingId);
+
+                    fprintf(fp, "\t inc r12 \n");
+                    fprintf(fp, "\t sub rsi, -4 \n"); // address of n-th elem 
+
+                    fprintf(fp, "\t jmp scan_dyn_%p \n", siblingId);
+
+                    fprintf(fp, "scan_dyn_exit_%p: \n", siblingId);
+                }
+
+                fprintf(fp, "\t pop rbp \n");
+
 
             }
             fprintf(fp,"\t ; GET_VALUE(%s) ends\n", siblingId->tkinfo->lexeme);
@@ -559,22 +629,19 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, output \n");
                     fprintf(fp, "\t call printf \n");
 
-                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                     fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
                     
                     fprintf(fp, "\t mov rdi, intHolder \n");
-
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
                     fprintf(fp, "statarr_%p: \n", siblingId);
                     
                     fprintf(fp, "\t push rsi \n");
                     fprintf(fp, "\t push rdi \n");
-                    
                     fprintf(fp, "\t movsx rsi, DWORD[rsi] \n");
                     fprintf(fp, "\t call printf \n");
-
                     fprintf(fp, "\t pop rdi \n");
                     fprintf(fp, "\t pop rsi \n");
 
@@ -588,14 +655,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "statarrExit_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, newLine \n");
                     fprintf(fp, "\t call printf \n");
-
-
-                    // Check the value being scanned
-                    // fprintf(fp, "\t mov rdi, outputInt \n");
-                    // fprintf(fp, "\t mov rsi, [inta] \n");
-                    // fprintf(fp, "\t call printf \n");
-
-
                 }
 
                 fprintf(fp, "\t pop rbp \n");
@@ -630,9 +689,84 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov word[rdi], si \n"); // only 1 location = 2B available!
                 }
 
+                else if(idVar.vtype.vaType == DYN_L_ARR) {
+                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
+                    fprintf(fp, "\t mov rsi, rsp \n");
+                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
+
+                    symVarInfo lbVar = idVar.vtype.si.vt_id->info.var;
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
+                    fprintf(fp, "\t mov DWORD [rdi], %d \n", idVar.vtype.ei.vt_num); 
+
+                    fprintf(fp, "\t mov edi, %d \n", idVar.vtype.ei.vt_num);
+                    fprintf(fp, "\t sub edi, esi \n"); 
+                    fprintf(fp, "\t inc edi \n");
+
+                    // TODO : USE ABOVE VAL! checks and align stack!
+
+                    fprintf(fp, "\t sub rsp, 192 \n");
+                }
+
+                else if(idVar.vtype.vaType == DYN_R_ARR) {
+                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
+                    fprintf(fp, "\t mov rsi, rsp \n");
+                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
+
+                    symVarInfo ubVar = idVar.vtype.ei.vt_id->info.var;
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
+                    fprintf(fp, "\t mov DWORD [rdi], %d \n", idVar.vtype.si.vt_num); 
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[ubVar.isIOlistVar], 2 * (ubVar.vtype.width + ubVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
+
+                    fprintf(fp, "\t sub esi, %d \n", idVar.vtype.si.vt_num); 
+                    fprintf(fp, "\t inc esi \n");
+                    // TODO : USE ABOVE VAL! checks and align stack!
+
+                    fprintf(fp, "\t sub rsp, 192 \n");
+                }
+
+                else if(idVar.vtype.vaType == DYN_ARR) {
+                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
+                    fprintf(fp, "\t mov rsi, rsp \n");
+                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
+
+                    symVarInfo lbVar = idVar.vtype.si.vt_id->info.var;
+                    symVarInfo ubVar = idVar.vtype.ei.vt_id->info.var;
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[ubVar.isIOlistVar], 2 * (ubVar.vtype.width + ubVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n");  
+
+                    fprintf(fp, "\t sub esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
+                    fprintf(fp, "\t inc esi \n");
+
+                    // TODO : USE ABOVE VAL! checks and align stack!
+
+                    fprintf(fp, "\t sub rsp, 192 \n");
+                }
+
                 id = id->next;
             }
 
+            return;
         }
         
         case g_assignmentStmt:
