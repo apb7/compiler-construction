@@ -24,14 +24,18 @@ section .text
 main: 
 	 mov rbp, rsp 
 	 mov rdx, rsp 
-	 sub rsp, 192 
+	 sub rsp, 96 
 	 push rbp 
 	 mov rdi, msgFloat 
 	 call printf 
 	 mov rdi, inputFloat 
+	 mov rsi, RBP 
+	 sub rsi, 0 
+	 call scanf 
 	 pop rbp 
 	 push rbp 
-	 mov rsi, [RBP - 8] 
+	 mov rdi, outputFloat 
+	 mov rsi, [RBP - 0] 
 	 call printf 
 	 pop rbp 
 	 push rbp 
@@ -39,25 +43,12 @@ main:
 	 call printf 
 	 mov rdi, inputFloat 
 	 mov rsi, RBP 
-	 sub rsi, 16 
+	 sub rsi, 4 
 	 call scanf 
 	 pop rbp 
 	 push rbp 
 	 mov rdi, outputFloat 
-	 mov rsi, [RBP - 16] 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, msgFloat 
-	 call printf 
-	 mov rdi, inputFloat 
-	 mov rsi, RBP 
-	 sub rsi, 24 
-	 call scanf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputFloat 
-	 mov rsi, [RBP - 24] 
+	 mov rsi, [RBP - 4] 
 	 call printf 
 	 pop rbp 
 	 push rbp 
@@ -65,18 +56,18 @@ main:
  	 call printf  
  	 mov rdi, inputBoolean 
 	 mov rsi, RBP 
-	 sub rsi, 26 
+	 sub rsi, 8 
 	 call scanf 
 	 pop rbp 
 	 push rbp 
-	 cmp word[RBP - 26], 0 
-	 jz boolPrintFalse17 
-boolPrintTrue17: 
+	 cmp word[RBP - 8], 0 
+	 jz boolPrintFalse14 
+boolPrintTrue14: 
 	 mov rdi, outputBooleanTrue 
-	 jmp boolPrintEnd17 
-boolPrintFalse17: 
+	 jmp boolPrintEnd14 
+boolPrintFalse14: 
 	 mov rdi, outputBooleanFalse 
-boolPrintEnd17: 
+boolPrintEnd14: 
 	 call printf 
 	 pop rbp 
 	 push rbp 
@@ -84,12 +75,12 @@ boolPrintEnd17:
 	 call printf 
 	 mov rdi, inputInt 
 	 mov rsi, RBP 
-	 sub rsi, 30 
+	 sub rsi, 9 
 	 call scanf 
 	 pop rbp 
 	 push rbp 
 	 mov rdi, outputInt 
-	 mov rsi, [RBP - 30] 
+	 mov rsi, [RBP - 9] 
 	 call printf 
 	 pop rbp 
 	 push rbp 
@@ -97,12 +88,12 @@ boolPrintEnd17:
 	 call printf 
 	 mov rdi, inputInt 
 	 mov rsi, RBP 
-	 sub rsi, 30 
+	 sub rsi, 11 
 	 call scanf 
 	 pop rbp 
 	 push rbp 
 	 mov rdi, outputInt 
-	 mov rsi, [RBP - 30] 
+	 mov rsi, [RBP - 11] 
 	 call printf 
 	 pop rbp 
 	 push rbp 
@@ -110,27 +101,12 @@ boolPrintEnd17:
 	 call printf 
 	 mov rdi, inputInt 
 	 mov rsi, RBP 
-	 sub rsi, 34 
+	 sub rsi, 13 
 	 call scanf 
 	 pop rbp 
 	 push rbp 
 	 mov rdi, outputInt 
-	 mov rsi, [RBP - 34] 
+	 mov rsi, [RBP - 13] 
 	 call printf 
 	 pop rbp 
-	 push rbp 
-	 mov rdi, outputFloat 
-	 mov rsi, __float64__(1.3) 
-	 movq xmm0, rsi  
-	 mov rax, 1  
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputBooleanTrue 
-	 call printf 
-	 pop rbp 
-	 push rbp 
-	 mov rdi, outputBooleanFalse 
-	 call printf 
-	 pop rbp 
-	 mov rsp, rbp 
+	 mov rsp, rbp
