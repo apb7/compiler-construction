@@ -503,6 +503,9 @@ void initVarType(varType *vt) {
 varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST) {
     varType vt;
     initVarType(&vt);
+    bool inpListParam = false;
+    if(funcInfo == NULL && currST == NULL)
+        inpListParam = true;    //this can only happen for input lists, kyuki unke upar koi scope nhi
 
     if(typeOrDataTypeNode == NULL){
         fprintf(stderr, "getVType: Received a NULL Node.\n");
@@ -561,13 +564,18 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                             case g_ID:
                                 vt.vaType = DYN_R_ARR;
                                 vt.si.vt_num = lb;
-                                vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
-                                if(vt.ei.vt_id == NULL)
-                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
-                                else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
-                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
-                                else
-                                    numOrId->next->stNode = vt.ei.vt_id;
+                                if(inpListParam){
+                                    vt.ei.vt_id = NULL;
+                                }
+                                else{
+                                    vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
+                                    if(vt.ei.vt_id == NULL)
+                                        throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                    else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                        throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                    else
+                                        numOrId->next->stNode = vt.ei.vt_id;
+                                }
                                 // can't statically get 'width' and 'ei.vt_num' (as NUM) fields
                                 break;
                             default:
@@ -582,33 +590,45 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
                             case g_NUM: {
                                 unsigned int rb = numOrId->next->tkinfo->value.num;
                                 vt.vaType = DYN_L_ARR;
-                                vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
-                                if(vt.si.vt_id == NULL)
-                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
-                                else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
-                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
-                                else
-                                    numOrId->stNode = vt.si.vt_id;
+                                if(inpListParam)
+                                    vt.si.vt_id = NULL;
+                                else{
+                                    vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
+                                    if(vt.si.vt_id == NULL)
+                                        throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                    else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                        throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                    else
+                                        numOrId->stNode = vt.si.vt_id;
+                                }
                                 vt.ei.vt_num = rb;
                                 // can't statically get 'width' and 'si.vt_num' fields
                                 break;
                             }
                             case g_ID:
                                 vt.vaType = DYN_ARR;
-                                vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
-                                if(vt.si.vt_id == NULL)
-                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
-                                else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
-                                    throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
-                                else
-                                    numOrId->stNode = vt.si.vt_id;
-                                vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
-                                if(vt.ei.vt_id == NULL)
-                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
-                                else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
-                                    throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
-                                else
-                                    numOrId->next->stNode = vt.ei.vt_id;
+                                if(inpListParam)
+                                    vt.si.vt_id = NULL;
+                                else{
+                                    vt.si.vt_id = checkIDInScopesAndLists(numOrId, funcInfo, currST, false);
+                                    if(vt.si.vt_id == NULL)
+                                        throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                    else if(vt.si.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                        throwSemanticError(numOrId->tkinfo->lno,numOrId->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                    else
+                                        numOrId->stNode = vt.si.vt_id;
+                                }
+                                if(inpListParam)
+                                    vt.ei.vt_id = NULL;
+                                else{
+                                    vt.ei.vt_id = checkIDInScopesAndLists(numOrId->next, funcInfo, currST, false);
+                                    if(vt.ei.vt_id == NULL)
+                                        throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_UNDECLARED);
+                                    else if(vt.ei.vt_id->info.var.vtype.baseType != g_INTEGER)
+                                        throwSemanticError(numOrId->next->tkinfo->lno,numOrId->next->tkinfo->lexeme,NULL,SEME_ARR_IDX_NOT_INT);
+                                    else
+                                        numOrId->next->stNode = vt.ei.vt_id;
+                                }
                                 // can't statically get 'width', 'si.vt_num' and 'ei.vt_num' fields
                                 break;
                             default:
@@ -677,7 +697,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         if(idNode->tkinfo)
             (ptr->info).var.lno = idNode->tkinfo->lno;
         strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
-        (ptr->info).var.vtype = getVtype(dataTypeNode, funcInfo, NULL);
+        (ptr->info).var.vtype = getVtype(dataTypeNode, NULL, NULL);
         //TODO: check Offset computation
         (ptr->info).var.offset = nextGlobalOffset;
         nextGlobalOffset += (ptr->info).var.vtype.width;
