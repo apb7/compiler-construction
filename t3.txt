@@ -1,31 +1,15 @@
 ** This testcase demonstrates correctness of module structure with declaration and simple statements**
 <<<driver program>>>
 start
-	declare a,b,c:real;
+	declare a :integer;
+
 	get_value(a);
 	print(a);
 
-	get_value(b);
-	print(b);
 
-	get_value(c);
-	print(c);
+	declare arr2:array[a..8] of integer;
 
-	declare aa:boolean;
-	declare x,y : integer;
-	get_value(aa);
-	print(aa);
 
-	get_value(x);
-	print(x);
+	get_value(arr2);
 
-	get_value(x);
-	print(x);
-
-	get_value(y);
-	print(y);
-
-	print(1.3);
-	print(true);
-	print(false);
 end
