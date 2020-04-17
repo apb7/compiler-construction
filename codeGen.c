@@ -378,6 +378,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp,"\t output: db \"Output: \", 0 \n");
             fprintf(fp,"\t intHolder: db \"%%d \", 0 \n");
+            fprintf(fp,"\t booleanTrue: db \"true \", 0 \n");
+            fprintf(fp,"\t booleanFalse: db \"true \", 0 \n");
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
 
@@ -830,7 +832,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                     fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
-                    
+
                     fprintf(fp, "\t mov rdi, intHolder \n");
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
                     fprintf(fp, "statarr_%p: \n", siblingId);
@@ -852,6 +854,50 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "statarrExit_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, newLine \n");
                     fprintf(fp, "\t call printf \n");
+                }
+                else if(idVarType.baseType == g_BOOLEAN) {
+
+                    fprintf(fp, "\t mov rdi, output \n");
+                    fprintf(fp, "\t call printf \n");
+
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
+                    fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+
+                    fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num);
+
+                    fprintf(fp, "statArrBoolStart_%p: \n", siblingId);
+                    fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+                    fprintf(fp, "\t ja statArrBoolEnd_%p \n", siblingId);
+
+                    fprintf(fp, "\t cmp word[rsi], 0 \n");
+                    fprintf(fp, "\t je statArrBoolFalse_%p \n", siblingId);
+
+                    fprintf(fp, "\t mov rdi, booleanTrue \n");
+                    fprintf(fp, "\t jmp statArrBoolPrint_%p \n", siblingId);
+
+
+                    fprintf(fp, "statArrBoolFalse_%p: \n", siblingId);
+                    fprintf(fp, "\t mov rdi, booleanFalse \n");
+
+                    fprintf(fp, "statArrBoolPrint_%p: \n", siblingId);
+                    // call to printf can modify rdi and rsi. Therefore, save them.
+                    fprintf(fp, "\t push rsi \n");
+                    fprintf(fp, "\t push rdi \n");
+                    fprintf(fp, "\t call printf \n");
+                    fprintf(fp, "\t pop rdi \n");
+                    fprintf(fp, "\t pop rsi \n");
+
+                    fprintf(fp, "\t inc r12 \n");
+                    fprintf(fp, "\t sub rsi, 2 \n"); // 2*width of boolean datatype
+                    fprintf(fp, "\t jmp statArrBoolStart_%p \n", siblingId);
+
+
+                    fprintf(fp, "statArrBoolEnd_%p: \n", siblingId);
+                    fprintf(fp, "\t mov rdi, newLine \n");
+                    fprintf(fp, "\t call printf \n");
+
                 }
 
                 fprintf(fp, "\t pop rbp \n");
