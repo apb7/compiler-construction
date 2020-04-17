@@ -581,8 +581,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
                     if(idVarType.baseType == g_INTEGER) {
                         
-                        printf("In here\n");
-
                         fprintf(fp, "\t mov rdi, outputInt \n");
 
                         fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
@@ -592,7 +590,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                         // Bound check done at compile time
                         if (idOrNum->gs == g_NUM) {
-                            printf("%d\n", idOrNum->tkinfo->value.num );
                             fprintf(fp, "\t mov r12, %d \n", idOrNum->tkinfo->value.num );
                             fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
                             fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
@@ -601,10 +598,12 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                         // ID, we need to do bounds check!
                         else {
-                            varType idVarType = idOrNum->stNode->info.var.vtype;
-                            symVarInfo idVar = idOrNum->stNode->info.var;
+                            { // Create scope for array index!
+                                varType idVarType = idOrNum->stNode->info.var.vtype;
+                                symVarInfo idVar = idOrNum->stNode->info.var;
 
-                            fprintf(fp, "\t mov r12, [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
+                                fprintf(fp, "\t movsx r12, DWORD [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
+                            }
                             fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
 
                             // jump if less or equal
