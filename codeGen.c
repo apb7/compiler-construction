@@ -21,7 +21,7 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 char *baseRegister[2] = {"RBP", "RSI"};
 
 char *expreg[3] = {"r8","r9","r10"};
-
+int arrBaseSize = 1;    //in words
 int scale = 2;
 
 void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
@@ -42,6 +42,48 @@ void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
             *expSizeStr = "word";
             *expSizeRegSuffix = "w";
             break;
+    }
+}
+
+void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
+    char *expSizeStr, *expSizeRegSuffix;
+    setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+    varType arrVtype = arrNode->stNode->info.var.vtype;
+    if(arrVtype.vaType == DYN_L_ARR || arrVtype.vaType == DYN_ARR){
+        //get the left bound to expreg[0]
+        symTableNode *leftStn = arrVtype.si.vt_id;
+        bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
+        int toSub;
+        if(isIOlistVar){
+            toSub = scale *(arrNode->stNode->info.var.offset + arrBaseSize + getSizeByType(g_INTEGER));
+        }
+        else{
+            toSub = scale * (leftStn->info.var.offset + leftStn->info.var.vtype.width);
+        }
+        fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[0],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar], toSub);
+    }
+    if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == DYN_ARR){
+        //get the right bound to expreg[1]
+        symTableNode *rightStn = arrVtype.ei.vt_id;
+        bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
+        int toSub;
+        if(isIOlistVar){
+            toSub = scale *(arrNode->stNode->info.var.offset + arrBaseSize + (2*getSizeByType(g_INTEGER)));
+        }
+        else{
+            toSub = scale * (rightStn->info.var.offset + rightStn->info.var.vtype.width);
+        }
+        fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[1],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar], toSub);
+    }
+    if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == STAT_ARR){
+        //get the left bound to expreg[0]
+        fprintf(fp,"\t mov %s, %d \n",expreg[0],arrVtype.si.vt_num);
+    }
+    if(arrVtype.vaType == DYN_L_ARR || arrVtype.vaType == STAT_ARR){
+        //get the right bound to expreg[1]
+        fprintf(fp,"\t mov %s, %d \n",expreg[1],arrVtype.ei.vt_num);
     }
 }
 
@@ -113,7 +155,6 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 case g_ID:
                 {
                     setExpSize(astNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
-                    varType idVtype = astNode->stNode->info.var.vtype;
                     if(astNode->stNode->info.var.vtype.vaType == VARIABLE){
                         bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
                         int toSub = scale * (astNode->stNode->info.var.offset + astNode->stNode->info.var.vtype.width);
@@ -131,9 +172,36 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     }
                     else{
                         //TODO: Array element handling
-                        if(idVtype.vaType == DYN_L_ARR || idVtype.vaType == DYN_ARR){
-
+                        //for bounds
+                        getArrBoundsInExpReg(astNode,fp);
+                        if(astNode->next->gs == g_ID){
+                            ASTNode *idxIdNode = astNode->next;
+                            bool isIOlistVar = idxIdNode->stNode->info.var.isIOlistVar;
+                            int toSub = scale * (idxIdNode->stNode->info.var.offset + idxIdNode->stNode->info.var.vtype.width);
+                            setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+                            fprintf(fp,"\t xor %s,%s \n",expreg[2],expreg[2]);
+                            fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[2],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
                         }
+                        else{
+                            fprintf(fp,"\t mov %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
+                        }
+                        //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
+                        //TODO: Do bound checking and throw runtime error if needed
+
+                        //toSub from array base
+                        fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
+                        fprintf(fp,"\t add %s, 1 \n",expreg[2]);
+                        fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+                        //br[isiolvar] - 2*(offset + arrBaseSize)
+                        int toSub = scale * (astNode->stNode->info.var.offset + arrBaseSize);
+                        bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
+                        fprintf(fp,"\t mov %sw, word[%s-%d] \n",expreg[0],baseRegister[isIOlistVar],toSub);
+                        fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+                        fprintf(fp,"\t mov %sw, stack_top \n",expreg[1]);
+                        fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[0]);
+                        
+
+
 
                     }
                 }
