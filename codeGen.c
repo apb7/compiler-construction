@@ -113,6 +113,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 case g_ID:
                 {
                     setExpSize(astNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
+                    varType idVtype = astNode->stNode->info.var.vtype;
                     if(astNode->stNode->info.var.vtype.vaType == VARIABLE){
                         bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
                         int toSub = scale * (astNode->stNode->info.var.offset + astNode->stNode->info.var.vtype.width);
@@ -130,6 +131,10 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     }
                     else{
                         //TODO: Array element handling
+                        if(idVtype.vaType == DYN_L_ARR || idVtype.vaType == DYN_ARR){
+
+                        }
+
                     }
                 }
                 break;
