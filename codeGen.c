@@ -123,6 +123,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_program:
         {
             fprintf(fp, "section .bss \n");
+            fprintf(fp, "\t stack_top: resb 8 \n");
             fprintf(fp, "\t inta: resb 4 \n");
             fprintf(fp, "\t floatb: resb 8 \n");
             fprintf(fp, "\t boolc: resb 2 \n");
@@ -188,7 +189,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
             fprintf(fp, " \nmain: \n");
             fprintf(fp, "\t mov rbp, rsp \n");
-            fprintf(fp, "\t mov rdx, rsp \n");
+            fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
             fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
 
             generateCode(root->child, symT, fp);
@@ -391,6 +392,33 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+
+        case g_declareStmt:
+        {
+            ASTNode *idList = root->child;
+
+            ASTNode *id = idList->child;
+
+            while(id != NULL) {
+                symVarInfo idVar = id->stNode->info.var;
+
+                if(idVar.vtype.vaType == VARIABLE)
+                    return;
+                
+                else if(idVar.vtype.vaType == STAT_ARR) {
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
+                    fprintf(fp, "\t mov rdi, rsi \n");
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Base address
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (idVar.offset + 1 + getSizeByType(idVar.vtype.baseType))); // First elem
+                    fprintf(fp, "\t sub rsi, stack_top \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t mov word[rdi], si \n"); // only 1 location = 2B available!
+                }
+
+                id = id->next;
+            }
+
+        }
+
         case g_conditionalStmt:{
 
         }
