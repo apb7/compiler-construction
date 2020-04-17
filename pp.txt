@@ -1,79 +1,12 @@
-################################# SYMBOL TABLE #################################
 
-################################# FUNCTION TABLE #################################
 
-SNO Func-Name           Status Line  
-1   var_demo_array      2      5     
-2   f1                  2      34    
+####################################################################### SYMBOL TABLE #######################################################################
 
-################################# MODULE 'var_demo_array' #################################
+SNO   VAR-NAME            SCOPE: FUNC-NAME         SCOPE: LINES   WIDTH   IS ARRAY? STAT/DYN   RANGE               TYPE      OFFSET LEVEL  
 
-################################# I/O VARS #################################
+[DEBUG] ACTIVATION RECORD SIZE = 2
+1     b                   @driver                  [4,29]         2       No        ---        ---                 INTEGER   0      1      
 
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    x                    Variable   INTEGER    ----                      ----                      6     0     
-2    m                    Array      INTEGER    2                         20                        6     2     
-3    p                    Variable   REAL       ----                      ----                      6     7     
-4    z1                   Array      REAL       NULL                      NULL                      6     11    
-5    n                    Variable   INTEGER    ----                      ----                      7     16    
-6    k                    Variable   BOOLEAN    ----                      ----                      7     18    
+########################################################################## ~ ** ~ ##########################################################################
 
-################################# Level 0 #################################
-
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    a                    Variable   INTEGER    ----                      ----                      9     0     
-2    b                    Variable   INTEGER    ----                      ----                      9     2     
-3    h                    Variable   INTEGER    ----                      ----                      9     4     
-4    p                    Array      INTEGER    2                         20                        11    6     
-5    z2                   Array      INTEGER    a                         b                         28    88    
-6    z3                   Array      INTEGER    a                         b                         28    89    
-7    x1                   Variable   REAL       ----                      ----                      29    90    
-
-################################# Level 1 #################################
-
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    b                    Array      INTEGER    2                         20                        20    49    
-2    p                    Variable   INTEGER    ----                      ----                      19    45    
-3    u                    Variable   INTEGER    ----                      ----                      19    47    
-
-################################# MODULE 'f1' #################################
-
-################################# I/O VARS #################################
-
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    a                    Array      INTEGER    NULL                      NULL                      35    0     
-2    b                    Array      INTEGER    10                        30                        35    5     
-3    c                    Variable   REAL       ----                      ----                      35    10    
-4    m                    Variable   BOOLEAN    ----                      ----                      36    14    
-5    n                    Variable   INTEGER    ----                      ----                      36    15    
-
-################################# Level 0 #################################
-
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    k                    Variable   INTEGER    ----                      ----                      39    12    
-2    p                    Variable   REAL       ----                      ----                      38    8     
-3    x                    Variable   REAL       ----                      ----                      38    0     
-4    y                    Variable   REAL       ----                      ----                      38    4     
-5    A                    Array      INTEGER    4                         10                        42    14    
-6    B                    Array      INTEGER    4                         10                        42    29    
-7    C                    Array      INTEGER    10                        30                        44    87    
-8    D                    Array      INTEGER    10                        30                        44    44    
-9    G                    Array      REAL       NULL                      NULL                      77    203   
-
-################################# Level 1 #################################
-
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    u                    Variable   REAL       ----                      ----                      51    130   
-2    v                    Variable   REAL       ----                      ----                      51    134   
-
-################################# Level 2 #################################
-
-SNO  LEXEME               VAR/ARR    TYPE       LB                        UB                        LINE  OFFSET
-1    A                    Variable   REAL       ----                      ----                      56    138   
-2    B                    Array      INTEGER    10                        30                        58    144   
-3    E                    Array      INTEGER    4                         10                        59    187   
-4    F                    Array      BOOLEAN    NULL                      NULL                      66    202   
-5    Q                    Variable   INTEGER    ----                      ----                      57    142   
-
-##################################### ~ ** ~ #####################################
-
+NOTE: The variables which are undeclared and used as array indices are stated as NULL under RANGE header.
