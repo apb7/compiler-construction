@@ -463,27 +463,31 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t movsx rsi, word[rcx] \n"); 
                     fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
                     
-                    
                     fprintf(fp, "\t sub rcx, 4 \n");
                     fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
-                    fprintf(fp, "scan_dyn_l_%p: \n", siblingId);
+
+                    fprintf(fp, "\t sub rcx, 4 \n");
+                    fprintf(fp, "\t movsx r13, DWORD [rcx] \n"); // ub
+
+                    fprintf(fp, "\t mov rdi, inputInt \n");
+
+                    fprintf(fp, "scan_dyn_%p: \n", siblingId);
                     
                     fprintf(fp, "\t push rsi \n");
-                    fprintf(fp, "\t push rcx \n");
-                    fprintf(fp, "\t mov rdi, inputInt \n");
+                    fprintf(fp, "\t push rdi \n");
                     fprintf(fp, "\t call scanf \n");
-                    fprintf(fp, "\t pop rcx \n");
+                    fprintf(fp, "\t pop rdi \n");
                     fprintf(fp, "\t pop rsi \n");
-
-                    fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num ); // ub
-                    fprintf(fp, "\t jz scan_dyn_l_Exit_%p \n", siblingId);
+                    
+                    fprintf(fp, "\t cmp r12, r13 \n"); // ub
+                    fprintf(fp, "\t jz scan_dyn_exit_%p \n", siblingId);
 
                     fprintf(fp, "\t inc r12 \n");
                     fprintf(fp, "\t sub rsi, -4 \n"); // address of n-th elem 
 
-                    fprintf(fp, "\t jmp scan_dyn_l_%p \n", siblingId);
+                    fprintf(fp, "\t jmp scan_dyn_%p \n", siblingId);
 
-                    fprintf(fp, "scan_dyn_l_Exit_%p: \n", siblingId);
+                    fprintf(fp, "scan_dyn_exit_%p: \n", siblingId);
                 }
 
                 fprintf(fp, "\t pop rbp \n");
@@ -671,20 +675,62 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
                     fprintf(fp, "\t mov DWORD [rdi], %d \n", idVar.vtype.ei.vt_num); 
 
-                    fprintf(fp, "\t sub esi, %d \n", idVar.vtype.ei.vt_num); 
-                    fprintf(fp, "\t inc esi \n");
+                    fprintf(fp, "\t mov edi, %d \n", idVar.vtype.ei.vt_num);
+                    fprintf(fp, "\t sub edi, esi \n"); 
+                    fprintf(fp, "\t inc edi \n");
 
-                    // TODO : USE ABOVE VAL!
+                    // TODO : USE ABOVE VAL! checks and align stack!
 
                     fprintf(fp, "\t sub rsp, 192 \n");
                 }
 
                 else if(idVar.vtype.vaType == DYN_R_ARR) {
+                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
+                    fprintf(fp, "\t mov rsi, rsp \n");
+                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
 
+                    symVarInfo ubVar = idVar.vtype.ei.vt_id->info.var;
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
+                    fprintf(fp, "\t mov DWORD [rdi], %d \n", idVar.vtype.si.vt_num); 
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[ubVar.isIOlistVar], 2 * (ubVar.vtype.width + ubVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
+
+                    fprintf(fp, "\t sub esi, %d \n", idVar.vtype.si.vt_num); 
+                    fprintf(fp, "\t inc esi \n");
+                    // TODO : USE ABOVE VAL! checks and align stack!
+
+                    fprintf(fp, "\t sub rsp, 192 \n");
                 }
 
                 else if(idVar.vtype.vaType == DYN_ARR) {
+                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
+                    fprintf(fp, "\t mov rsi, rsp \n");
+                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
 
+                    symVarInfo lbVar = idVar.vtype.si.vt_id->info.var;
+                    symVarInfo ubVar = idVar.vtype.ei.vt_id->info.var;
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
+
+                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
+                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[ubVar.isIOlistVar], 2 * (ubVar.vtype.width + ubVar.offset));
+                    fprintf(fp, "\t mov DWORD [rdi], esi \n");  
+
+                    fprintf(fp, "\t sub esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
+                    fprintf(fp, "\t inc esi \n");
+
+                    // TODO : USE ABOVE VAL! checks and align stack!
+
+                    fprintf(fp, "\t sub rsp, 192 \n");
                 }
 
                 id = id->next;
