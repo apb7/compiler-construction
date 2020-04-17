@@ -66,8 +66,11 @@ ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot, gSymbol g_
 
     ASTNode* cur = AST_N1;
 
-    while(cur->child->gs == g_op1 || cur->child->gs == g_op2)
+    // Go to the lowest level where an operator's children are not already filled.
+    // Example, b := 11 - 10 + (12 - 1);
+    while((cur->child->gs == g_op1 || cur->child->gs == g_op2) && (cur->child->next != NULL)) {
         cur = cur->child;
+    }
 
     ASTOp->next = cur->child;
     ASTOp->parent = cur;
