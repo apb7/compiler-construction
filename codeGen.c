@@ -90,7 +90,14 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
     }
     else{
         if(astNode->gs == g_u){
-            //TODO: Handle unary
+            ASTNode *uOp = astNode->child;
+            genExpr(uOp->next,fp,false,expType);
+            if(uOp->gs == g_MINUS){
+                fprintf(fp,"\t pop %s \n",expreg[1]);
+                fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+                fprintf(fp,"\t sub %s,%s \n",expreg[0],expreg[1]);
+                fprintf(fp,"\t push %s \n", expreg[0]);
+            }
         }
         else if(astNode->gs == g_var_id_num){
             astNode = astNode->child;
@@ -149,6 +156,16 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         break;
                     case g_MINUS:
                         fprintf(fp,"\t sub %s, %s \n",expreg[0],expreg[1]);
+                        break;
+                    case g_MUL:
+                        fprintf(fp,"\t push rax \n");   //to save the prev value
+                        fprintf(fp,"\t mov rax, %s \n",expreg[0]);
+                        fprintf(fp,"\t imul %s%s \n",expreg[1],expSizeRegSuffix);
+                        fprintf(fp,"\t mov %s, rax \n",expreg[0]);
+                        fprintf(fp,"\t pop rax \n");    //to restore the prev value
+                        break;
+                    case g_DIV:
+                        
                         break;
                         //Many more cases to come...
                 }
