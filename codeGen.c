@@ -338,17 +338,17 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             ASTNode* endNode = startNode->next;
             ASTNode* statementsNode = rangeNode->next->child;
 
-            symVarInfo startNodeVar = startNode->stNode->info.var;
+            symVarInfo idNodeVar = idNode->stNode->info.var;
 // Experimental
-            fprintf(fp, "\t mov dword[%s - %d], %s \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset), startNode->tkinfo->lexeme);
-            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset), endNode->tkinfo->lexeme);
-            fprintf(fp, "\t ja forLoopEnd \n");
-            fprintf(fp, "forLoopStart: \n");
+            fprintf(fp, "\t mov dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), startNode->tkinfo->lexeme);
+            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), endNode->tkinfo->lexeme);
+            fprintf(fp, "\t ja forLoopEnd_%p \n", endNode);
+            fprintf(fp, "forLoopStart_%p: \n", startNode);
             generateCode(statementsNode, symT, fp);
-            fprintf(fp, "\t inc dword[%s - %d] \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset));
-            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[startNodeVar.isIOlistVar], 2*(startNodeVar.vtype.width + startNodeVar.offset), endNode->tkinfo->lexeme);
-            fprintf(fp, "\t jna forLoopStart \n");
-            fprintf(fp, "forLoopEnd: \n");
+            fprintf(fp, "\t inc dword[%s - %d] \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset));
+            fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), endNode->tkinfo->lexeme);
+            fprintf(fp, "\t jna forLoopStart_%p \n", startNode);
+            fprintf(fp, "forLoopEnd_%p: \n", endNode);
 
             return;
         }
