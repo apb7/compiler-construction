@@ -192,9 +192,9 @@ int main(int argc, char *argv[]) {
                 FILE *fpout = fopen(argv[2],"w");
                 printSymbolTable(&funcTable,fpout);
                 fclose(fpout);
-                FILE *fptest = fopen("test.asm","w");
+//                FILE *fptest = fopen("test.asm","w");
                 //genExpr(ASTroot,fptest,true,0,g_INTEGER);
-                fclose(fptest);
+//                fclose(fptest);
             }
             break;
 //            TODO: the following will become the case 6 to print the AR size of each function

@@ -3,9 +3,9 @@
 <<<driver program>>>
 start
 	declare b:integer;
-	b= 4 + (12 - 2);
-	**get_value(b);
-	print(b);**
+	b:= 4 + (12 - 2);
+	get_value(b);
+	print(b);
 	**switch(b)
     	start
     		case 1 :

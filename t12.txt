@@ -25,10 +25,9 @@ start
 
     a := 5;
 
-    while(b + c)
+    while(b > c)
     start
         get_value(c);
-        c:=tempvar;
         a:=a+1;
     end
 end

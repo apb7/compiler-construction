@@ -240,12 +240,15 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_DRIVER:
         {
             fprintf(fp, " \nmain: \n");
+            fprintf(fp, "\t ; stack init start. \n");
             fprintf(fp, "\t mov rbp, rsp \n");
             fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
             fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+            fprintf(fp, "\t ; stack init done. \n");
 
             generateCode(root->child, symT, fp);
 
+            fprintf(fp, "\t ; driver ends (one more line). \n");
             fprintf(fp, "\t mov rsp, rbp \n");
 
             return;
@@ -274,6 +277,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
 
             ASTNode* siblingId = root->next;
+            fprintf(fp,"\t ; GET_VALUE(%s) starts\n", siblingId->tkinfo->lexeme);
 
             // <ioStmt> -> GET_VALUE BO ID BC SEMICOL
 
@@ -389,15 +393,15 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             else /* Dynamic Arrays */ {
 
             }
-
+            fprintf(fp,"\t ; GET_VALUE(%s) ends\n", siblingId->tkinfo->lexeme);
             return;
         }
 
         case g_PRINT:
         {
-            fprintf(fp,"pp\n");
             // Need changes here!
             ASTNode* sibling = root->next;
+            fprintf(fp,"\t ; PRINT(%s) starts\n", sibling->tkinfo->lexeme);
 
             // <ioStmt> -> PRINT BO <var> BC SEMICOL
             // <boolConstt> -> TRUE | FALSE
@@ -545,6 +549,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             else /* Arrays */ {
                 // Use whichId AST Node here.
             }
+            fprintf(fp,"\t ; PRINT(%s) starts\n", sibling->tkinfo->lexeme);
 
             return;
         }
@@ -576,11 +581,15 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         }
         
         case g_assignmentStmt:
+            fprintf(fp,"\t ; Expression generation starts\n");
             genExpr(root,fp,true,0);
+            fprintf(fp,"\t ; Expression generation ends\n");
             return;
 
         case g_conditionalStmt:{
             ASTNode *idNode = root->child;
+            fprintf(fp,"\t ; switch(%s) starts\n", idNode->tkinfo->lexeme);
+
             symVarInfo vi = idNode->stNode->info.var;
 //            mov rsi, rbp
 //            sub rsi, 4
@@ -605,6 +614,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 default:
                     printf("generateCode: Mistake in semantic analyser. Got invalid switch var data type.\n");
             }
+            fprintf(fp,"\t ; switch(%s) ends\n", idNode->tkinfo->lexeme);
+
         }
 
             return;

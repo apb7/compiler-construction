@@ -4,8 +4,15 @@
 
 SNO   VAR-NAME            SCOPE: FUNC-NAME         SCOPE: LINES   WIDTH   IS ARRAY? STAT/DYN   RANGE               TYPE      OFFSET LEVEL  
 
-[DEBUG] ACTIVATION RECORD SIZE = 2
-1     b                   @driver                  [4,29]         2       No        ---        ---                 INTEGER   0      1      
+[DEBUG] ACTIVATION RECORD SIZE = 21
+1     b                   @driver                  [9,15]         2       No        ---        ---                 INTEGER   0      1      
+2     brr                 @driver                  [9,15]         19      Yes       Static     [2,10]              INTEGER   2      1      
+
+[DEBUG] ACTIVATION RECORD SIZE = 11
+1     lo                  bro                      [4,6]          2       No        ---        ---                 INTEGER   0      0      
+2     hi                  bro                      [4,6]          2       No        ---        ---                 INTEGER   2      0      
+3     arr                 bro                      [4,6]          5       Yes       Dynamic    [lo,hi]             INTEGER   4      0      
+4     a                   bro                      [4,6]          2       No        ---        ---                 INTEGER   9      0      
 
 ########################################################################## ~ ** ~ ##########################################################################
 
