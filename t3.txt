@@ -1,26 +1,31 @@
 ** This testcase demonstrates correctness of module structure with declaration and simple statements**
 <<<driver program>>>
 start
-	declare v_1_2_3:real;
-	get_value(v_1_2_3);
-	print(v_1_2_3);
-	declare result:real;
-	print(result);
-
-	declare a:boolean;
+	declare a,b,c:real;
 	get_value(a);
 	print(a);
+
+	get_value(b);
+	print(b);
+
+	get_value(c);
+	print(c);
+
+	declare aa:boolean;
+	declare x,y : integer;
+	get_value(aa);
+	print(aa);
+
+	get_value(x);
+	print(x);
+
+	get_value(x);
+	print(x);
+
+	get_value(y);
+	print(y);
+
 	print(1.3);
 	print(true);
 	print(false);
 end
-
-**notice that this test case does not declare the module before the driver module, still it is syntactically correct as moduleDeclarations is optional. Testing whether a module is declared before its use is a matter of semantic analysis**
-
-** test the correctness of all lexemes and parse tree created
-and print the following message on successful compilation on the console
-      " Input source code is syntactically correct.........."
-**
-
-**make sure to produce only relevant output of your compiler code...
-Also remove all unnecessary printf statements and make the code more professional before submitting**
