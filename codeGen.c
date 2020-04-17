@@ -331,6 +331,55 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                 fprintf(fp, "\t pop rbp \n");
             }
+            else if(idVarType.vaType == STAT_ARR) {
+                fprintf(fp, "\t push rbp \n");
+    
+                // The only registers that the called function is required to preserve (the calle-save registers) are:
+                // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
+                if(idVarType.baseType == g_INTEGER) {
+
+                    fprintf(fp, "\t mov rdi, msgInt \n");
+                    fprintf(fp, "\t call printf \n");
+
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
+                    fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    
+                    fprintf(fp, "\t mov rdi, inputInt \n");
+
+                    fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
+                    fprintf(fp, "statarr_%p: \n", siblingId);
+                    
+                    fprintf(fp, "\t push rsi \n");
+                    fprintf(fp, "\t push rdi \n");
+                    
+                    fprintf(fp, "\t call scanf \n");
+
+                    fprintf(fp, "\t pop rdi \n");
+                    fprintf(fp, "\t pop rsi \n");
+
+                    fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+                    fprintf(fp, "\t jz statarrExit_%p \n", siblingId);
+
+                    fprintf(fp, "\t inc r12 \n");
+                    fprintf(fp, "\t sub rsi, -4 \n"); // address of n-th elem 
+
+                    fprintf(fp, "\t jmp statarr_%p \n", siblingId);
+
+                    fprintf(fp, "statarrExit_%p: \n", siblingId);
+
+
+                    // Check the value being scanned
+                    // fprintf(fp, "\t mov rdi, outputInt \n");
+                    // fprintf(fp, "\t mov rsi, [inta] \n");
+                    // fprintf(fp, "\t call printf \n");
+
+
+                }
+
+                fprintf(fp, "\t pop rbp \n");
+            }
             else /* Arrays */ {
 
             }
@@ -457,7 +506,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, rsi \n");
                     fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Base address
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (idVar.offset + 1 + getSizeByType(idVar.vtype.baseType))); // First elem
-                    fprintf(fp, "\t sub rsi, stack_top \n"); // Find location relative to top of stack!
+                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
                     fprintf(fp, "\t mov word[rdi], si \n"); // only 1 location = 2B available!
                 }
 
