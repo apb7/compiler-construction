@@ -511,7 +511,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             // <index> -> NUM | ID
 
 
-
             if(sibling->gs == g_TRUE) {
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
@@ -553,6 +552,70 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             varType idVarType = siblingId->stNode->info.var.vtype;
             symVarInfo idVar = siblingId->stNode->info.var;
 
+            if(siblingId->next != NULL) {
+                // Array element access
+
+                ASTNode *idOrNum = siblingId->next;
+
+                if(idVarType.vaType == STAT_ARR) {
+
+                    fprintf(fp, "\t push rbp \n");
+        
+                    // The only registers that the called function is required to preserve (the calle-save registers) are:
+                    // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
+                    if(idVarType.baseType == g_INTEGER) {
+
+                        fprintf(fp, "\t mov rdi, outputInt \n");
+
+                        fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                        fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
+                        fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                        fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                        
+                        fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
+                        fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+
+                        // Bound check done at compile time
+                        if (idOrNum->gs == g_INTEGER) {
+                            fprintf(fp, "\t mov r12, %d \n", idOrNum->tkinfo->value.num );
+                            fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
+                            fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
+                            fprintf(fp, "\t sub rsi, r12 \n");
+                        }
+
+                        // ID, we need to do bounds check!
+                        else {
+                            varType idVarType = idOrNum->stNode->info.var.vtype;
+                            symVarInfo idVar = idOrNum->stNode->info.var;
+
+                            fprintf(fp, "\t mov r12, [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
+                            fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+
+                            // jump if less or equal
+                            // kill
+
+                            fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
+
+                            // jmp if greator or equal
+                            // kill
+
+                            fprintf(fp, "stat_valid_%p: \n", idOrNum);
+                            fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
+                            fprintf(fp, "\t sub rsi, r12 \n");
+                        }
+
+                        fprintf(fp, "\t movsx rsi, DWORD[rsi] \n");
+                        fprintf(fp, "\t call printf \n");
+
+                    }
+
+                    fprintf(fp, "\t pop rbp \n");
+                }
+
+
+                return;
+            }
+
             if(idVarType.vaType == VARIABLE) {
                 // More registers need to me pushed to preserve
                 // their values.
@@ -591,6 +654,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
 
             else if(idVarType.vaType == STAT_ARR) {
+
                 fprintf(fp, "\t push rbp \n");
     
                 // The only registers that the called function is required to preserve (the calle-save registers) are:
@@ -734,6 +798,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 }
 
                 id = id->next;
+                fprintf(fp, "\t ;array declaration done \n\n");
+
             }
 
             return;
