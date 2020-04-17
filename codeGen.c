@@ -53,6 +53,7 @@ void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
     }
 }
 
+//outcome: lower bound in expreg[0], upper bound in expreg[1]
 void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
@@ -93,6 +94,36 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
         //get the right bound to expreg[1]
         fprintf(fp,"\t mov %s, %d \n",expreg[1],arrVtype.ei.vt_num);
     }
+}
+
+//prereq: lower bound in expreg[0], index in expreg[2]
+//outcome: array value at idx in expreg[0]
+void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
+    char *expSizeStr, *expSizeRegSuffix;
+    fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
+    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
+    fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+    setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
+    if(arrNode->stNode->info.var.vtype.baseType == g_INTEGER){
+        //size of int is 2words (4 bytes)
+        fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+    }
+    else if(arrNode->stNode->info.var.vtype.baseType == g_REAL){
+        fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+        fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+    }
+    fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+    //br[isiolvar] - 2*(offset + arrBaseSize)
+    int toSub = scale * (arrNode->stNode->info.var.offset + arrBaseSize);
+    bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
+    fprintf(fp,"\t mov %sw, word[%s-%d] \n",expreg[0],baseRegister[isIOlistVar],toSub);
+    fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+    fprintf(fp,"\t mov %sw, stack_top \n",expreg[1]);
+    fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[0]);
+    fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[2]);
+    fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+
+    fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[0],expSizeRegSuffix,expSizeStr,expreg[1]);
 }
 
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
@@ -179,7 +210,6 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         }
                     }
                     else{
-                        //TODO: Array element handling
                         //for bounds
                         getArrBoundsInExpReg(astNode,fp);
                         if(astNode->next->gs == g_ID){
@@ -195,20 +225,9 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         }
                         //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
                         //TODO: Do bound checking and throw runtime error if needed
-
                         //toSub from array base
-                        fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
-                        fprintf(fp,"\t add %s, 1 \n",expreg[2]);
-                        fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
-                        //br[isiolvar] - 2*(offset + arrBaseSize)
-                        int toSub = scale * (astNode->stNode->info.var.offset + arrBaseSize);
-                        bool isIOlistVar = astNode->stNode->info.var.isIOlistVar;
-                        fprintf(fp,"\t mov %sw, word[%s-%d] \n",expreg[0],baseRegister[isIOlistVar],toSub);
-                        fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
-                        fprintf(fp,"\t mov %sw, stack_top \n",expreg[1]);
-                        fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[0]);
-                        
-
+                        getArrValueAtIdxInReg(astNode,fp);
+                        fprintf(fp,"\t push %s \n",expreg[0]);
 
 
                     }
