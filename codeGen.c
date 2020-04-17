@@ -158,14 +158,18 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         fprintf(fp,"\t sub %s, %s \n",expreg[0],expreg[1]);
                         break;
                     case g_MUL:
-                        fprintf(fp,"\t push rax \n");   //to save the prev value
+                        fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
                         fprintf(fp,"\t imul %s%s \n",expreg[1],expSizeRegSuffix);
                         fprintf(fp,"\t mov %s, rax \n",expreg[0]);
-                        fprintf(fp,"\t pop rax \n");    //to restore the prev value
+                        fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
                     case g_DIV:
-                        
+                        fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
+                        fprintf(fp,"\t mov rax, %s \n",expreg[0]);
+                        fprintf(fp,"\t idiv %s%s \n",expreg[1],expSizeRegSuffix);
+                        fprintf(fp,"\t mov %s, rax \n",expreg[0]);
+                        fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
                         break;
                         //Many more cases to come...
                 }
