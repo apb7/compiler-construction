@@ -326,9 +326,9 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     fprintf(fp,"\t %s exp_t_%p \n",jCmd,(void *)astNode);
                     fprintf(fp,"\t mov %s, 0 \n",expreg[0]);
                     fprintf(fp,"\t jmp exp_f_%p \n",(void *)astNode);
-                    fprintf(fp,"exp_t_%p:\n",(void*)astNode);
+                    fprintf(fp," exp_t_%p:\n",(void*)astNode);
                     fprintf(fp,"\t mov %s, 1 \n",expreg[0]);
-                    fprintf(fp,"exp_f_%p:\n",(void*)astNode);
+                    fprintf(fp," exp_f_%p:\n",(void*)astNode);
                 }
                 fprintf(fp,"\t push %s \n",expreg[0]);
             }
@@ -471,11 +471,33 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
-        case g_WHILE:{
+        case g_WHILE: {
+            fprintf(fp,"\t ; WHILE starts \n");
+
+            fprintf(fp," WHILE_loop_%p: \n", root->next->next); //pointer to WHILE's START ASTNode (uniqueness assured across entire code)
+            fprintf(fp,"\t ; evaluating while condition \n");
+            genExpr(root->next, fp, false, g_BOOLEAN); // puts 8 bytes containing result of condition evaluation on stack
+            fprintf(fp,"\t ; while condition evaluated \n");
 
 
+            fprintf(fp,"\t pop r8 \n"); // pop in r8
+            fprintf(fp,"\t cmp r8, 0 \n"); // cmp r8, 0
+
+            fprintf(fp,"\t ; exit the loop if condition was false \n");
+            fprintf(fp,"\t jz EXIT_WHILE_loop_%p \n", root);
+
+            fprintf(fp,"\t ; execute following statements if condition was true \n");
+            fprintf(fp,"\t ; while loop statements start \n");
+            generateCode(root->next->next->child, symT, fp); // recurse on statements
+            fprintf(fp,"\t ; while loop statements end \n");
+
+            fprintf(fp,"\t jmp WHILE_loop_%p \n", root->next->next);
+            fprintf(fp," EXIT_WHILE_loop_%p: \n", root); //pointer to WHILE's ASTNode (uniqueness assured across entire code)
+
+            fprintf(fp,"\t ; WHILE ends \n");
 
         }
+        return;
 
         case g_ioStmt:
         {
@@ -787,14 +809,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t cmp word[%s - %d], 0 \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t jz boolPrintFalse%d \n", siblingId->tkinfo->lno);
 
-                    fprintf(fp, "boolPrintTrue%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintTrue%d: \n", siblingId->tkinfo->lno);
                     fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
                     fprintf(fp, "\t jmp boolPrintEnd%d \n", siblingId->tkinfo->lno);
 
-                    fprintf(fp, "boolPrintFalse%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintFalse%d: \n", siblingId->tkinfo->lno);
                     fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
 
-                    fprintf(fp, "boolPrintEnd%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintEnd%d: \n", siblingId->tkinfo->lno);
                     fprintf(fp, "\t call printf \n");
                 }
                 else if(idVarType.baseType == g_INTEGER) {

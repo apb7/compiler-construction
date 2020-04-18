@@ -3,15 +3,24 @@
 <<<driver program>>>
 start
     declare flag : boolean;
-    declare a,b,c: integer;
+    declare a,b,c,ct: integer;
     a := 25;
     b := 10;
     c := 5;
+    ct:= 0;
+
     flag := a <=  b AND c <= a OR  (a<0 AND true);
     print(flag);
-    a := 5;
+    a := 1;
     while(b > c)
     start
+        ct:=0;
+        while(ct<2)
+            start
+                ct:=ct+1;
+                print(ct);
+                a:=a+1;
+            end
         c:=c+1;
         print(c);
     end
