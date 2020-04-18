@@ -465,7 +465,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_moduleDeclarations:
         case g_otherModules:
         case g_statements:
-        case g_module:
         {
             // moduleDeclarations -> ID moduleDeclarations
 
@@ -479,8 +478,32 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
 
+        case g_module:
+        {
+            //<module> -> DEF MODULE ID ENDDEF TAKES INPUT SQBO <input_plist> SQBC SEMICOL <ret> <moduleDef>
+            ASTNode *functionID = root->child;
+            ASTNode *inputList = functionID->next;
+            ASTNode *outputList = inputList->next;
+            ASTNode *moduleDef = outputList->next;
+
+            fprintf(fp, "\n %s: \n", functionID->tkinfo->lexeme);
+            fprintf(fp, "\t ; stack init starts \n");
+            fprintf(fp, "\t mov rbp, rsp \n");
+            fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+            fprintf(fp, "\t ; stack init done. \n\n");
+
+            generateCode(moduleDef, symT, fp);
+
+            fprintf(fp, "\t mov rsp, rbp \n");
+            fprintf(fp, "\t ret \n");
+
+            return;
+        }
+
+
         case g_DRIVER:
         {
+            printf("entering main!\n");
             fprintf(fp, "\n main: \n");
             fprintf(fp, "\t ; stack init starts \n");
             fprintf(fp, "\t mov rbp, rsp \n");
@@ -500,7 +523,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_START:
         {
             generateCode(root->child, symT, fp);
-
             return;
         }
 
@@ -512,7 +534,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         case g_iterativeStmt:
         {
             generateCode(root->child, symT, fp);
-
             return;
         }
 
@@ -538,6 +559,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+
         case g_WHILE: {
             fprintf(fp,"\t ; WHILE starts \n");
 
@@ -570,10 +592,15 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
             ASTNode *idOrAssignop = root->child;
 
+            printf("%s\n", inverseMappingTable[idOrAssignop->gs]);
+
             if(idOrAssignop->gs == g_ASSIGNOP) {
                 ASTNode *outputList = idOrAssignop->child; // Dont need yet
-                ASTNode *functionID = idOrAssignop->next;
+                ASTNode *functionID = outputList->next;
                 ASTNode *inputList = functionID->next;
+
+                                printf("done!\n");
+
 
                 symFuncInfo *finfo = stGetFuncInfo(functionID->tkinfo->lexeme, symT);
                 symTableNode *inputParam = finfo->inpPListHead;
@@ -591,18 +618,20 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     symVarInfo formalVar = inputParam->info.var;
 
 
-                    fprintf(fp, "\t mov rdi, rsp \n");
-                    fprintf(fp, "\t sub rdi, %d \n", scale * (formalVarType.width + formalVar.offset));
+                    fprintf(fp, "\t movsx rdi, DWORD [%s - %d] \n", baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
+
                     // mov how much data!
-                    fprintf(fp, "\t mov DWORD[rdi], [%s - %d] \n", baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
+                    fprintf(fp, "\t mov DWORD[rsp - %d], edi \n", scale * (formalVarType.width + formalVar.offset));
        
                     inputParam = inputParam->next;
                     idNode = idNode->next;
                 }
 
+                fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t push rbx \n");
-                fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+                fprintf(fp, "\t mov rbx, rsp \n");
+                fprintf(fp, "\t add rbx, %d \n", 192 + 16); // to fix
 
                 fprintf(fp, "\t push rsi \n"); // Odd no of register
 
@@ -610,9 +639,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 
                 fprintf(fp, "\t pop rsi \n");
 
-                fprintf(fp, "\t add rsp, 192 \n");
                 fprintf(fp, "\t pop rbx \n");
                 fprintf(fp, "\t pop rbp \n");
+                fprintf(fp, "\t add rsp, 192 \n");
 
 
                 idNode = outputList->child;
@@ -628,7 +657,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[actualVar.isIOlistVar]);
                     fprintf(fp, "\t sub rsi, %d \n", scale * (actualVarType.width + actualVar.offset));
                     // mov how much data!
-                    fprintf(fp, "\t mov DWORD[rsi], [rsp - %d] \n", scale * (formalVarType.width + formalVar.offset)); 
+                    fprintf(fp, "\t movsx rdi, DWORD [rsp - %d] \n", scale * (formalVarType.width + formalVar.offset)); 
+                    fprintf(fp, "\t mov DWORD [rsi], edi \n");
        
                     outputParam = outputParam->next;
                     idNode = idNode->next;
@@ -640,9 +670,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 ASTNode *outputList = functionID->next;
 
             }
-            
-            fprintf(fp, "\t pop rbx \n");
-            fprintf(fp, "\t pop rbp \n");
+            return;
         }
 
         case g_ioStmt:
