@@ -45,6 +45,9 @@ extern char *inverseMappingTable[];
 extern int **parseTable;
 errorPtr_stack *errorStack;
 
+extern bool stage1ErrorFree;
+extern bool haveSemanticErrors;
+
 int main(int argc, char *argv[]) {
 //    printf("%d",sizeof(symbolTable));
     if(argc != 3) {
@@ -155,7 +158,6 @@ int main(int argc, char *argv[]) {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                extern bool stage1ErrorFree;
                 if(!stage1ErrorFree)
                     break;
                 ASTNode *ASTroot = buildASTTree(root);
@@ -173,7 +175,6 @@ int main(int argc, char *argv[]) {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                extern bool stage1ErrorFree;
                 if(!stage1ErrorFree)
                     break;
                 ASTNode *ASTroot = buildASTTree(root);
@@ -202,7 +203,6 @@ int main(int argc, char *argv[]) {
             {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                extern bool stage1ErrorFree;
                 if(!stage1ErrorFree)
                     break;
                 ASTNode *ASTroot = buildASTTree(root);
@@ -229,7 +229,6 @@ int main(int argc, char *argv[]) {
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
 
-                extern bool stage1ErrorFree;
                 if(!stage1ErrorFree)
                     break;
                 ASTNode *ASTroot = buildASTTree(root);
@@ -245,9 +244,11 @@ int main(int argc, char *argv[]) {
                 //checkType(ASTroot);
 
                 //printf("Type check done\n");
-                FILE *fpout = fopen("code.asm","w");
-                generateCode(ASTroot, &funcTable, fpout);
-                fclose(fpout);
+                if(!haveSemanticErrors){
+                    FILE *fpout = fopen("code.asm","w");
+                    generateCode(ASTroot, &funcTable, fpout);
+                    fclose(fpout);
+                }
             }
             break;
 
@@ -257,7 +258,7 @@ int main(int argc, char *argv[]) {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                extern bool stage1ErrorFree;
+
                 if(!stage1ErrorFree)
                     break;
                 ASTNode *ASTroot = buildASTTree(root);
@@ -280,7 +281,7 @@ int main(int argc, char *argv[]) {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-                extern bool stage1ErrorFree;
+
                 if(!stage1ErrorFree)
                     break;
                 ASTNode *ASTroot = buildASTTree(root);

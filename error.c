@@ -59,7 +59,7 @@ void printError(error e){
                     fprintf(stderr,"The module '%s' was neither declared nor defined before use.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_UNASSIGNED:
-                    fprintf(stderr,"'%s' was not assigned any value.\n",e.edata.seme.errStr1);
+                    fprintf(stderr,"Output variable '%s' was not assigned any value.\n",e.edata.seme.errStr1);
                     break;
                 case SEME_REDUNDANT_DECLARATION:
                     fprintf(stderr,"Found redundant declaration for module '%s'.\n",e.edata.seme.errStr1);
@@ -159,6 +159,9 @@ void printError(error e){
                     break;
                 case SEME_FOR_VAR_UNDECLARED:
                     fprintf(stderr, "The for loop counter variable '%s' used here is undeclared.\n", e.edata.seme.errStr1);
+                    break;
+                case SEME_FOR_RANGE_L_NUM_EXCEED_R_NUM:
+                    fprintf(stderr, "The for loop cannot have left range bound greater than right range bound.\n");
                     break;
                 case SEME_FOR_VAR_TYPE_ARR:
                     fprintf(stderr, "The for loop counter variable '%s' is of array type.\n", e.edata.seme.errStr1);

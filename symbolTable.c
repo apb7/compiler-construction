@@ -17,8 +17,13 @@
 //i will then assume that, that input var is now shadowed by this output var. (therefore changed the order of search everywhere)
 //TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
 //TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
-//TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
+//DONE: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
 //TODO: destroy (free) the symbol table and other constructs for continuous execution in driver. Every loop iteration must be a fresh start.
+//TODO: sort errors based on line nos.
+//TODO: handle TYPE ERRORs for a:=b where a and b are partially static arrays.
+//TODO: For semantics in codeGen: iterator value restore or last terminating value?
+//TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
+//DONE: bounds of for loop: left bound <= right bound
 //DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
 /* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
  *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,
@@ -1380,6 +1385,10 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     ASTNode* ptr = iterativeStmtNode;
     ptr=ptr->child; //on FOR/WHILE
     if(ptr->gs==g_FOR) {
+        // range check for loop: left bound <= right bound
+        if(ptr->next->next->child->tkinfo->value.num > ptr->next->next->child->next->tkinfo->value.num){ // left bound > right bound
+            throwSemanticError(ptr->next->next->child->tkinfo->lno, NULL, NULL, SEME_FOR_RANGE_L_NUM_EXCEED_R_NUM);
+        }
         ptr=ptr->next; //on ID
         gSymbol ty;
         int isVar=0;

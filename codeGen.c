@@ -12,6 +12,7 @@
 #include "typeCheck.h"
 #include "lexerDef.h"
 
+//prereq: something related to stack alignment (odd number of pushes)
 void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
     fprintf(fp, "\t mov rdi, %s \n", e); 
     fprintf(fp, "\t call printf \n"); 
@@ -29,7 +30,7 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 char *baseRegister[2] = {"RBP", "RBX"};
 
-char *expreg[3] = {"r8","r9","r10"};
+char *expreg[4] = {"r8","r9","r10","r11"};
 int arrBaseSize = 1;    //in words
 int scale = 2;
 
@@ -55,6 +56,7 @@ void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
 }
 
 //outcome: lower bound in expreg[0], upper bound in expreg[1]
+//affects: No other register affected
 void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
@@ -99,6 +101,7 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
 
 //prereq: lower bound in expreg[0], index in expreg[2]
 //outcome: address of array element at idx in expreg[1]
+//affects: expreg[2] value destroyed
 void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
@@ -124,12 +127,28 @@ void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
 
 //prereq: lower bound in expreg[0], index in expreg[2]
 //outcome: array value at idx in expreg[0]
+//affects: expreg[2] value destroyed
 void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     getArrAddrAtIdx(arrNode,fp);
     setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
     fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
     fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[0],expSizeRegSuffix,expSizeStr,expreg[1]);
+}
+
+//prereq: lower bound in expreg[0], upper bound in expreg[1], index in expreg[2]
+void boundCheckArrAndExit(void *someRefPtr, FILE *fp){
+    //someRefPtr is any unique address
+    fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[0]);
+    fprintf(fp,"\t jge lb_ok_%p \n",someRefPtr);
+    fprintf(fp,"\t push r8 ;just for stack alignment\n");
+    RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
+    fprintf(fp,"lb_ok_%p: \n",someRefPtr);
+    fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[1]);
+    fprintf(fp,"\t jle rb_ok_%p \n",someRefPtr);
+    fprintf(fp,"\t push r8 ;just for stack alignment\n");
+    RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
+    fprintf(fp,"rb_ok_%p: \n",someRefPtr);
 }
 
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
@@ -152,7 +171,6 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         // printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL){
             genExpr(idNode->next->next,fp,false,expType);
-            //TODO: Handle Array elements with static/dynamic index
             getArrBoundsInExpReg(idNode,fp);
             if(idNode->next->gs == g_ID){
                 ASTNode *idxIdNode = idNode->next;
@@ -166,7 +184,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
             }
             //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-            //TODO: Do bound checking and throw runtime error if needed
+            boundCheckArrAndExit(idNode->next,fp);
             getArrAddrAtIdx(idNode,fp);
             setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
             fprintf(fp,"\t pop %s \n",expreg[0]);
@@ -187,7 +205,53 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
             }
             else{
                 //array
-                //TODO: just put data from right array to left array
+                ASTNode *arr1Node = idNode;
+                ASTNode *arr2Node = idNode->next->child;
+                getArrBoundsInExpReg(arr1Node,fp);
+                fprintf(fp,"\t mov %s, %s \n",expreg[2],expreg[0]);
+                fprintf(fp,"\t mov %s, %s \n",expreg[3],expreg[1]);
+                getArrBoundsInExpReg(arr2Node,fp);
+                fprintf(fp,"\t cmp %s, %s \n",expreg[0],expreg[2]);
+                fprintf(fp,"\t je lb_match_%p_%p \n",arr1Node,arr2Node);
+                fprintf(fp,"\t push r8 ;just for stack alignment\n");
+                RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
+                fprintf(fp,"lb_match_%p_%p:\n",arr1Node,arr2Node);
+                fprintf(fp,"\t cmp %s, %s \n",expreg[1],expreg[3]);
+                fprintf(fp,"\t je rb_match_%p_%p \n",arr1Node,arr2Node);
+                fprintf(fp,"\t push r8 ;just for stack alignment\n");
+                RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
+                fprintf(fp,"rb_match_%p_%p:\n",arr1Node,arr2Node);
+                //match successful, now copy
+                fprintf(fp,"\t mov [asgnLB], %s \n",expreg[0]);
+                fprintf(fp,"\t mov [asgnRB], %s \n",expreg[1]);
+                //prereq: lower bound in expreg[0], index in expreg[2]
+                //outcome: address of array element at idx in expreg[1]
+                //affects: expreg[2] value destroyed
+                getArrAddrAtIdx(arr2Node,fp);
+                fprintf(fp,"\t mov %s, %s \n",expreg[3],expreg[1]);
+                fprintf(fp,"\t mov %s, [asgnLB] \n",expreg[0]); //left bound
+                fprintf(fp,"\t mov %s, [asgnRB] \n",expreg[1]); //right bound
+                fprintf(fp,"\t mov %s, [asgnLB] \n",expreg[2]); //first index
+                //prereq: lower bound in expreg[0], index in expreg[2]
+                //outcome: address of array element at idx in expreg[1]
+                //affects: expreg[2] value destroyed
+                getArrAddrAtIdx(arr1Node,fp);
+                fprintf(fp,"\t mov %s, %s \n",expreg[2],expreg[1]);
+                //NOW eR[2] contains addr of first element of arr1 & eR[3] contains addr of first element of arr2
+                fprintf(fp,"\t mov %s, [asgnLB] \n",expreg[0]); //current index in er0
+                setExpSize(arr1Node->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
+                int toSub = scale * getSizeByType(arr1Node->stNode->info.var.vtype.baseType);
+                fprintf(fp,"arr_asgn_%p_%p: \n",arr1Node,arr2Node);
+                fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+                //move data from arr2[i] to arr1[i]
+                fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[1],expSizeRegSuffix,expSizeStr,expreg[3]);
+                fprintf(fp,"\t mov %s[%s], %s%s \n",expSizeStr,expreg[2],expreg[1],expSizeRegSuffix);
+                //move index & offsets accordingly
+                fprintf(fp,"\t sub %s, %d \n",expreg[3],toSub);
+                fprintf(fp,"\t sub %s, %d \n",expreg[2],toSub);
+                fprintf(fp,"\t inc %s \n",expreg[0]);
+                fprintf(fp,"\t cmp %s, [asgnRB] \n",expreg[0]);
+                fprintf(fp,"\t jle arr_asgn_%p_%p \n",arr1Node,arr2Node);
             }
         }
     }
@@ -244,12 +308,10 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                             fprintf(fp,"\t mov %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
                         }
                         //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-                        //TODO: Do bound checking and throw runtime error if needed
+                        boundCheckArrAndExit(astNode->next,fp);
                         //toSub from array base
                         getArrValueAtIdxInReg(astNode,fp);
                         fprintf(fp,"\t push %s \n",expreg[0]);
-
-
                     }
                 }
                 break;
@@ -328,9 +390,9 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     fprintf(fp,"\t %s exp_t_%p \n",jCmd,(void *)astNode);
                     fprintf(fp,"\t mov %s, 0 \n",expreg[0]);
                     fprintf(fp,"\t jmp exp_f_%p \n",(void *)astNode);
-                    fprintf(fp,"exp_t_%p:\n",(void*)astNode);
+                    fprintf(fp," exp_t_%p:\n",(void*)astNode);
                     fprintf(fp,"\t mov %s, 1 \n",expreg[0]);
-                    fprintf(fp,"exp_f_%p:\n",(void*)astNode);
+                    fprintf(fp," exp_f_%p:\n",(void*)astNode);
                 }
                 fprintf(fp,"\t push %s \n",expreg[0]);
             }
@@ -353,6 +415,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t inta: resb 4 \n");
             fprintf(fp, "\t floatb: resb 8 \n");
             fprintf(fp, "\t boolc: resb 2 \n");
+            fprintf(fp,"\t asgnLB: resb 8 \n");
+            fprintf(fp,"\t asgnRB: resb 8 \n");
 
             fprintf(fp, "section .data \n");
 
@@ -377,7 +441,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t booleanFalse: db \"false \", 0 \n");
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
-            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bound\", 10, 0 \n");
+            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bounds\", 10, 0 \n");
+            fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
 
 
             fprintf(fp, "\n section .text \n");
@@ -421,7 +486,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t mov rbp, rsp \n");
             fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
             fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
-            fprintf(fp, "\t ; stack init done. \n");
+            fprintf(fp, "\t ; stack init done. \n\n");
 
             generateCode(root->child, symT, fp);
 
@@ -473,6 +538,33 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+        case g_WHILE: {
+            fprintf(fp,"\t ; WHILE starts \n");
+
+            fprintf(fp," WHILE_loop_%p: \n", root->next->next); //pointer to WHILE's START ASTNode (uniqueness assured across entire code)
+            fprintf(fp,"\t ; evaluating while condition \n");
+            genExpr(root->next, fp, false, g_BOOLEAN); // puts 8 bytes containing result of condition evaluation on stack
+            fprintf(fp,"\t ; while condition evaluated \n");
+
+
+            fprintf(fp,"\t pop r8 \n"); // pop in r8
+            fprintf(fp,"\t cmp r8, 0 \n"); // cmp r8, 0
+
+            fprintf(fp,"\t ; exit the loop if condition was false \n");
+            fprintf(fp,"\t jz EXIT_WHILE_loop_%p \n", root);
+
+            fprintf(fp,"\t ; execute following statements if condition was true \n");
+            fprintf(fp,"\t ; while loop statements start \n");
+            generateCode(root->next->next->child, symT, fp); // recurse on statements
+            fprintf(fp,"\t ; while loop statements end \n");
+
+            fprintf(fp,"\t jmp WHILE_loop_%p \n", root->next->next);
+            fprintf(fp," EXIT_WHILE_loop_%p: \n", root); //pointer to WHILE's ASTNode (uniqueness assured across entire code)
+
+            fprintf(fp,"\t ; WHILE ends \n");
+
+        }
+        return;
 
         case g_moduleReuseStmt:
         {
@@ -644,18 +736,18 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t mov r13, %s \n", expreg[1]); // ub
 
                 if(idVarType.baseType == g_INTEGER)
-                    fprintf(fp, "\t mov rdi, inputInt \n");     
+                    fprintf(fp, "\t mov rdi, inputInt \n");
                 else if(idVarType.baseType == g_BOOLEAN)
                     fprintf(fp, "\t mov rdi, inputBoolean \n");
 
                 fprintf(fp, "scan_arr_%p: \n", siblingId);
-                
+
                 fprintf(fp, "\t push rsi \n");
                 fprintf(fp, "\t push rdi \n");
                 fprintf(fp, "\t call scanf \n");
                 fprintf(fp, "\t pop rdi \n");
                 fprintf(fp, "\t pop rsi \n");
-                    
+
                 fprintf(fp, "\t cmp r12, r13 \n"); // ub
                 fprintf(fp, "\t jz scan_arr_exit_%p \n", siblingId);
 
@@ -757,7 +849,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     getArrBoundsInExpReg(siblingId, fp);
 
                     // Bound check done at compile time, but no harm!
-                    if (idOrNum->gs == g_NUM) 
+                    if (idOrNum->gs == g_NUM)
                         fprintf(fp, "\t mov %s, %d \n", expreg[2], idOrNum->tkinfo->value.num );
 
                     // ID, we need to do bounds check!
@@ -807,14 +899,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t cmp word[%s - %d], 0 \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
                     fprintf(fp, "\t jz boolPrintFalse%d \n", siblingId->tkinfo->lno);
 
-                    fprintf(fp, "boolPrintTrue%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintTrue%d: \n", siblingId->tkinfo->lno);
                     fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
                     fprintf(fp, "\t jmp boolPrintEnd%d \n", siblingId->tkinfo->lno);
 
-                    fprintf(fp, "boolPrintFalse%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintFalse%d: \n", siblingId->tkinfo->lno);
                     fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
 
-                    fprintf(fp, "boolPrintEnd%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintEnd%d: \n", siblingId->tkinfo->lno);
                     fprintf(fp, "\t call printf \n");
                 }
                 else if(idVarType.baseType == g_INTEGER) {
@@ -857,7 +949,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                     fprintf(fp, "\t mov r12, %s \n", expreg[0]); // lb
                     fprintf(fp, "\t mov r13, %s \n", expreg[1]); // ub
-                    
+
                     fprintf(fp, "\t mov rdi, intHolder \n");
 
                     fprintf(fp, "print_arr_%p: \n", siblingId);
@@ -876,7 +968,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t sub rsi, 4 \n"); // address of n-th elem
                     fprintf(fp, "\t jmp print_arr_%p \n", siblingId);
 
-                    fprintf(fp, "print_arr_exit_%p: \n", siblingId);
+                    fprintf(fp, " print_arr_exit_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, newLine \n");
                     fprintf(fp, "\t call printf \n");
                 }
@@ -895,7 +987,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov r12, %s \n", expreg[0]); // lb
                     fprintf(fp, "\t mov r13, %s \n", expreg[1]); // ub
 
-                    fprintf(fp, "print_b_arr_%p: \n", siblingId);
+                    fprintf(fp, " print_b_arr_%p: \n", siblingId);
                     fprintf(fp, "\t cmp r12, r13 \n");
                     fprintf(fp, "\t ja print_b_array_exit_%p \n", siblingId);
 
@@ -905,10 +997,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, booleanTrue \n");
                     fprintf(fp, "\t jmp print_bool_%p \n", siblingId);
 
-                    fprintf(fp, "print_b_arr_f_%p: \n", siblingId);
+                    fprintf(fp, " print_b_arr_f_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, booleanFalse \n");
 
-                    fprintf(fp, "print_bool_%p: \n", siblingId);
+                    fprintf(fp, " print_bool_%p: \n", siblingId);
                     // call to printf can modify rdi and rsi. Therefore, save them.
                     fprintf(fp, "\t push rsi \n");
                     fprintf(fp, "\t push rdi \n");
@@ -920,7 +1012,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t sub rsi, 2 \n"); // 2*width of boolean datatype
                     fprintf(fp, "\t jmp print_b_arr_%p \n", siblingId);
 
-                    fprintf(fp, "print_b_array_exit_%p: \n", siblingId);
+                    fprintf(fp, " print_b_array_exit_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, newLine \n");
                     fprintf(fp, "\t call printf \n");
                 }
@@ -1122,8 +1214,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t ; switch(%s: %s) ends \n\n", idNode->tkinfo->lexeme, inverseMappingTable[vi.vtype.baseType]);
 
         }
+        return;
 
-            return;
         default:
             printf("Default : %s \n", inverseMappingTable[gs]);
     }
