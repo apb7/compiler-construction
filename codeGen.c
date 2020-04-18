@@ -594,56 +594,58 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             printf("%s\n", inverseMappingTable[idOrAssignop->gs]);
 
+            ASTNode *outputList = NULL, *functionID, *inputList;
+
             if(idOrAssignop->gs == g_ASSIGNOP) {
-                ASTNode *outputList = idOrAssignop->child; // Dont need yet
-                ASTNode *functionID = outputList->next;
-                ASTNode *inputList = functionID->next;
+                outputList = idOrAssignop->child; // Dont need yet
+                functionID = outputList->next;
+                inputList = functionID->next;
+            }
+            else {
+                functionID = idOrAssignop;
+                inputList = functionID->next;
+            }
 
-                                printf("done!\n");
+            symFuncInfo *finfo = stGetFuncInfo(functionID->tkinfo->lexeme, symT);
+            symTableNode *inputParam = finfo->inpPListHead;
+            symTableNode *outputParam = finfo->outPListHead;
 
+            ASTNode *idNode = inputList->child;
 
-                symFuncInfo *finfo = stGetFuncInfo(functionID->tkinfo->lexeme, symT);
-                symTableNode *inputParam = finfo->inpPListHead;
-                symTableNode *outputParam = finfo->outPListHead;
+            char *sizeStr, *regSuffix;
 
+            while(idNode != NULL) {
 
-                ASTNode *idNode = inputList->child;
+                varType actualVarType = idNode->stNode->info.var.vtype;
+                symVarInfo actualVar = idNode->stNode->info.var;
 
-                while(idNode != NULL) {
+                varType formalVarType = inputParam->info.var.vtype;
+                symVarInfo formalVar = inputParam->info.var;
 
-                    varType actualVarType = idNode->stNode->info.var.vtype;
-                    symVarInfo actualVar = idNode->stNode->info.var;
+                // TODO handle arrays!
+                setExpSize(actualVarType.baseType, &sizeStr, &regSuffix);
+                fprintf(fp, "\t mov r12%s, %s [%s - %d] \n", regSuffix, sizeStr, baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
+                fprintf(fp, "\t mov %s [rsp - %d], r12%s \n", sizeStr, scale * (formalVarType.width + formalVar.offset), regSuffix);
+    
+                inputParam = inputParam->next;
+                idNode = idNode->next;
+            }
 
-                    varType formalVarType = inputParam->info.var.vtype;
-                    symVarInfo formalVar = inputParam->info.var;
+            fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+            fprintf(fp, "\t push rbp \n");
+            fprintf(fp, "\t push rbx \n");
+            fprintf(fp, "\t mov rbx, rsp \n");
+            fprintf(fp, "\t add rbx, %d \n", 192 + 16); // to fix
 
+            fprintf(fp, "\t push rsi \n"); // Odd no of register
+            fprintf(fp, "\t call %s \n", functionID->tkinfo->lexeme);
+            fprintf(fp, "\t pop rsi \n");
 
-                    fprintf(fp, "\t movsx rdi, DWORD [%s - %d] \n", baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
+            fprintf(fp, "\t pop rbx \n");
+            fprintf(fp, "\t pop rbp \n");
+            fprintf(fp, "\t add rsp, 192 \n");
 
-                    // mov how much data!
-                    fprintf(fp, "\t mov DWORD[rsp - %d], edi \n", scale * (formalVarType.width + formalVar.offset));
-       
-                    inputParam = inputParam->next;
-                    idNode = idNode->next;
-                }
-
-                fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
-                fprintf(fp, "\t push rbp \n");
-                fprintf(fp, "\t push rbx \n");
-                fprintf(fp, "\t mov rbx, rsp \n");
-                fprintf(fp, "\t add rbx, %d \n", 192 + 16); // to fix
-
-                fprintf(fp, "\t push rsi \n"); // Odd no of register
-
-                fprintf(fp, "\t call %s \n", functionID->tkinfo->lexeme);
-                
-                fprintf(fp, "\t pop rsi \n");
-
-                fprintf(fp, "\t pop rbx \n");
-                fprintf(fp, "\t pop rbp \n");
-                fprintf(fp, "\t add rsp, 192 \n");
-
-
+            if(outputList) {
                 idNode = outputList->child;
 
                 while(idNode != NULL) {
@@ -656,20 +658,16 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[actualVar.isIOlistVar]);
                     fprintf(fp, "\t sub rsi, %d \n", scale * (actualVarType.width + actualVar.offset));
-                    // mov how much data!
-                    fprintf(fp, "\t movsx rdi, DWORD [rsp - %d] \n", scale * (formalVarType.width + formalVar.offset)); 
-                    fprintf(fp, "\t mov DWORD [rsi], edi \n");
+                    
+                    setExpSize(actualVarType.baseType, &sizeStr, &regSuffix);
+                    fprintf(fp, "\t mov r12%s, %s [rsp - %d] \n", regSuffix, sizeStr, scale * (formalVarType.width + formalVar.offset)); 
+                    fprintf(fp, "\t mov %s [rsi], r12%s \n", sizeStr, regSuffix);
        
                     outputParam = outputParam->next;
                     idNode = idNode->next;
                 }
-
             }
-            else {
-                ASTNode *functionID = idOrAssignop;
-                ASTNode *outputList = functionID->next;
 
-            }
             return;
         }
 
