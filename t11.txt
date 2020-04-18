@@ -2,20 +2,30 @@
 
 <<<driver program>>>
 start
-	declare b:integer;
-	b:= 4 + (12 - 2);
+	declare b: boolean;
+	declare c: integer;
 	get_value(b);
-	print(b);
-	**switch(b)
+	switch(b)
     	start
-    		case 1 :
-                print(b);
-                break;
-    		case 2 :
-    		    print(b);
+    		case false :
+    		    get_value(b);
+    		    switch(b)
+    		    start
+    		        case true:
+    		            c:=14;
+    		        break;
+    		        case false:
+    		            c:=7;
+    		        break;
+    		    end
+                    print(c);
+                    c:=1457;
+                    print(c);
+    		break;
+    		case true :
+    		    c:=55;
+    		        print(c);
     			break;
-    		default:
-    		    print(b);
-    			break;
-    	end**
+
+        end
 end

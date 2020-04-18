@@ -375,7 +375,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
 
             ASTNode* siblingId = root->next;
-            fprintf(fp,"\t ; GET_VALUE(%s) starts\n", siblingId->tkinfo->lexeme);
+            fprintf(fp,"\t ; GET_VALUE(%s: %s) starts\n", siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
 
             // <ioStmt> -> GET_VALUE BO ID BC SEMICOL
 
@@ -523,7 +523,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
 
             }
-            fprintf(fp,"\t ; GET_VALUE(%s) ends\n", siblingId->tkinfo->lexeme);
+            fprintf(fp,"\t ; GET_VALUE(%s: %s) ends\n", siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
             return;
         }
 
@@ -547,20 +547,20 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
 
-                fprintf(fp,"\t ; PRINT ends\n");
+                fprintf(fp,"\t ; PRINT(true) ends\n");
 
                 return;
             }
 
             if(sibling->gs == g_FALSE) {
-                fprintf(fp,"\t ; PRINT(false) starts\n");
+                fprintf(fp,"\t ; PRINT(false) starts \n");
 
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
 
-                fprintf(fp,"\t ; PRINT ends\n");
+                fprintf(fp,"\t ; PRINT(false) ends \n");
 
                 return;
             }
@@ -568,7 +568,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             ASTNode *siblingId = sibling->child;
 
             if(siblingId->gs == g_NUM) {
-                fprintf(fp,"\t ; PRINT(%d) starts\n",siblingId->tkinfo->value.num);
+                fprintf(fp,"\t ; PRINT(%d) starts \n",siblingId->tkinfo->value.num);
 
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputInt \n");
@@ -576,13 +576,13 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
 
-                fprintf(fp,"\t ; PRINT ends\n");
+                fprintf(fp,"\t ; PRINT(%d) ends \n", siblingId->tkinfo->value.num);
 
                 return;
             }
 
             if(siblingId->gs == g_RNUM) {
-                fprintf(fp,"\t ; PRINT(%lf) starts\n",siblingId->tkinfo->value.rnum);
+                fprintf(fp,"\t ; PRINT(%lf) starts \n",siblingId->tkinfo->value.rnum);
 
                 fprintf(fp, "\t push rbp \n");
                 fprintf(fp, "\t mov rdi, outputFloat \n");
@@ -592,7 +592,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp, "\t call printf \n");
                 fprintf(fp, "\t pop rbp \n");
 
-                fprintf(fp,"\t ; PRINT ends\n");
+                fprintf(fp,"\t ; PRINT(%lf) ends \n",siblingId->tkinfo->value.rnum);
 
                 return;
             }
@@ -663,7 +663,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
 
             if(idVarType.vaType == VARIABLE) {
-                fprintf(fp,"\t ; PRINT(%s) starts\n",siblingId->tkinfo->lexeme);
+                fprintf(fp,"\t ; PRINT(%s: %s) starts\n",siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
 
                 // More registers need to me pushed to preserve
                 // their values.
@@ -699,12 +699,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 }
 
                 fprintf(fp, "\t pop rbp \n");
+                fprintf(fp,"\t ; PRINT(%s: %s) ends \n",siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
+
             }
 
 
             else if(idVarType.vaType == STAT_ARR) {
 
-                fprintf(fp,"\t ; PRINT(array %s) starts\n",siblingId->tkinfo->lexeme);
+                fprintf(fp,"\t ; PRINT(array %s: %s) starts \n",siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
 
                 fprintf(fp, "\t push rbp \n");
     
@@ -744,12 +746,14 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 }
 
                 fprintf(fp, "\t pop rbp \n");
+
+                fprintf(fp,"\t ; PRINT(array %s: %s) ends \n",siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
+
             }
 
             else /* Arrays */ {
                 // Use whichId AST Node here.
             }
-            fprintf(fp,"\t ; PRINT ends\n", sibling->tkinfo->lexeme);
 
             return;
         }
@@ -864,35 +868,82 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
 
         case g_conditionalStmt:{
-            ASTNode *idNode = root->child;
-            fprintf(fp,"\t ; switch(%s) starts\n", idNode->tkinfo->lexeme);
-
+            ASTNode *idNode = root->child; // on ID
             symVarInfo vi = idNode->stNode->info.var;
-//            mov rsi, rbp
-//            sub rsi, 4
-            fprintf(fp,"\t mov rsi, %s \n",baseRegister[vi.isIOlistVar]);
-            fprintf(fp,"\t sub rsi, [ %s - %d ] \n",baseRegister[vi.isIOlistVar], 2*(vi.offset + vi.vtype.width));
+            fprintf(fp,"\t ; switch(%s: %s) starts\n", idNode->tkinfo->lexeme, inverseMappingTable[vi.vtype.baseType]);
+
+            fprintf(fp,"\t mov rsi, %s \n", baseRegister[vi.isIOlistVar]);
+            fprintf(fp,"\t sub rsi, %d \n", 2*(vi.offset + vi.vtype.width));
             // rsi now points to where the data will be extracted from
-            char regStr[5];
-            getAptReg(regStr, 8, vi.vtype.width);
-            fprintf(fp, "\t mov %s, [ rsi ] \n", regStr);
+            char memToRegStr[2][6] = {'\0', '\0'};
+            getAptReg(memToRegStr, 8, vi.vtype.width);
+            fprintf(fp, "\t mov %s, %s[ rsi ] \n", memToRegStr[0], memToRegStr[1]);
 
             switch(idNode->stNode->info.var.vtype.baseType){
                 case g_INTEGER: {
-                    ASTNode *valList = idNode->next->child->child; // On NUM or TRUE or FALSE
+                    ASTNode *valList = idNode->next->child->child; // On NUM
                     ASTNode *ptr = valList;
                     fprintf(fp, "\t ; comparisons start for cases \n");
                     while(ptr!=NULL){
-                        fprintf(fp, "\t cmp %s,  \n", regStr);
+                        fprintf(fp, "\t cmp %s, %d \n", memToRegStr[0], ptr->tkinfo->value.num);
+                        fprintf(fp, "\t jz case_NUM_ptr_%p \n",ptr);
+                        ptr = ptr->next;
                     }
+                    fprintf(fp, "\t ; comparisons end for cases \n");
+                    fprintf(fp, "\t ; jump to default \n");
+
+                    fprintf(fp, "\t jmp DEFAULT_ptr_%p \n",valList->parent->next); // default always there in int switch
+
+                    fprintf(fp, "\t ; case definitions begin \n");
+                    ptr = valList;
+                    while(ptr != NULL){
+                        fprintf(fp, " case_NUM_ptr_%p: \n",ptr);
+                        generateCode(ptr->child, symT, fp);
+                        fprintf(fp, "\t jmp BREAK_ptr_%p \n",root); // BREAK out of switch pointer is the conditionalStmt pointer
+                        ptr = ptr->next;
+                    }
+                    fprintf(fp, "\t ; case definitions end \n");
+                    fprintf(fp, "\t ; default begin \n");
+
+                    fprintf(fp, " DEFAULT_ptr_%p: \n",valList->parent->next);
+                    generateCode(valList->parent->next->child, symT, fp);
+
+                    fprintf(fp, "\t ; default ends \n");
+                    fprintf(fp, " BREAK_ptr_%p: \n",root); // BREAK out of switch pointer is the conditionalStmt pointer
                 }
                 break;
-                case g_BOOLEAN:
+                case g_BOOLEAN:{
+                    ASTNode *valList = idNode->next->child->child; // On TRUE or FALSE
+                    ASTNode *ptr = valList;
+                    fprintf(fp, "\t ; comparisons start for cases \n");
+                    while(ptr!=NULL){
+                        // this loop runs only two times: TRUE and FALSE
+                        fprintf(fp, "\t cmp %s, %d \n", memToRegStr[0], ptr->gs == FALSE ? 0 : 1);
+                        fprintf(fp, "\t jz case_%s_ptr_%p \n",inverseMappingTable[ptr->gs], ptr);
+                        ptr = ptr->next;
+                    }
+                    fprintf(fp, "\t ; comparisons end for cases \n");
+                    // In a semantically correct code, there won't be a default and exactly one case for TRUE and FALSE.
+                    // Thus we only need exactly two comparisons made above (in loop). One of them is sure to match.
+
+                    fprintf(fp, "\t ; case definitions begin \n");
+                    ptr = valList;
+                    while(ptr != NULL){
+                        // this loop runs two times
+                        fprintf(fp, " case_%s_ptr_%p: \n",inverseMappingTable[ptr->gs], ptr);
+                        generateCode(ptr->child, symT, fp);
+                        fprintf(fp, "\t jmp BREAK_ptr_%p \n",root); // BREAK out of switch pointer is the conditionalStmt pointer
+                        ptr = ptr->next;
+                    }
+                    fprintf(fp, "\t ; case definitions end \n");
+
+                    fprintf(fp, " BREAK_ptr_%p: \n",root); // BREAK out of switch pointer is the conditionalStmt pointer
+                }
                     break;
                 default:
                     printf("generateCode: Mistake in semantic analyser. Got invalid switch var data type.\n");
             }
-            fprintf(fp,"\t ; switch(%s) ends\n", idNode->tkinfo->lexeme);
+            fprintf(fp,"\t ; switch(%s: %s) ends \n", idNode->tkinfo->lexeme, inverseMappingTable[vi.vtype.baseType]);
 
         }
 
@@ -903,18 +954,21 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
 }
 
-void getAptReg(char *regStr, int regno, int width){
+void getAptReg(char memToRegStr[][6], int regno, int width){
 //R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10  R11  R12  R13  R14  R15
 //RAX RCX RDX RBX RSP RBP RSI RDI
     switch(width){
         case 1:
-            sprintf(regStr,"r%dw",regno); // 2 bytes
+            sprintf(memToRegStr[0], "r%dw", regno); // 2 bytes
+            sprintf(memToRegStr[1],"word");
             break;
         case 2:
-            sprintf(regStr,"r%dd",regno); // 4 bytes
+            sprintf(memToRegStr[0],"r%dd", regno); // 4 bytes
+            sprintf(memToRegStr[1],"dword");
             break;
         case 4:
-            sprintf(regStr,"r%d",regno); // 8 bytes
+            sprintf(memToRegStr[0], "r%d", regno); // 8 bytes
+            sprintf(memToRegStr[1],"qword");
             break;
         default:
             printf("getAptReg: Got invalid width.\n");
