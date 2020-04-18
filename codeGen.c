@@ -6,6 +6,8 @@
 #include <string.h>
 
 #include "codeGen.h"
+#include "symbolTableDef.h"
+#include "symbolHash.h"
 #include "symbolTable.h"
 #include "typeCheck.h"
 #include "lexerDef.h"
@@ -25,7 +27,7 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 }
 
 
-char *baseRegister[2] = {"RBP", "RSI"};
+char *baseRegister[2] = {"RBP", "RBX"};
 
 char *expreg[3] = {"r8","r9","r10"};
 int arrBaseSize = 1;    //in words
@@ -472,6 +474,84 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
 
+        case g_moduleReuseStmt:
+        {
+            ASTNode *idOrAssignop = root->child;
+
+            if(idOrAssignop->gs == g_ASSIGNOP) {
+                ASTNode *outputList = idOrAssignop->child; // Dont need yet
+                ASTNode *functionID = idOrAssignop->next;
+                ASTNode *inputList = functionID->next;
+
+                symFuncInfo *finfo = stGetFuncInfo(functionID->tkinfo->lexeme, symT);
+                symTableNode *inputParam = finfo->inpPListHead;
+                symTableNode *outputParam = finfo->outPListHead;
+
+
+                ASTNode *idNode = inputList->child;
+
+                while(idNode != NULL) {
+
+                    varType actualVarType = idNode->stNode->info.var.vtype;
+                    symVarInfo actualVar = idNode->stNode->info.var;
+
+                    varType formalVarType = inputParam->info.var.vtype;
+                    symVarInfo formalVar = inputParam->info.var;
+
+
+                    fprintf(fp, "\t mov rdi, rsp \n");
+                    fprintf(fp, "\t sub rdi, %d \n", scale * (formalVarType.width + formalVar.offset));
+                    // mov how much data!
+                    fprintf(fp, "\t mov DWORD[rdi], [%s - %d] \n", baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
+       
+                    inputParam = inputParam->next;
+                    idNode = idNode->next;
+                }
+
+                fprintf(fp, "\t push rbp \n");
+                fprintf(fp, "\t push rbx \n");
+                fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+
+                fprintf(fp, "\t push rsi \n"); // Odd no of register
+
+                fprintf(fp, "\t call %s \n", functionID->tkinfo->lexeme);
+                
+                fprintf(fp, "\t pop rsi \n");
+
+                fprintf(fp, "\t add rsp, 192 \n");
+                fprintf(fp, "\t pop rbx \n");
+                fprintf(fp, "\t pop rbp \n");
+
+
+                idNode = outputList->child;
+
+                while(idNode != NULL) {
+
+                    varType actualVarType = idNode->stNode->info.var.vtype;
+                    symVarInfo actualVar = idNode->stNode->info.var;
+
+                    varType formalVarType = outputParam->info.var.vtype;
+                    symVarInfo formalVar = outputParam->info.var;
+
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[actualVar.isIOlistVar]);
+                    fprintf(fp, "\t sub rsi, %d \n", scale * (actualVarType.width + actualVar.offset));
+                    // mov how much data!
+                    fprintf(fp, "\t mov DWORD[rsi], [rsp - %d] \n", scale * (formalVarType.width + formalVar.offset)); 
+       
+                    outputParam = outputParam->next;
+                    idNode = idNode->next;
+                }
+
+            }
+            else {
+                ASTNode *functionID = idOrAssignop;
+                ASTNode *outputList = functionID->next;
+
+            }
+            
+            fprintf(fp, "\t pop rbx \n");
+            fprintf(fp, "\t pop rbp \n");
+        }
 
         case g_ioStmt:
         {
@@ -956,7 +1036,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
-        
+
         case g_assignmentStmt:
             fprintf(fp,"\t ; Expression generation starts\n");
             genExpr(root,fp,true,0);
