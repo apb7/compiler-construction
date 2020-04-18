@@ -1147,12 +1147,21 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                             throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                         }
                     }
-                    else if(vt1->vaType == STAT_ARR && vt2->vaType == STAT_ARR) {
-                        if (vt1->si.vt_num != vt2->si.vt_num || vt1->ei.vt_num != vt2->ei.vt_num )
-                            throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
+                    else{
+                        bool errd = false;
+                        if((vt1->vaType == STAT_ARR || vt1->vaType == DYN_L_ARR) && (vt2->vaType == STAT_ARR || vt2->vaType == DYN_L_ARR)){
+                            if(vt1->si.vt_num != vt2->si.vt_num){
+                                throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
+                                errd = true;
+                            }
+                        }
+                        if(!errd && (vt1->vaType == STAT_ARR || vt1->vaType == DYN_R_ARR) && (vt2->vaType == STAT_ARR || vt2->vaType == DYN_R_ARR)){
+                            if(vt1->ei.vt_num != vt2->ei.vt_num){
+                                throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
+                            }
+                        }
                     }
 
-                    // All dynamic array types are checked at runtime, if their basetype matches. No error for now! Maybe added here later!
                 }
 
                 else {
