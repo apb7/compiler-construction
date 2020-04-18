@@ -100,7 +100,7 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
 void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
-//    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
+    //    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
     fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
     setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
     if(arrNode->stNode->info.var.vtype.baseType == g_INTEGER){
@@ -458,7 +458,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             ASTNode* statementsNode = rangeNode->next->child;
 
             symVarInfo idNodeVar = idNode->stNode->info.var;
-// Experimental
+            // Experimental
             fprintf(fp, "\t mov dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), startNode->tkinfo->lexeme);
             fprintf(fp, "\t cmp dword[%s - %d], %s \n", baseRegister[idNodeVar.isIOlistVar], 2*(idNodeVar.vtype.width + idNodeVar.offset), endNode->tkinfo->lexeme);
             fprintf(fp, "\t ja forLoopEnd_%p \n", endNode);
@@ -600,14 +600,18 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t movsx rsi, word[rcx] \n"); 
                     fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
                     
-                    fprintf(fp, "\t sub rcx, 4 \n");
-                    fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
+                    // fprintf(fp, "\t sub rcx, 4 \n");
+                    // fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
 
-                    fprintf(fp, "\t sub rcx, 4 \n");
-                    fprintf(fp, "\t movsx r13, DWORD [rcx] \n"); // ub
+                    // fprintf(fp, "\t sub rcx, 4 \n");
+                    // fprintf(fp, "\t movsx r13, DWORD [rcx] \n"); // ub
+
+                    getArrBoundsInExpReg(siblingId, fp);
+
+                    fprintf(fp, "\t mov r12, %s \n", expreg[0]); // lb
+                    fprintf(fp, "\t mov r13, %s \n", expreg[1]); // ub
 
                     fprintf(fp, "\t mov rdi, inputInt \n");
-
                     fprintf(fp, "scan_dyn_%p: \n", siblingId);
                     
                     fprintf(fp, "\t push rsi \n");
@@ -620,8 +624,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t jz scan_dyn_exit_%p \n", siblingId);
 
                     fprintf(fp, "\t inc r12 \n");
-                    fprintf(fp, "\t sub rsi, 4 \n"); // address of n-th elem
-
+                    fprintf(fp, "\t sub rsi, %d \n", scale * getSizeByType(idVarType.baseType)); // address of n-th elem
                     fprintf(fp, "\t jmp scan_dyn_%p \n", siblingId);
 
                     fprintf(fp, "scan_dyn_exit_%p: \n", siblingId);
@@ -713,60 +716,55 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                 ASTNode *idOrNum = siblingId->next;
 
-                if(idVarType.vaType == STAT_ARR) {
+                fprintf(fp, "\t push rbp \n");
 
-                    fprintf(fp, "\t push rbp \n");
+                // The only registers that the called function is required to preserve (the calle-save registers) are:
+                // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
+                if(idVarType.baseType == g_INTEGER) {
 
-                    // The only registers that the called function is required to preserve (the calle-save registers) are:
-                    // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
-                    if(idVarType.baseType == g_INTEGER) {
+                    fprintf(fp, "\t mov rdi, outputInt \n");
 
-                        fprintf(fp, "\t mov rdi, outputInt \n");
+                    // fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                    // fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
+                    // fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                    // fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 
-                        fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
-                        fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
-                        fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                        fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
+                    getArrBoundsInExpReg(siblingId, fp);
 
-                        // Bound check done at compile time
-                        if (idOrNum->gs == g_NUM) {
-                            fprintf(fp, "\t mov r12, %d \n", idOrNum->tkinfo->value.num );
-                            fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
-                            fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
-                            fprintf(fp, "\t sub rsi, r12 \n");
-                        }
+                    // Bound check done at compile time, but no harm!
+                    if (idOrNum->gs == g_NUM) 
+                        fprintf(fp, "\t mov %s, %d \n", expreg[2], idOrNum->tkinfo->value.num );
 
-                        // ID, we need to do bounds check!
-                        else {
-                            { // Create scope for array index!
-                                varType idVarType = idOrNum->stNode->info.var.vtype;
-                                symVarInfo idVar = idOrNum->stNode->info.var;
+                    // ID, we need to do bounds check!
+                    else {
+                        // Create scope for array index!
+                        varType idVarType = idOrNum->stNode->info.var.vtype;
+                        symVarInfo idVar = idOrNum->stNode->info.var;
 
-                                fprintf(fp, "\t movsx r12, DWORD [%s - %d] \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
-                            }
-
-                            fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
-                            fprintf(fp, "\t jbe stat_valid1_%p \n", idOrNum);
-                            RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
-
-                            fprintf(fp, "stat_valid1_%p: \n", idOrNum);
-                            fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
-                            fprintf(fp, "\t jae stat_valid2_%p \n", idOrNum);
-                            RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
-
-                            fprintf(fp, "stat_valid2_%p: \n", idOrNum);
-                            fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
-                            fprintf(fp, "\t sub rsi, r12 \n");
-                        }
-
-                        fprintf(fp, "\t movsx rsi, DWORD[rsi] \n");
-                        fprintf(fp, "\t call printf \n");
-
+                        fprintf(fp, "\t movsx %s, DWORD [%s - %d] \n", expreg[2], baseRegister[idVar.isIOlistVar], scale * (idVarType.width + idVar.offset));
                     }
 
-                    fprintf(fp, "\t pop rbp \n");
+                    fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[1]);
+                    fprintf(fp, "\t jbe stat_valid1_%p \n", idOrNum); // UB satisfied
+                    RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
+
+                    fprintf(fp, "stat_valid1_%p: \n", idOrNum);
+                    fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[0]); 
+                    fprintf(fp, "\t jae stat_valid2_%p \n", idOrNum); // LB satisfied
+                    RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
+
+                    fprintf(fp, "stat_valid2_%p: \n", idOrNum);
+                                            
+                    //prereq: lower bound in expreg[0], index in expreg[2]
+                    //outcome: address of array element at idx in expreg[1]
+                    getArrAddrAtIdx(siblingId, fp);
+
+                    fprintf(fp, "\t mov rsi, %s \n", expreg[1]);
+                    fprintf(fp, "\t movsx rsi, DWORD[rsi] \n");
+                    fprintf(fp, "\t call printf \n");
                 }
 
+                fprintf(fp, "\t pop rbp \n");
 
                 return;
             }
