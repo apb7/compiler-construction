@@ -1714,6 +1714,51 @@ void buildSymbolTable(ASTNode *root){
     }
 }
 
-void destroySymbolTable(symbolTable *st){
-
+void destroySymbolTable(symbolTable *st, bool isFuncTable){
+    if(st == NULL)
+        return;
+    if(isFuncTable){
+        symTableNode *currSTN;
+        for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
+            currSTN = (st->tb)[i];
+            while(currSTN != NULL){
+                symTableNode *currSTNTmp = currSTN->next;
+                symTableNode *iohead = currSTN->info.func.inpPListHead;
+                symTableNode *tmp;
+                while(iohead != NULL){
+                    tmp = iohead->next;
+                    free(iohead);
+                    iohead = tmp;
+                }
+                iohead = currSTN->info.func.outPListHead;
+                while(iohead != NULL){
+                    tmp = iohead->next;
+                    free(iohead);
+                    iohead = tmp;
+                }
+                destroySymbolTable(currSTN->info.func.st,false);
+                free(currSTN);
+                currSTN = currSTNTmp;
+            }
+        }
+    }
+    else{
+        symTableNode *currSTN;
+        for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
+            currSTN = (st->tb)[i];
+            while(currSTN != NULL){
+                symTableNode *currSTNTmp = currSTN->next;
+                free(currSTN);
+                currSTN = currSTNTmp;
+            }
+        }
+        symbolTable *curr = st->headChild;
+        while(curr != NULL){
+            symbolTable *nextTmp = curr->next;
+            destroySymbolTable(curr,false);
+            curr = nextTmp;
+        }
+        free(st);
+        return;
+    }
 }
