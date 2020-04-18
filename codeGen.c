@@ -117,7 +117,7 @@ void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
     int toSub = scale * (arrNode->stNode->info.var.offset + arrBaseSize);
     bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
     fprintf(fp,"\t movsx %s, word[%s-%d] \n",expreg[1],baseRegister[isIOlistVar],toSub);
-    fprintf(fp,"\t add %s, stack_top \n",expreg[1]);
+    fprintf(fp,"\t add %s, [stack_top] \n",expreg[1]);
     fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[2]);
 }
 
@@ -565,7 +565,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
                     
                     fprintf(fp, "\t mov rdi, inputInt \n");
 
@@ -603,7 +603,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rcx, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rcx, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rcx] \n"); 
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
                     
                     fprintf(fp, "\t sub rcx, 4 \n");
                     fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
@@ -731,7 +731,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                         fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                         fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                         fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                        fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                        fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 
                         // Bound check done at compile time
                         if (idOrNum->gs == g_NUM) {
@@ -831,7 +831,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 
                     fprintf(fp, "\t mov rdi, intHolder \n");
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
@@ -863,7 +863,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num);
 
@@ -906,7 +906,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             else /* Arrays */ {
                 // Use whichId AST Node here.
             }
-            fprintf(fp,"\t ; PRINT ends\n", sibling->tkinfo->lexeme);
+            fprintf(fp,"\t ; PRINT ends\n");
 
             return;
         }
