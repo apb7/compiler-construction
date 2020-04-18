@@ -9,15 +9,14 @@
 #include "symbolTable.h"
 #include "typeCheck.h"
 #include "lexerDef.h"
-# define RUNTIME_EXIT_WITH_ERROR(e) printf(e)
-/*
-#define  RUNTIME_EXIT_WITH_ERROR (e) \
-    fprintf(fp, "\t mov rdi, %s \n", e); \
-    fprintf(fp, "\t call printf \n"); \
-    fprintf(fp, "\t mov rax, 60 \n"); \
-    fprintf(fp, "\t xor rdi, rdi \n"); \
-    fprintf(fp, "\t syscall \n")
-*/
+
+void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
+    fprintf(fp, "\t mov rdi, %s \n", e); 
+    fprintf(fp, "\t call printf \n"); 
+    fprintf(fp, "\t mov rax, 60 \n"); 
+    fprintf(fp, "\t xor rdi, rdi \n"); 
+    fprintf(fp, "\t syscall \n");
+}
 extern char *inverseMappingTable[];
 
 
@@ -355,11 +354,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp, "section .data \n");
 
-            // To be removed
-            fprintf(fp, "\t sampleInt: db 5,0 \n");
-            fprintf(fp, "\t sampleFloat: db -5.2,0 \n");
-
-
             fprintf(fp,"\t msgBoolean: db \"Input: Enter a boolean value:\", 10, 0 \n");
             fprintf(fp,"\t inputBoolean: db \"%%hd\", 0 \n");
 
@@ -373,7 +367,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t outputBooleanFalse: db \"Output: false\", 10, 0, \n");
 
             fprintf(fp,"\t outputInt: db \"Output: %%d\", 10, 0, \n");
-
             fprintf(fp,"\t outputFloat: db \"Output: %%lf\", 10, 0, \n");
 
             fprintf(fp,"\t output: db \"Output: \", 0 \n");
@@ -381,6 +374,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t booleanTrue: db \"true \", 0 \n");
             fprintf(fp,"\t booleanFalse: db \"true \", 0 \n");
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
+
+            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bound\", 10, 0 \n");
 
 
             fprintf(fp, "\n section .text \n");
@@ -751,14 +746,15 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                             }
 
                             fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
-                            fprintf(fp, "\t jbe stat_valid_%p: \n", idOrNum);
-                            RUNTIME_EXIT_WITH_ERROR ("OUT_OF_BOUNDS");
+                            fprintf(fp, "\t jbe stat_valid1_%p \n", idOrNum);
+                            RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
 
+                            fprintf(fp, "stat_valid1_%p: \n", idOrNum);
                             fprintf(fp, "\t sub r12, %d \n", idVarType.si.vt_num );
-                            fprintf(fp, "\t jae stat_valid_%p: \n", idOrNum);
-                            RUNTIME_EXIT_WITH_ERROR ("OUT_OF_BOUNDS");
+                            fprintf(fp, "\t jae stat_valid2_%p \n", idOrNum);
+                            RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
 
-                            fprintf(fp, "stat_valid_%p: \n", idOrNum);
+                            fprintf(fp, "stat_valid2_%p: \n", idOrNum);
                             fprintf(fp, "\t shl r12, 2 \n"); // multiply by 4 due to size of int
                             fprintf(fp, "\t sub rsi, r12 \n");
                         }
