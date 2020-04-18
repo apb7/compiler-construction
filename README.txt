@@ -16,12 +16,18 @@ ASSUMPTIONS:
 
 TODOs: (add here if any for combined tracking of all remaining work)
 
+//TODO: make makefile submission ready
+    $./compiler      testcase.txt       code.asm  should work at the console
+//TODO: handle memory leaks
+//TODO: Exhaustive testing of entire code
+
 Note: Some of them may have been done long back just check and mark the `TODO` as `DONE` at the top of symbolTable.c.
       Also check the already present DONEs there. Ensure they are actually DONE and WORKING!
 
 SEMANTIC ANALYZER:
-//TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
-//TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
+//TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error (regardless of indices being declared, treat as placeholders) in the same list. perform static checks (base type match and static bounds check)
+//TODO: printf("Input source code is semantically correct and type checked..........\n"); if code passes all semantic and type checks
+//TODO: printf("Code compiles successfully..........\n"); if code compiles successfully i.e. after codeGen
 //TODO: destroy (free) the symbol table and other constructs (including AST) for continuous execution in driver. Every loop iteration must be a fresh start.
 //TODO: sort errors based on line nos.
 
@@ -34,3 +40,31 @@ CODE GENERATION:
 //(Assumption 1) TODO: FOR loop semantics in codeGen: iterator value restore or last terminating value?
 //TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
 //TODO: dynamic arrays need not be the last declared variable in a module (currently they need to be).
+//TODO: Take input of arrays in the following format:
+        Input: Enter 6 array elements of integer type for range 10 to 15
+
+
+TODOs In Files: (verify and delete from here and from the file)
+
+ast.c:
+    line 19
+    line 976
+
+symbolTable.h:
+    line 24
+
+symbolTable.c
+    // The TODOs on top in this file are global and are written above
+    // Those TODOs that are mentioned in between must be implemented already, verify and delete
+
+codeGen.c
+    // being worked on, delete this when all TODOs done
+
+driver.c
+    // being worked on, delete this when all TODOs done
+
+error.c
+    line 52
+
+typeCheck.c:
+    line 154

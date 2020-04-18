@@ -2,7 +2,7 @@
 
 <<<driver program>>>
 start
-    declare flag : boolean;
+    declare flag, hj: boolean;
     declare a,b,c,ct: integer;
     a := 25;
     b := 10;
@@ -12,7 +12,7 @@ start
     flag := a <=  b AND c <= a OR  (a<0 AND true);
     print(flag);
     a := 1;
-    while(b > c)
+    while(flag AND hj OR hj)
     start
         ct:=0;
         while(ct<2)

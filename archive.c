@@ -54,8 +54,6 @@ void printVarEntry1(symTableNode *stNode, int sno, FILE *fp){
 }
 
 void printSymbolTable1(symbolTable* st, FILE *fp){
-    // prints the whole SymbolTable Structure by calling printCurrSymTable
-    // TODO: add a call to printCurrSymTable(..) appropriately
     if(st == NULL)
         return;
     symTableNode *currSTN = NULL;
