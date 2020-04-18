@@ -168,8 +168,10 @@ varType* getDataType(ASTNode *ptr) {
                 if (ptr->child->stNode == NULL){
                     return NULL;
                 }
-
-                return &(ptr->child->stNode->info.var.vtype);
+                
+                // Return array type for case A:=B
+                if (ptr->child->next == NULL)
+                    return &(ptr->child->stNode->info.var.vtype);
             }
             // otherwise let it fall through the case stmt
         }
