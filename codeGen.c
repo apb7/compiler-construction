@@ -484,7 +484,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t mov rbp, rsp \n");
             fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
             fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
-            fprintf(fp, "\t ; stack init done. \n");
+            fprintf(fp, "\t ; stack init done. \n\n");
 
             generateCode(root->child, symT, fp);
 
