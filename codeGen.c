@@ -53,6 +53,7 @@ void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
 }
 
 //outcome: lower bound in expreg[0], upper bound in expreg[1]
+//affects: No other register affected
 void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
@@ -97,6 +98,7 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
 
 //prereq: lower bound in expreg[0], index in expreg[2]
 //outcome: address of array element at idx in expreg[1]
+//affects: expreg[2] value destroyed
 void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
@@ -122,12 +124,26 @@ void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
 
 //prereq: lower bound in expreg[0], index in expreg[2]
 //outcome: array value at idx in expreg[0]
+//affects: expreg[2] value destroyed
 void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     getArrAddrAtIdx(arrNode,fp);
     setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
     fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
     fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[0],expSizeRegSuffix,expSizeStr,expreg[1]);
+}
+
+//prereq: lower bound in expreg[0], upper bound in expreg[1], index in expreg[2]
+void boundCheckArrAndExit(void *someRefPtr, FILE *fp){
+    //someRefPtr is any unique address
+    fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[0]);
+    fprintf(fp,"\t jge lb_ok_%p \n",someRefPtr);
+    RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
+    fprintf(fp,"lb_ok_%p: \n",someRefPtr);
+    fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[1]);
+    fprintf(fp,"\t jle rb_ok_%p \n",someRefPtr);
+    RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
+    fprintf(fp,"rb_ok_%p: \n",someRefPtr);
 }
 
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
@@ -150,7 +166,6 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         // printf("%s \n",idNode->tkinfo->lexeme);
         if(idNode->next->next != NULL){
             genExpr(idNode->next->next,fp,false,expType);
-            //TODO: Handle Array elements with static/dynamic index
             getArrBoundsInExpReg(idNode,fp);
             if(idNode->next->gs == g_ID){
                 ASTNode *idxIdNode = idNode->next;
@@ -164,7 +179,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
             }
             //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-            //TODO: Do bound checking and throw runtime error if needed
+            boundCheckArrAndExit(idNode->next,fp);
             getArrAddrAtIdx(idNode,fp);
             setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
             fprintf(fp,"\t pop %s \n",expreg[0]);
@@ -185,7 +200,51 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
             }
             else{
                 //array
-                //TODO: just put data from right array to left array
+                ASTNode *arr1Node = idNode;
+                ASTNode *arr2Node = idNode->next->child;
+                getArrBoundsInExpReg(arr1Node,fp);
+                fprintf(fp,"\t mov %s, %s \n",expreg[2],expreg[0]);
+                fprintf(fp,"\t mov %s, %s \n",expreg[3],expreg[1]);
+                getArrBoundsInExpReg(arr2Node,fp);
+                fprintf(fp,"\t cmp %s, %s \n",expreg[0],expreg[2]);
+                fprintf(fp,"\t je lb_match_%p_%p \n",arr1Node,arr2Node);
+                RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
+                fprintf(fp,"lb_match_%p_%p:\n",arr1Node,arr2Node);
+                fprintf(fp,"\t cmp %s, %s \n",expreg[1],expreg[3]);
+                fprintf(fp,"\t je rb_match_%p_%p \n",arr1Node,arr2Node);
+                RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
+                fprintf(fp,"rb_match_%p_%p:\n",arr1Node,arr2Node);
+                //match successful, now copy
+                fprintf(fp,"\t mov [asgnLB], %s \n",expreg[0]);
+                fprintf(fp,"\t mov [asgnRB], %s \n",expreg[1]);
+                //prereq: lower bound in expreg[0], index in expreg[2]
+                //outcome: address of array element at idx in expreg[1]
+                //affects: expreg[2] value destroyed
+                getArrAddrAtIdx(arr2Node,fp);
+                fprintf(fp,"\t mov %s, %s \n",expreg[3],expreg[1]);
+                fprintf(fp,"\t mov %s, [asgnLB] \n",expreg[0]); //left bound
+                fprintf(fp,"\t mov %s, [asgnRB] \n",expreg[1]); //right bound
+                fprintf(fp,"\t mov %s, [asgnLB] \n",expreg[2]); //first index
+                //prereq: lower bound in expreg[0], index in expreg[2]
+                //outcome: address of array element at idx in expreg[1]
+                //affects: expreg[2] value destroyed
+                getArrAddrAtIdx(arr1Node,fp);
+                fprintf(fp,"\t mov %s, %s \n",expreg[2],expreg[1]);
+                //NOW eR[2] contains addr of first element of arr1 & eR[3] contains addr of first element of arr2
+                fprintf(fp,"\t mov %s, [asgnLB] \n",expreg[0]); //current index in er0
+                setExpSize(arr1Node->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
+                int toSub = scale * getSizeByType(arr1Node->stNode->info.var.vtype.baseType);
+                fprintf(fp,"arr_asgn_%p_%p: \n",arr1Node,arr2Node);
+                fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+                //move data from arr2[i] to arr1[i]
+                fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[1],expSizeRegSuffix,expSizeStr,expreg[3]);
+                fprintf(fp,"\t mov %s[%s], %s%s \n",expSizeStr,expreg[2],expreg[1],expSizeRegSuffix);
+                //move index & offsets accordingly
+                fprintf(fp,"\t sub %s, %d \n",expreg[3],toSub);
+                fprintf(fp,"\t sub %s, %d \n",expreg[2],toSub);
+                fprintf(fp,"\t inc %s \n",expreg[0]);
+                fprintf(fp,"\t cmp %s, [asgnRB] \n",expreg[0]);
+                fprintf(fp,"\t jle arr_asgn_%p_%p \n",arr1Node,arr2Node);
             }
         }
     }
@@ -242,12 +301,10 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                             fprintf(fp,"\t mov %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
                         }
                         //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-                        //TODO: Do bound checking and throw runtime error if needed
+                        boundCheckArrAndExit(astNode->next,fp);
                         //toSub from array base
                         getArrValueAtIdxInReg(astNode,fp);
                         fprintf(fp,"\t push %s \n",expreg[0]);
-
-
                     }
                 }
                 break;
@@ -351,6 +408,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t inta: resb 4 \n");
             fprintf(fp, "\t floatb: resb 8 \n");
             fprintf(fp, "\t boolc: resb 2 \n");
+            fprintf(fp,"\t asgnLB: resb 8 \n");
+            fprintf(fp,"\t asgnRB: resb 8 \n");
 
             fprintf(fp, "section .data \n");
 
@@ -376,6 +435,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
             fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bound\", 10, 0 \n");
+            fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
 
 
             fprintf(fp, "\n section .text \n");
