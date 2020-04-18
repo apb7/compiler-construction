@@ -23,6 +23,7 @@
 //TODO: handle TYPE ERRORs for a:=b where a and b are partially static arrays.
 //TODO: For semantics in codeGen: iterator value restore or last terminating value?
 //TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
+//DONE: bounds of for loop: left bound <= right bound
 //DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
 /* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
  *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,
@@ -1384,6 +1385,10 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     ASTNode* ptr = iterativeStmtNode;
     ptr=ptr->child; //on FOR/WHILE
     if(ptr->gs==g_FOR) {
+        // range check for loop: left bound <= right bound
+        if(ptr->next->next->child->tkinfo->value.num > ptr->next->next->child->next->tkinfo->value.num){ // left bound > right bound
+            throwSemanticError(ptr->next->next->child->tkinfo->lno, NULL, NULL, SEME_FOR_RANGE_L_NUM_EXCEED_R_NUM);
+        }
         ptr=ptr->next; //on ID
         gSymbol ty;
         int isVar=0;

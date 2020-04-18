@@ -11,10 +11,10 @@
 #include "lexerDef.h"
 
 void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
-    fprintf(fp, "\t mov rdi, %s \n", e); 
-    fprintf(fp, "\t call printf \n"); 
-    fprintf(fp, "\t mov rax, 60 \n"); 
-    fprintf(fp, "\t xor rdi, rdi \n"); 
+    fprintf(fp, "\t mov rdi, %s \n", e);
+    fprintf(fp, "\t call printf \n");
+    fprintf(fp, "\t mov rax, 60 \n");
+    fprintf(fp, "\t xor rdi, rdi \n");
     fprintf(fp, "\t syscall \n");
 }
 extern char *inverseMappingTable[];
@@ -471,7 +471,11 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             return;
         }
+        case g_WHILE:{
 
+
+
+        }
 
         case g_ioStmt:
         {
@@ -549,7 +553,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             }
             else if(idVarType.vaType == STAT_ARR) {
                 fprintf(fp, "\t push rbp \n");
-    
+
                 // The only registers that the called function is required to preserve (the calle-save registers) are:
                 // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
                 if(idVarType.baseType == g_INTEGER) {
@@ -561,12 +565,12 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                     fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
-                    
+
                     fprintf(fp, "\t mov rdi, inputInt \n");
 
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
                     fprintf(fp, "statarr_%p: \n", siblingId);
-                    
+
                     fprintf(fp, "\t push rsi \n");
                     fprintf(fp, "\t push rdi \n");
                     fprintf(fp, "\t call scanf \n");
@@ -597,9 +601,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                     fprintf(fp, "\t mov rcx, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rcx, %d \n", 2 * (1 + idVar.offset));
-                    fprintf(fp, "\t movsx rsi, word[rcx] \n"); 
+                    fprintf(fp, "\t movsx rsi, word[rcx] \n");
                     fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
-                    
+
                     // fprintf(fp, "\t sub rcx, 4 \n");
                     // fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
 
@@ -613,13 +617,13 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                     fprintf(fp, "\t mov rdi, inputInt \n");
                     fprintf(fp, "scan_dyn_%p: \n", siblingId);
-                    
+
                     fprintf(fp, "\t push rsi \n");
                     fprintf(fp, "\t push rdi \n");
                     fprintf(fp, "\t call scanf \n");
                     fprintf(fp, "\t pop rdi \n");
                     fprintf(fp, "\t pop rsi \n");
-                    
+
                     fprintf(fp, "\t cmp r12, r13 \n"); // ub
                     fprintf(fp, "\t jz scan_dyn_exit_%p \n", siblingId);
 
@@ -732,7 +736,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     getArrBoundsInExpReg(siblingId, fp);
 
                     // Bound check done at compile time, but no harm!
-                    if (idOrNum->gs == g_NUM) 
+                    if (idOrNum->gs == g_NUM)
                         fprintf(fp, "\t mov %s, %d \n", expreg[2], idOrNum->tkinfo->value.num );
 
                     // ID, we need to do bounds check!
@@ -749,12 +753,12 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
 
                     fprintf(fp, "stat_valid1_%p: \n", idOrNum);
-                    fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[0]); 
+                    fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[0]);
                     fprintf(fp, "\t jae stat_valid2_%p \n", idOrNum); // LB satisfied
                     RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
 
                     fprintf(fp, "stat_valid2_%p: \n", idOrNum);
-                                            
+
                     //prereq: lower bound in expreg[0], index in expreg[2]
                     //outcome: address of array element at idx in expreg[1]
                     getArrAddrAtIdx(siblingId, fp);
@@ -816,7 +820,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 fprintf(fp,"\t ; PRINT(array %s: %s) starts \n",siblingId->tkinfo->lexeme, inverseMappingTable[siblingId->stNode->info.var.vtype.baseType]);
 
                 fprintf(fp, "\t push rbp \n");
-    
+
                 // The only registers that the called function is required to preserve (the calle-save registers) are:
                 // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
                 if(idVarType.baseType == g_INTEGER) {
@@ -832,7 +836,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rdi, intHolder \n");
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
                     fprintf(fp, "statarr_%p: \n", siblingId);
-                    
+
                     fprintf(fp, "\t push rsi \n");
                     fprintf(fp, "\t push rdi \n");
                     fprintf(fp, "\t movsx rsi, DWORD[rsi] \n");
@@ -1097,8 +1101,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t ; switch(%s: %s) ends \n", idNode->tkinfo->lexeme, inverseMappingTable[vi.vtype.baseType]);
 
         }
+        return;
 
-            return;
         default:
             printf("Default : %s \n", inverseMappingTable[gs]);
     }

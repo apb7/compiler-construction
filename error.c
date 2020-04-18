@@ -160,6 +160,9 @@ void printError(error e){
                 case SEME_FOR_VAR_UNDECLARED:
                     fprintf(stderr, "The for loop counter variable '%s' used here is undeclared.\n", e.edata.seme.errStr1);
                     break;
+                case SEME_FOR_RANGE_L_NUM_EXCEED_R_NUM:
+                    fprintf(stderr, "The for loop cannot have left range bound greater than right range bound.\n");
+                    break;
                 case SEME_FOR_VAR_TYPE_ARR:
                     fprintf(stderr, "The for loop counter variable '%s' is of array type.\n", e.edata.seme.errStr1);
                     break;

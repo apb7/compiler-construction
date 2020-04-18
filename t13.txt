@@ -15,7 +15,7 @@ start
     declare flag : boolean;
     declare b: array[5..8] of integer;
     declare c:integer;
-    for (c in 2..5)
+    for (c in 6..5)
     start
         for (c in 2..5)
             start
