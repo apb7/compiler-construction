@@ -19,6 +19,10 @@
 //TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
 //TODO: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
 //TODO: destroy (free) the symbol table and other constructs for continuous execution in driver. Every loop iteration must be a fresh start.
+//TODO: sort errors based on line nos.
+//TODO: handle TYPE ERRORs for a:=b where a and b are partially static arrays.
+//TODO: For semantics in codeGen: iterator value restore or last terminating value?
+//TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
 //DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
 /* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
  *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,

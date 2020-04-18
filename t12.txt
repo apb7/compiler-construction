@@ -18,17 +18,16 @@ start
     b := 10;
     c := 5;
     flag := a <=  b AND c >= a OR  a<0 AND false;
-    for( b in 2..8)
-    start
-        c:=c+2*a;
-    end
+
 
     a := 5;
 
     while(b > c)
     start
-        get_value(c);
-        a:=a+1;
+        for( b in 2..8)
+            start
+                b:=c+2*a;
+            end
     end
 end
 

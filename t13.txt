@@ -17,14 +17,13 @@ start
     declare c:integer;
     for (c in 2..5)
     start
-        while(b[6]<b[5])
-        start
-            get_value(c);
-            **b[7]:=5;**
-            **b[9]:=4;**
-        end
+        for (c in 2..5)
+            start
+               flag:=true;
+            end
+       flag:=true;
     end
-    a:=8;
+
 end
 
 **verify the output of the lexical analyzer as well**
