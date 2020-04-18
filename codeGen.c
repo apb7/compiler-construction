@@ -29,7 +29,7 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 char *baseRegister[2] = {"RBP", "RSI"};
 
 char *expreg[3] = {"r8","r9","r10"};
-
+int arrBaseSize = 1;    //in words
 int scale = 2;
 
 void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
@@ -53,6 +53,84 @@ void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
     }
 }
 
+//outcome: lower bound in expreg[0], upper bound in expreg[1]
+void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
+    char *expSizeStr, *expSizeRegSuffix;
+    setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+    varType arrVtype = arrNode->stNode->info.var.vtype;
+    if(arrVtype.vaType == DYN_L_ARR || arrVtype.vaType == DYN_ARR){
+        //get the left bound to expreg[0]
+        symTableNode *leftStn = arrVtype.si.vt_id;
+        bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
+        int toSub;
+        if(isIOlistVar){
+            toSub = scale *(arrNode->stNode->info.var.offset + arrBaseSize + getSizeByType(g_INTEGER));
+        }
+        else{
+            toSub = scale * (leftStn->info.var.offset + leftStn->info.var.vtype.width);
+        }
+        fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[0],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar], toSub);
+    }
+    if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == DYN_ARR){
+        //get the right bound to expreg[1]
+        symTableNode *rightStn = arrVtype.ei.vt_id;
+        bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
+        int toSub;
+        if(isIOlistVar){
+            toSub = scale *(arrNode->stNode->info.var.offset + arrBaseSize + (2*getSizeByType(g_INTEGER)));
+        }
+        else{
+            toSub = scale * (rightStn->info.var.offset + rightStn->info.var.vtype.width);
+        }
+        fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[1],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar], toSub);
+    }
+    if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == STAT_ARR){
+        //get the left bound to expreg[0]
+        fprintf(fp,"\t mov %s, %d \n",expreg[0],arrVtype.si.vt_num);
+    }
+    if(arrVtype.vaType == DYN_L_ARR || arrVtype.vaType == STAT_ARR){
+        //get the right bound to expreg[1]
+        fprintf(fp,"\t mov %s, %d \n",expreg[1],arrVtype.ei.vt_num);
+    }
+}
+
+//prereq: lower bound in expreg[0], index in expreg[2]
+//outcome: address of array element at idx in expreg[1]
+void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
+    char *expSizeStr, *expSizeRegSuffix;
+    fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
+//    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
+    fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+    setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
+    if(arrNode->stNode->info.var.vtype.baseType == g_INTEGER){
+        //size of int is 2words (4 bytes)
+        fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+    }
+    else if(arrNode->stNode->info.var.vtype.baseType == g_REAL){
+        fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+        fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
+    }
+    fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
+    //br[isiolvar] - 2*(offset + arrBaseSize)
+    int toSub = scale * (arrNode->stNode->info.var.offset + arrBaseSize);
+    bool isIOlistVar = arrNode->stNode->info.var.isIOlistVar;
+    fprintf(fp,"\t movsx %s, word[%s-%d] \n",expreg[1],baseRegister[isIOlistVar],toSub);
+    fprintf(fp,"\t add %s, [stack_top] \n",expreg[1]);
+    fprintf(fp,"\t sub %s, %s \n",expreg[1],expreg[2]);
+}
+
+//prereq: lower bound in expreg[0], index in expreg[2]
+//outcome: array value at idx in expreg[0]
+void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
+    char *expSizeStr, *expSizeRegSuffix;
+    getArrAddrAtIdx(arrNode,fp);
+    setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
+    fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
+    fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[0],expSizeRegSuffix,expSizeStr,expreg[1]);
+}
+
 void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
     char *expSizeStr = "word";
     char *expSizeRegSuffix = "";    //"d","w",""
@@ -71,14 +149,28 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         expType = idNode->stNode->info.var.vtype.baseType;
         setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
         // printf("%s \n",idNode->tkinfo->lexeme);
-        if(idNode->next->next != NULL && idNode->next->gs == g_NUM){
-            //array element and static index
+        if(idNode->next->next != NULL){
             genExpr(idNode->next->next,fp,false,expType);
-            //TODO: Handle Array elements with static index
-        }
-        else if(idNode->next->next != NULL && idNode->next->gs == g_ID){
-            //TODO: handle array element with dynamic index
-
+            //TODO: Handle Array elements with static/dynamic index
+            getArrBoundsInExpReg(idNode,fp);
+            if(idNode->next->gs == g_ID){
+                ASTNode *idxIdNode = idNode->next;
+                bool isIOlistVar = idxIdNode->stNode->info.var.isIOlistVar;
+                int toSub = scale * (idxIdNode->stNode->info.var.offset + idxIdNode->stNode->info.var.vtype.width);
+                setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+                fprintf(fp,"\t xor %s,%s \n",expreg[2],expreg[2]);
+                fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[2],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
+            }
+            else{
+                fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
+            }
+            //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
+            //TODO: Do bound checking and throw runtime error if needed
+            getArrAddrAtIdx(idNode,fp);
+            setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
+            fprintf(fp,"\t pop %s \n",expreg[0]);
+            fprintf(fp, "\t mov %s[%s], %s%s \n", expSizeStr, expreg[1],expreg[0], expSizeRegSuffix);
+            return;
         }
         else{
             //array or variable
@@ -137,7 +229,26 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         }
                     }
                     else{
-                        //TODO: Array element handling
+                        //for bounds
+                        getArrBoundsInExpReg(astNode,fp);
+                        if(astNode->next->gs == g_ID){
+                            ASTNode *idxIdNode = astNode->next;
+                            bool isIOlistVar = idxIdNode->stNode->info.var.isIOlistVar;
+                            int toSub = scale * (idxIdNode->stNode->info.var.offset + idxIdNode->stNode->info.var.vtype.width);
+                            setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
+                            fprintf(fp,"\t xor %s,%s \n",expreg[2],expreg[2]);
+                            fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[2],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
+                        }
+                        else{
+                            fprintf(fp,"\t mov %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
+                        }
+                        //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
+                        //TODO: Do bound checking and throw runtime error if needed
+                        //toSub from array base
+                        getArrValueAtIdxInReg(astNode,fp);
+                        fprintf(fp,"\t push %s \n",expreg[0]);
+
+
                     }
                 }
                 break;
@@ -267,6 +378,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp,"\t output: db \"Output: \", 0 \n");
             fprintf(fp,"\t intHolder: db \"%%d \", 0 \n");
+            fprintf(fp,"\t booleanTrue: db \"true \", 0 \n");
+            fprintf(fp,"\t booleanFalse: db \"true \", 0 \n");
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
 
@@ -452,7 +565,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
                     
                     fprintf(fp, "\t mov rdi, inputInt \n");
 
@@ -490,7 +603,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rcx, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rcx, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rcx] \n"); 
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
                     
                     fprintf(fp, "\t sub rcx, 4 \n");
                     fprintf(fp, "\t movsx r12, DWORD [rcx] \n"); // lb
@@ -618,7 +731,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                         fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                         fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                         fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                        fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
+                        fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 
                         // Bound check done at compile time
                         if (idOrNum->gs == g_NUM) {
@@ -720,8 +833,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
                     fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                    fprintf(fp, "\t add rsi, stack_top \n"); // address of first elem!
-                    
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
+
                     fprintf(fp, "\t mov rdi, intHolder \n");
                     fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num );
                     fprintf(fp, "statarr_%p: \n", siblingId);
@@ -743,6 +856,50 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "statarrExit_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, newLine \n");
                     fprintf(fp, "\t call printf \n");
+                }
+                else if(idVarType.baseType == g_BOOLEAN) {
+
+                    fprintf(fp, "\t mov rdi, output \n");
+                    fprintf(fp, "\t call printf \n");
+
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                    fprintf(fp, "\t sub rsi, %d \n", 2 * (1 + idVar.offset));
+                    fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                    fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
+
+                    fprintf(fp, "\t mov r12, %d \n", idVarType.si.vt_num);
+
+                    fprintf(fp, "statArrBoolStart_%p: \n", siblingId);
+                    fprintf(fp, "\t cmp r12, %d \n", idVarType.ei.vt_num );
+                    fprintf(fp, "\t ja statArrBoolEnd_%p \n", siblingId);
+
+                    fprintf(fp, "\t cmp word[rsi], 0 \n");
+                    fprintf(fp, "\t je statArrBoolFalse_%p \n", siblingId);
+
+                    fprintf(fp, "\t mov rdi, booleanTrue \n");
+                    fprintf(fp, "\t jmp statArrBoolPrint_%p \n", siblingId);
+
+
+                    fprintf(fp, "statArrBoolFalse_%p: \n", siblingId);
+                    fprintf(fp, "\t mov rdi, booleanFalse \n");
+
+                    fprintf(fp, "statArrBoolPrint_%p: \n", siblingId);
+                    // call to printf can modify rdi and rsi. Therefore, save them.
+                    fprintf(fp, "\t push rsi \n");
+                    fprintf(fp, "\t push rdi \n");
+                    fprintf(fp, "\t call printf \n");
+                    fprintf(fp, "\t pop rdi \n");
+                    fprintf(fp, "\t pop rsi \n");
+
+                    fprintf(fp, "\t inc r12 \n");
+                    fprintf(fp, "\t sub rsi, 2 \n"); // 2*width of boolean datatype
+                    fprintf(fp, "\t jmp statArrBoolStart_%p \n", siblingId);
+
+
+                    fprintf(fp, "statArrBoolEnd_%p: \n", siblingId);
+                    fprintf(fp, "\t mov rdi, newLine \n");
+                    fprintf(fp, "\t call printf \n");
+
                 }
 
                 fprintf(fp, "\t pop rbp \n");
