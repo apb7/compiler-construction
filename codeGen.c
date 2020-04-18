@@ -10,6 +10,7 @@
 #include "typeCheck.h"
 #include "lexerDef.h"
 
+//prereq: something related to stack alignment (odd number of pushes)
 void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
     fprintf(fp, "\t mov rdi, %s \n", e); 
     fprintf(fp, "\t call printf \n"); 
@@ -138,10 +139,12 @@ void boundCheckArrAndExit(void *someRefPtr, FILE *fp){
     //someRefPtr is any unique address
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[0]);
     fprintf(fp,"\t jge lb_ok_%p \n",someRefPtr);
+    fprintf(fp,"\t push r8 ;just for stack alignment\n");
     RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
     fprintf(fp,"lb_ok_%p: \n",someRefPtr);
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[1]);
     fprintf(fp,"\t jle rb_ok_%p \n",someRefPtr);
+    fprintf(fp,"\t push r8 ;just for stack alignment\n");
     RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
     fprintf(fp,"rb_ok_%p: \n",someRefPtr);
 }
@@ -208,10 +211,12 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 getArrBoundsInExpReg(arr2Node,fp);
                 fprintf(fp,"\t cmp %s, %s \n",expreg[0],expreg[2]);
                 fprintf(fp,"\t je lb_match_%p_%p \n",arr1Node,arr2Node);
+                fprintf(fp,"\t push r8 ;just for stack alignment\n");
                 RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
                 fprintf(fp,"lb_match_%p_%p:\n",arr1Node,arr2Node);
                 fprintf(fp,"\t cmp %s, %s \n",expreg[1],expreg[3]);
                 fprintf(fp,"\t je rb_match_%p_%p \n",arr1Node,arr2Node);
+                fprintf(fp,"\t push r8 ;just for stack alignment\n");
                 RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
                 fprintf(fp,"rb_match_%p_%p:\n",arr1Node,arr2Node);
                 //match successful, now copy
@@ -434,7 +439,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t booleanFalse: db \"false \", 0 \n");
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
-            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bound\", 10, 0 \n");
+            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bounds\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
 
 
