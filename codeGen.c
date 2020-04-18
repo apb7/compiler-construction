@@ -27,7 +27,7 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 char *baseRegister[2] = {"RBP", "RSI"};
 
-char *expreg[3] = {"r8","r9","r10"};
+char *expreg[4] = {"r8","r9","r10","r11"};
 int arrBaseSize = 1;    //in words
 int scale = 2;
 
