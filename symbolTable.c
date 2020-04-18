@@ -129,26 +129,22 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
             switch(passedParam->info.var.vtype.vaType){
                 case STAT_ARR:
                     if(passedParam->info.var.vtype.si.vt_num != lb){
-//                        TODO: throw arrayLeftRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_LBOUND_MISMATCH);
                         return false;
                     }
                     if(passedParam->info.var.vtype.ei.vt_num != rb){
-//                        TODO: throw arrayRightRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_RBOUND_MISMATCH);
                         return false;
                     }
                     return true;
                 case DYN_L_ARR:
                     if(passedParam->info.var.vtype.ei.vt_num != rb){
-//                        TODO: throw arrayRightRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_RBOUND_MISMATCH);
                         return false;
                     }
                     return true;
                 case DYN_R_ARR:
                     if(passedParam->info.var.vtype.si.vt_num != lb){
-//                        TODO: throw arrayLeftRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_LBOUND_MISMATCH);
                         return false;
                     }
@@ -168,14 +164,12 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
             switch(passedParam->info.var.vtype.vaType){
                 case STAT_ARR:
                     if(passedParam->info.var.vtype.ei.vt_num != rb){
-//                        TODO: throw arrayRightRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_RBOUND_MISMATCH);
                         return false;
                     }
                     return true;
                 case DYN_L_ARR:
                     if(passedParam->info.var.vtype.ei.vt_num != rb){
-//                        TODO: throw arrayRightRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_RBOUND_MISMATCH);
                         return false;
                     }
@@ -198,7 +192,6 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
             switch(passedParam->info.var.vtype.vaType){
                 case STAT_ARR:
                     if(passedParam->info.var.vtype.si.vt_num != lb){
-//                        TODO: throw arrayLeftRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_LBOUND_MISMATCH);
                         return false;
                     }
@@ -208,7 +201,6 @@ bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, uns
                     return true;
                 case DYN_R_ARR:
                     if(passedParam->info.var.vtype.si.vt_num != lb){
-//                        TODO: throw arrayLeftRangeMismatchError
                         throwSemanticError(lno, inplistNode->lexeme, passedParam->lexeme, SEME_PARAM_PASS_ARR_LBOUND_MISMATCH);
                         return false;
                     }
@@ -268,14 +260,12 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                         case VARIABLE: // passed a variable
                             if(passedOrGot->info.var.vtype.baseType != plistNode->info.var.vtype.baseType){
                                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_BASE_TYPE_MISMATCH);
-//                                TODO: throw FuncVariableBaseTypeMismatchError
                                 return false;
                             }
                             return true;
                             break;
                         default: // passed an array
                             throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_TO_VAR);
-//                          TODO: throw PasssedArrayToAVariable
                             return false;
                     }
                     break;
@@ -283,40 +273,36 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                     switch(passedOrGot->info.var.vtype.vaType){
                         case VARIABLE:
                             throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_STAT_ARR);
-//                          TODO: throw PasssedVariableToAnArray
                             return false;
                             break;
                         default:
                             // passedOrGot is an array; gotta match static bounds
                             if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
                                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
-//                                TODO throw FuncVariableBaseTypeMismatchError
                                 return false;
                             }
                             if(!matchStaticBounds(passedOrGot, plistNode, lno)){
-//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+//                                DONE: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
                                 return false;
                             }
                             return true;
                     }
                     break;
-                    //TODO: *NEW* Handle base type checking and partial bounds checking for dynamic arrays
+                    //DONE: *NEW* Handle base type checking and partial bounds checking for dynamic arrays
                 case DYN_L_ARR:
                     switch(passedOrGot->info.var.vtype.vaType){
                         case VARIABLE:
                             throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_DYN_L_ARR);
-//                          TODO: throw PasssedVariableToAnArray
                             return false;
                             break;
                         default:
                             // passedOrGot is an array; gotta match static bounds
                             if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
                                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
-//                                TODO throw FuncVariableBaseTypeMismatchError
                                 return false;
                             }
                             if(!matchStaticBounds(passedOrGot, plistNode, lno)){
-//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+//                                DONE: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
                                 return false;
                             }
                             return true;
@@ -326,18 +312,16 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                     switch(passedOrGot->info.var.vtype.vaType){
                         case VARIABLE:
                             throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_DYN_R_ARR);
-//                          TODO: throw PasssedVariableToAnArray
                             return false;
                             break;
                         default:
                             // passedOrGot is an array; gotta match static bounds
                             if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
                                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
-//                                TODO throw FuncVariableBaseTypeMismatchError
                                 return false;
                             }
                             if(!matchStaticBounds(passedOrGot, plistNode, lno)){
-//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+//                                DONE: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
                                 return false;
                             }
                             return true;
@@ -347,18 +331,16 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
                     switch(passedOrGot->info.var.vtype.vaType){
                         case VARIABLE:
                             throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_VAR_TO_DYN_ARR);
-//                          TODO: throw PasssedVariableToAnArray
                             return false;
                             break;
                         default:
                             // passedOrGot is an array; gotta match static bounds
                             if(plistNode->info.var.vtype.baseType != passedOrGot->info.var.vtype.baseType){
                                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_PASS_ARR_BASE_TYPE_MISMATCH);
-//                                TODO throw FuncVariableBaseTypeMismatchError
                                 return false;
                             }
                             if(!matchStaticBounds(passedOrGot, plistNode, lno)){
-//                                TODO: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
+//                                DONE: throw staticBoundsMismatchError -- thrown in matchStaticBounds(...)
                                 return false;
                             }
                             return true;
@@ -377,12 +359,10 @@ bool matchDataType(symTableNode *passedOrGot, unsigned int lno, symTableNode *pl
             if(!(passedOrGot->info.var.vtype.vaType == VARIABLE && plistNode->info.var.vtype.vaType == VARIABLE)){
                 // the second condition in 'if' above is redundant 'cause a valid output list node cannot syntactically be an array type
                 // so the falsity of the above means that the variable receiving the value is an array.
-//                TODO: throw ReceivedVarInArr
                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_RECV_VAR_IN_ARR);
             }
             if(passedOrGot->info.var.vtype.baseType != plistNode->info.var.vtype.baseType){
                 throwSemanticError(lno, plistNode->lexeme, passedOrGot->lexeme, SEME_PARAM_RECV_VAR_BASE_TYPE_MISMATCH);
-//                TODO throw FuncVariableBaseTypeMismatchError
                 return false;
             }
             return true;
@@ -409,7 +389,7 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         fprintf(stderr, "checkModuleSignature: Received a NULL Node.\n");
         return;
     }
-    //TODO: Check whether the type, number and order of input and output variables match. if not report an error
+    //DONE: Check whether the type, number and order of input and output variables match. if not report an error
 
     ASTNode *idNode = getIDFromModuleReuse(moduleReuseNode);
     symFuncInfo *finfo = stGetFuncInfo(idNode->tkinfo->lexeme, &funcTable);
@@ -435,7 +415,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
 
             if(currOutListNode == NULL){
                 throwSemanticError(currListNode->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_RECV_TOO_MANY_RET_VALS_EXPECTED);
-//                TODO: ERROR: too many return values expected from function
                 return;
             }
             //match the type of nodes
@@ -449,7 +428,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         }while(currListNode != NULL);
         if(currOutListNode != NULL){
             throwSemanticError(idOrList->next->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_RECV_TOO_FEW_RET_VALS_EXPECTED);
-//            TODO: ERROR; too few return values expected from the function
             return;
         }
         idOrList = idOrList->next; // now points to function name AST node i.e. ID after idOrList
@@ -479,7 +457,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
 
         if(currInpListNode == NULL){
             throwSemanticError(currListNode->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_PASS_TOO_MANY_ARGS_PASSED);
-//                TODO: ERROR: too many arguments passed to the function
             return;
         }
         //match the type of nodes
@@ -491,7 +468,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
     }while(currListNode != NULL);
     if(currInpListNode != NULL){
         throwSemanticError(idOrList->parent->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_PASS_TOO_FEW_ARGS_PASSED);
-//            TODO: ERROR; too few arguments passed to the function
         return;
     }
 }
@@ -516,7 +492,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
         fprintf(stderr, "getVType: Received a NULL Node.\n");
         return vt;
     }
-    //TODO: Construct the varType struct and return it
+    //DONE: Construct the varType struct and return it
     switch(typeOrDataTypeNode->gs)
     {
         case g_INTEGER:
@@ -703,7 +679,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
             (ptr->info).var.lno = idNode->tkinfo->lno;
         strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
         (ptr->info).var.vtype = getVtype(dataTypeNode, NULL, NULL);
-        //TODO: check Offset computation
+        //DONE: check Offset computation
         (ptr->info).var.offset = nextGlobalOffset;
         nextGlobalOffset += (ptr->info).var.vtype.width;
         ptr->next = NULL;
@@ -760,7 +736,7 @@ paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode, symFunc
         strcpy(ptr->lexeme,idNode->tkinfo->lexeme);
         (ptr->info).var.vtype = getVtype(dataTypeNode,NULL, NULL);
         (ptr->info).var.isAssigned = false;
-        //TODO: check Offset computation
+        //DONE: check Offset computation
         (ptr->info).var.offset = nextGlobalOffset;
         nextGlobalOffset += (ptr->info).var.vtype.width;
         ptr->next = NULL;
@@ -820,7 +796,6 @@ void setLoopStatePartial(ASTNode* idNode, symbolTable* currST, symFuncInfo* func
     varNode->info.var.whileLevel=curr_level-1;
     if(varNode->info.var.forLoop==FOR_IN) {
         throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_LOOP_VAR_REDEFINED);
-        // TODO: ERROR loop var redefined
     }
 }
 
@@ -923,7 +898,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
         }
             break;
         case g_PRINT: {
-            //TODO: Handle this section
+            //DONE: Handle this section
 //                PRINT TRUE
 //                PRINT FALSE
 //                PRINT var_id_num->ID // print(k); ID can be array also i.e. print(arr);
@@ -945,7 +920,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
                     // idOrConst is actually ID
                     //adding symTableNode pointer in ASTNode
                     if ((idOrConst->stNode = checkIDInScopesAndLists(idOrConst, funcInfo, currST, false)) == NULL) {
-//                      TODO: will this checkIDInScopesAndLists check suffice if ID is array; handle array index bound checking
+//                      DONE: will this checkIDInScopesAndLists check suffice if ID is array; handle array index bound checking
                         throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                         return;
                     }
@@ -1436,7 +1411,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         int loopLevel=curr_level++;
         ptr=ptr->next; //on expression
         handleExpressionSafe(ptr,funcInfo,currST);  //to do existence checking for all its IDs
-        // TODO: verify typeof(ptr)
+        // DONE: verify typeof(ptr)
         varType *vt = getDataType(ptr);
         if(vt != NULL && vt->baseType != T_BOOLEAN){
             // if vt is NULL, short-circuiting saves the evaluation of second preposition and hence segFault is avoided
@@ -1483,7 +1458,6 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             cnt++;
         }
         if(!change) {
-            // TODO: ERROR while loop variables not changed inside loop
             throwSemanticError(ptr->parent->parent->child->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_VARS_UNASSIGNED);
         }
         cur=myVarList;
@@ -1749,6 +1723,7 @@ void destroySymbolTable(symbolTable *st, bool isFuncTable){
                 free(currSTN);
                 currSTN = currSTNTmp;
             }
+            (st->tb)[i] = NULL;
         }
     }
     else{
@@ -1760,6 +1735,7 @@ void destroySymbolTable(symbolTable *st, bool isFuncTable){
                 free(currSTN);
                 currSTN = currSTNTmp;
             }
+            (st->tb)[i] = NULL;
         }
         symbolTable *curr = st->headChild;
         while(curr != NULL){
