@@ -1349,33 +1349,30 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     }
 
 }
-whileVarList* ls;
-void traverse(ASTNode* it, symFuncInfo *funcInfo, symbolTable *currST) {
+
+void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo, symbolTable *currST) {
+    if(currNode == NULL)
+        return;
     int isVar; gSymbol ty;
-    while(it!=NULL) {
-        if(it->gs==g_ID) {
-            if(ls==NULL) {
-                ls = (whileVarList*)malloc(sizeof(whileVarList));
-                ls->node=findType(it,currST,funcInfo,&isVar,&ty);
-                ls->next=NULL;
-                traverse(it->child,funcInfo,currST);
+        if(currNode->gs == g_ID) {
+            if(*myVarList == NULL) {
+                *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
+                (*myVarList)->node=findType(currNode, currST, funcInfo, &isVar, &ty);
+                (*myVarList)->next=NULL;
             }
             else {
-                whileVarList* last=ls;
+                whileVarList* last = *myVarList;
                 while(last->next!=NULL)
                     last=last->next;
                 whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
-                tmp->node=findType(it,currST,funcInfo,&isVar,&ty);
+                tmp->node=findType(currNode, currST, funcInfo, &isVar, &ty);
                 tmp->next=NULL;
                 last->next=tmp;
-                traverse(it->child,funcInfo,currST);
             }
         }
-        else {
-            traverse(it->child,funcInfo,currST);
-        }
-        it=it->next;
-    }
+        traverse(currNode->child, myVarList, funcInfo, currST);
+        traverse(currNode->next, myVarList, funcInfo, currST);
+
 }
 void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(iterativeStmtNode==NULL || iterativeStmtNode->child==NULL) {
@@ -1426,6 +1423,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         return;
     }
     else if(ptr->gs==g_WHILE) {
+        whileVarList *myVarList = NULL;
         int loopLevel=curr_level++;
         ptr=ptr->next; //on expression
         handleExpressionSafe(ptr,funcInfo,currST);  //to do existence checking for all its IDs
@@ -1436,18 +1434,23 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
         //LIST OF VARIABLES IN EXPRESSION
-        gSymbol ty; int isVar;
-        ASTNode* it=ptr->child;
-        if(ptr->gs==g_ID) {
-            ls = (whileVarList*)malloc(sizeof(whileVarList));
-            ls->node=findType(ptr,currST,funcInfo,&isVar,&ty);
-            ls->next=NULL;
+        if(ptr->gs == g_TRUE || ptr->gs == g_FALSE)
+            myVarList = NULL;
+        else{
+            //ptr is var_id_num or operator
+            gSymbol ty; int isVar;
+            ASTNode* currNode = ptr->child;
+            if(ptr->gs==g_ID) {
+                myVarList = (whileVarList*)malloc(sizeof(whileVarList));
+                myVarList->node=findType(ptr, currST, funcInfo, &isVar, &ty);
+                myVarList->next=NULL;
+            }
+            traverse(currNode,&myVarList, funcInfo, currST);
         }
-        traverse(it,funcInfo,currST);
-        whileVarList* cur=ls;
+        whileVarList* cur=myVarList;
         int cnt=0;
         while(cur!=NULL) {
-            if(cur->node->info.var.whileLevel >= loopLevel)
+            if(cur->node != NULL && cur->node->info.var.whileLevel >= loopLevel)
                 cur->node->info.var.whileLevel=loopLevel-1;
             cur=cur->next;
         }
@@ -1460,10 +1463,10 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         ptr=ptr->child;
         handleStatements(ptr,funcInfo,currST);
         int change=0;
-        cur=ls;
+        cur=myVarList;
         cnt=0;
         while(cur!=NULL) {
-            if(cur->node->info.var.whileLevel >= loopLevel) {
+            if(cur->node != NULL && cur->node->info.var.whileLevel >= loopLevel) {
                 change=1;
                 cur->node->info.var.whileLevel=loopLevel-1;
             }
@@ -1474,7 +1477,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             // TODO: ERROR while loop variables not changed inside loop
             throwSemanticError(ptr->parent->parent->child->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_VARS_UNASSIGNED);
         }
-        cur=ls;
+        cur=myVarList;
         while(cur!=NULL) {
             whileVarList* tmp=cur->next;
             free(cur);
@@ -1709,4 +1712,8 @@ void buildSymbolTable(ASTNode *root){
         }
             break;
     }
+}
+
+void destroySymbolTable(symbolTable *st){
+
 }
