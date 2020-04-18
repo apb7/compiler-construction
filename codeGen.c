@@ -623,10 +623,23 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 symVarInfo formalVar = inputParam->info.var;
 
                 // TODO handle arrays!
-                setExpSize(actualVarType.baseType, &sizeStr, &regSuffix);
-                fprintf(fp, "\t mov r12%s, %s [%s - %d] \n", regSuffix, sizeStr, baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
-                fprintf(fp, "\t mov %s [rsp - %d], r12%s \n", sizeStr, scale * (formalVarType.width + formalVar.offset), regSuffix);
-    
+                if (actualVarType.vaType == VARIABLE) {
+                    setExpSize(actualVarType.baseType, &sizeStr, &regSuffix);
+                    fprintf(fp, "\t mov r12%s, %s [%s - %d] \n", regSuffix, sizeStr, baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
+                    fprintf(fp, "\t mov %s [rsp - %d], r12%s \n", sizeStr, scale * (formalVarType.width + formalVar.offset), regSuffix);
+                }
+                else {
+                    getArrBoundsInExpReg(idNode, fp);
+
+                    fprintf(fp, "\t mov dword [rsp - %d], %sd \n",  scale * (arrBaseSize + formalVar.offset + getSizeByType(g_INTEGER)), expreg[0]); // lb
+                    fprintf(fp, "\t mov dword [rsp - %d], %sd \n",  scale * (arrBaseSize + formalVar.offset + 2*getSizeByType(g_INTEGER)), expreg[1]); // ub
+
+                    // TODO : bound check!!
+                    fprintf(fp, "\t mov rsi, %s \n", baseRegister[actualVar.isIOlistVar]); 
+                    fprintf(fp, "\t sub rsi, %d \n", scale * (arrBaseSize + actualVar.offset));
+                    fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                    fprintf(fp, "\t mov word [rsp - %d], si \n",  scale * (arrBaseSize + formalVar.offset)); // base address
+                }
                 inputParam = inputParam->next;
                 idNode = idNode->next;
             }
@@ -752,7 +765,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 }
 
                 fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
-                fprintf(fp, "\t sub rsi, %d \n", scale * (1 + idVar.offset));
+                fprintf(fp, "\t sub rsi, %d \n", scale * (arrBaseSize + idVar.offset));
                 fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                 fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 

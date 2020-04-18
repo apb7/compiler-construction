@@ -44,6 +44,20 @@ struct varType{
 };
 typedef struct varType varType;
 
+
+//symbol table entry for a variable
+struct symVarInfo{
+    unsigned int lno;
+    varType vtype;
+    int offset;
+    bool isAssigned;
+    forInfo forLoop;
+    int whileLevel;
+    bool isIOlistVar;
+};
+typedef struct symVarInfo symVarInfo;
+
+
 typedef struct ASTNode ASTNode;
 
 //for making a linked list of AST nodes
@@ -84,18 +98,6 @@ struct symFuncInfo{
 //of the pendingCallList after checking all IDs for their validity
 //these pending calls will be fulfilled at the time of processing of function definition
 
-
-//symbol table entry for a variable
-struct symVarInfo{
-    unsigned int lno;
-    varType vtype;
-    int offset;
-    bool isAssigned;
-    forInfo forLoop;
-    int whileLevel;
-    bool isIOlistVar;
-};
-typedef struct symVarInfo symVarInfo;
 
 union funcVar{
     struct symFuncInfo func;
