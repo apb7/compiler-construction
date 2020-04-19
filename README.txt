@@ -15,6 +15,7 @@ ASSUMPTIONS:
 
 
 TODOs: (add here if any for combined tracking of all remaining work)
+//TODO: verify that the parameters passed to throwSemanticError will never cause a NULL->thkinfo.... type error
 //TODO: formatting in prints on the console, align all by \t
 //TODO: remove the list that codeGen prints on console
 //TODO: test the code on empty source file and empty for and while loops, etc

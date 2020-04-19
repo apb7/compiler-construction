@@ -110,6 +110,8 @@ void printSymbolTable(symbolTable* st, char *fname){
 }
 
 void printCurrSymTable(symbolTable *st, int level, FILE *fp){
+    if(st == NULL)
+        return;
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
         symTableNode *currSTN = (st->tb)[i];
         while(currSTN != NULL){
