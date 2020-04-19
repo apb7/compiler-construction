@@ -43,7 +43,7 @@ paramInpNode *createParamInpNode(ASTNode *idNode, ASTNode *dataTypeNode,symFuncI
 paramInpNode *createParamInpList(ASTNode *inputPlistNode);
 paramOutNode *createParamOutNode(ASTNode *idNode, ASTNode *dataTypeNode,symFuncInfo *funcInfo);
 paramOutNode *createParamOutList(ASTNode *outputPlistNode);
-symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty);
+symTableNode* findEntry(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty);
 bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
 bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleModuleDeclaration(ASTNode *moduleIDNode);

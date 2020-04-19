@@ -32,10 +32,12 @@
  *  Call handleExpressionSafe instead.
  */
 
-symbolTable funcTable;
-int nextGlobalOffset;
+symbolTable funcTable;  //global symbol table to hold functions
+int nextGlobalOffset;   //used for assigning the next offset
 bool haveSemanticErrors;
-int curr_level=0;
+int curr_level=0;   //used for while loop semantic check
+
+
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName) {
     funcInfo->status = F_DECLARED;
     funcInfo->lno = -1;
@@ -53,6 +55,15 @@ void initSymVarInfo(symVarInfo *varInfo) {
     varInfo->whileLevel=-1;
     varInfo->offset = -1;
     varInfo->isIOlistVar = false;
+}
+
+void initVarType(varType *vt) {
+    // these are just randomly chosen values since we don't have a default and ned to initialise it with something
+    vt->baseType = g_INTEGER;
+    vt->vaType = VARIABLE;
+    vt->si.vt_id = NULL;
+    vt->ei.vt_id = NULL;
+    vt->width = SIZE_INTEGER;
 }
 
 int getSizeByType(gSymbol gs) {
@@ -96,10 +107,12 @@ void setAssignedOutParam(paramOutNode *outNode) {
 }
 
 symbolTable *newScope(symbolTable *currST) {
+    //when there is no parent scope
     if(currST == NULL){
         currST = createSymbolTable();
         return currST;
     }
+    //otherwise
     if(currST->lastChild == NULL){
         currST->headChild = createSymbolTable();
         currST->lastChild = currST->headChild;
@@ -113,6 +126,7 @@ symbolTable *newScope(symbolTable *currST) {
     return currST->lastChild;
 }
 
+//match any bound that is available during the compile time
 bool matchStaticBounds(symTableNode *passedParam, paramInpNode *inplistNode, unsigned int lno) {
     // match the static bounds between inplistNode and passedParam
     // inplist is assumed to be STAT_ARR type
@@ -384,21 +398,20 @@ ASTNode *getIDFromModuleReuse(ASTNode *moduleReuseNode){
     }
 }
 
+//Checks whether the type, number and order of input and output variables match. if not report an error
 void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST) {
     if(moduleReuseNode == NULL || funcInfo == NULL || currST == NULL){
         fprintf(stderr, "checkModuleSignature: Received a NULL Node.\n");
         return;
     }
-    //DONE: Check whether the type, number and order of input and output variables match. if not report an error
-
     ASTNode *idNode = getIDFromModuleReuse(moduleReuseNode);
+    //passed function should always exist in the function table
     symFuncInfo *finfo = stGetFuncInfo(idNode->tkinfo->lexeme, &funcTable);
     paramInpNode *currInpListNode = finfo->inpPListHead;
     paramOutNode *currOutListNode = finfo->outPListHead;
     ASTNode *idOrAssOp = moduleReuseNode->child;
     ASTNode *idOrList = NULL;
     ASTNode *currListNode = NULL;
-    char *currlexeme;
     symTableNode *currSymNode;
 
 
@@ -470,15 +483,6 @@ void checkModuleSignature(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbo
         throwSemanticError(idOrList->parent->tkinfo->lno, finfo->funcName, NULL, SEME_PARAM_PASS_TOO_FEW_ARGS_PASSED);
         return;
     }
-}
-
-void initVarType(varType *vt) {
-    // these are just randomly chosen values since we don't have a default and ned to initialise it with something
-    vt->baseType = g_INTEGER;
-    vt->vaType = VARIABLE;
-    vt->si.vt_id = NULL;
-    vt->ei.vt_id = NULL;
-    vt->width = SIZE_INTEGER;
 }
 
 varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable *currST) {
@@ -774,7 +778,7 @@ paramOutNode *createParamOutList(ASTNode *outputPlistNode){
     return head;
 }
 
-symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
+symTableNode* findEntry(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo, int* isVar, gSymbol* ty) {
     symTableNode* varNode = stSearch(node->tkinfo->lexeme,currST);;
     if(varNode == NULL)
         varNode = outListSearchID(node,funcInfo);
@@ -792,7 +796,7 @@ symTableNode* findType(ASTNode* node, symbolTable* currST, symFuncInfo* funcInfo
 
 void setLoopStatePartial(ASTNode* idNode, symbolTable* currST, symFuncInfo* funcInfo) {
     gSymbol ty; int isVar = 0;
-    symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
+    symTableNode* varNode = findEntry(idNode, currST, funcInfo, &isVar, &ty);
     varNode->info.var.whileLevel=curr_level-1;
     if(varNode->info.var.forLoop==FOR_IN) {
         throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_LOOP_VAR_REDEFINED);
@@ -861,6 +865,7 @@ void handleModuleDeclaration(ASTNode *moduleIDNode){
     }
 }
 
+// WARNING: This does not handle loop semantic checks when called with assign = true (for that use AssignIDinScope)
 symTableNode *checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign){
     symTableNode* st = NULL;
     st = stSearch(idNode->tkinfo->lexeme,currST);
@@ -1148,7 +1153,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
 
         case g_lvalueARRStmt:{
             ASTNode *idNode = assignmentStmtNode->child->child->child;
-            useIDinScope(idNode, funcInfo, currST);
+            useIDinScope(idNode, funcInfo, currST);//just to check whether this id is declared or not
             setLoopStatePartial(assignmentStmtNode->child->child->child,currST,funcInfo);
             vt1 = getDataType(idNode);
 
@@ -1200,7 +1205,7 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
 
         //loop variable redeclare check
         gSymbol ty; int isVar=0;
-        symTableNode* varNode = findType(idNode,currST,funcInfo,&isVar,&ty);
+        symTableNode* varNode = findEntry(idNode, currST, funcInfo, &isVar, &ty);
         if(varNode!=NULL && varNode->info.var.forLoop==FOR_IN) {
             throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_LOOP_VAR_REDECLARED);
             // TOCHECK: ERROR Loop variable redeclared
@@ -1256,7 +1261,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
     int isVar=0; // assume that the switch variable is non-array by default
     ASTNode *idNode = conditionalStmtNode->child;
     ASTNode *ptr = idNode; //on ID
-    symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
+    symTableNode* varNode = findEntry(ptr, currST, funcInfo, &isVar, &ty);
     if(varNode == NULL) {
         throwSemanticError(ptr->tkinfo->lno, ptr->tkinfo->lexeme, NULL, SEME_SWITCH_VAR_UNDECLARED);
         return; // no use to go ahead if we cannot find the variable in scope. we need to know its data type (integer or boolean) to proceed.
@@ -1344,7 +1349,7 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
                 return;
             if(*myVarList == NULL) {
                 *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
-                (*myVarList)->node=findType(currNode, currST, funcInfo, &isVar, &ty);
+                (*myVarList)->node= findEntry(currNode, currST, funcInfo, &isVar, &ty);
                 (*myVarList)->next=NULL;
             }
             else {
@@ -1352,7 +1357,7 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
                 while(last->next!=NULL)
                     last=last->next;
                 whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
-                tmp->node=findType(currNode, currST, funcInfo, &isVar, &ty);
+                tmp->node= findEntry(currNode, currST, funcInfo, &isVar, &ty);
                 tmp->next=NULL;
                 last->next=tmp;
             }
@@ -1364,6 +1369,7 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
 
 
 }
+
 void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(iterativeStmtNode==NULL || iterativeStmtNode->child==NULL) {
         fprintf(stderr,"handleIterativeStmt: NULL node found.\n");
@@ -1379,7 +1385,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         ptr=ptr->next; //on ID
         gSymbol ty;
         int isVar=0;
-        symTableNode* varNode = findType(ptr,currST,funcInfo,&isVar,&ty);
+        symTableNode* varNode = findEntry(ptr, currST, funcInfo, &isVar, &ty);
         //adding symTableNode pointer in ASTNode
         ptr->stNode = varNode;
         if(varNode == NULL) {
@@ -1516,8 +1522,6 @@ void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo){
         outptr = outptr->next;
     }
 }
-
-
 
 void handlePendingCalls(symFuncInfo *funcInfo){
     //this is to handle function calls which occurred in between the function declaration and definition
