@@ -1,0 +1,18 @@
+**Program to calculate the factorial of n**
+
+declare module fibo;
+declare module factorialN;
+
+
+<<<driver program>>>
+start
+	declare k:integer;
+	declare s:integer;
+	get_value(k);
+	[s]:= use module factorialN with parameters k;
+	print(s); **factorial**
+
+	[s]:= use module fibo with parameters k;
+    print(s);
+
+end

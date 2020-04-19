@@ -3,6 +3,7 @@
 #include "symbolHash.h"
 #include "symbolTableDef.h"
 #include "symbolTable.h"
+#include "util.h"
 #include <string.h>
 
 extern char *inverseMappingTable[];
@@ -66,9 +67,15 @@ void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, int
 
 }
 
-void printSymbolTable(symbolTable* st, FILE *fp){
+void printSymbolTable(symbolTable* st, char *fname){
     if(st == NULL)
         return;
+    FILE *fp;
+    fname == NULL ? fp = stdout : (fp = fopen(fname,"w"));
+    if(fp == NULL) {
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
     symTableNode *currSTN = NULL;
     fprintf(fp,"\n\n####################################################################### SYMBOL TABLE #######################################################################\n\n");
 
@@ -99,6 +106,7 @@ void printSymbolTable(symbolTable* st, FILE *fp){
     }
     fprintf(fp,"########################################################################## ~ ** ~ ##########################################################################\n\n");
     fprintf(fp,"NOTE: The variables which are undeclared and used as array indices are stated as NULL under RANGE header.\n");
+    fcloseSafe(fp);
 }
 
 void printCurrSymTable(symbolTable *st, int level, FILE *fp){
@@ -115,4 +123,37 @@ void printCurrSymTable(symbolTable *st, int level, FILE *fp){
         printCurrSymTable(childst,level+1,fp);
         childst = childst->next;
     }
+}
+
+void printARSizes(symbolTable *funcTable, char *fname){
+    if(funcTable == NULL)
+        return;
+    FILE *fp;
+    fname == NULL ? fp = stdout : (fp = fopen(fname,"w"));
+    if(fp == NULL) {
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+
+    // implement here
+    // TODO: implement this method printARSizes(..) Only need to print the function name and scopeSize field of the symbolTable *st inside symFuncInfo of each function
+
+
+    fprintf(fp, "\n NOTE: The Activation record size also includes width of input and output parameters of each function.\n");
+    fcloseSafe(fp);
+}
+
+void printArrayInfo(symbolTable *funcTable, char *fname){
+    if(funcTable == NULL)
+        return;
+    FILE *fp;
+    fname == NULL ? fp = stdout : (fp = fopen(fname,"w"));
+    if(fp == NULL) {
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+    // implement here
+    //TODO: same as printSymbolTable, just print the arrays encountered in same order as they arrive
+
+    fcloseSafe(fp);
 }
