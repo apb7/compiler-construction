@@ -27,12 +27,34 @@ void printLeaf(ASTNode* leaf, FILE* fp) {
 
 }
 
-
 char *baseRegister[2] = {"RBP", "RBX"};
 
 char *expreg[4] = {"r8","r9","r10","r11"};
 int arrBaseSize = 1;    //in words
 int scale = 2;
+
+int getActivationRecordSize(char *functionName, symbolTable* symT) {
+    symFuncInfo *finfo = stGetFuncInfo(functionName, symT);
+    
+    int size = scale * (finfo->st->scopeSize);
+
+    if (size % 16)
+        size += (16 - (size % 16));
+
+    return size;
+}
+
+int getIOlistSize(char *functionName, symbolTable* symT) {
+    symFuncInfo *finfo = stGetFuncInfo(functionName, symT);
+    
+    int size = (finfo->arSize) - (finfo->st->scopeSize);
+    size = scale * size;
+
+    if (size % 16)
+        size += (16 - (size % 16));
+
+    return size;
+}
 
 void setExpSize(gSymbol etype, char **expSizeStr, char **expSizeRegSuffix){
     switch(etype){
@@ -406,7 +428,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
     if(root == NULL) return;
 
     gSymbol gs = root->gs;
-    printf("%s  \n", inverseMappingTable[gs]);
     switch(gs) {
         case g_program:
         {
@@ -443,7 +464,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bounds\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
-
+            fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound \", 10, 0 \n");
 
             fprintf(fp, "\n section .text \n");
             fprintf(fp, "\t global main \n");
@@ -489,7 +510,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\n %s: \n", functionID->tkinfo->lexeme);
             fprintf(fp, "\t ; stack init starts \n");
             fprintf(fp, "\t mov rbp, rsp \n");
-            fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+            fprintf(fp, "\t sub rsp, %d \n", getActivationRecordSize(functionID->tkinfo->lexeme, symT)); 
             fprintf(fp, "\t ; stack init done. \n\n");
 
             generateCode(moduleDef, symT, fp);
@@ -503,17 +524,21 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_DRIVER:
         {
-            printf("entering main!\n");
             fprintf(fp, "\n main: \n");
             fprintf(fp, "\t ; stack init starts \n");
             fprintf(fp, "\t mov rbp, rsp \n");
             fprintf(fp, "\t mov QWORD[stack_top], rsp \n");
-            fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+
+            fprintf(fp, "\t sub rsp, %d \n", getActivationRecordSize("@driver", symT));
             fprintf(fp, "\t ; stack init done. \n\n");
 
             generateCode(root->child, symT, fp);
 
             fprintf(fp, "\t mov rsp, rbp \n");
+            fprintf(fp, "\t push rsp \n");
+            fprintf(fp, "\t mov rax, 60 \n"); 
+            fprintf(fp, "\t xor rdi, rdi \n"); 
+            fprintf(fp, "\t syscall \n");
             fprintf(fp, "\t ; driver ends \n\n");
 
             return;
@@ -592,12 +617,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
         {
             ASTNode *idOrAssignop = root->child;
 
-            printf("%s\n", inverseMappingTable[idOrAssignop->gs]);
-
             ASTNode *outputList = NULL, *functionID, *inputList;
 
             if(idOrAssignop->gs == g_ASSIGNOP) {
-                outputList = idOrAssignop->child; // Dont need yet
+                outputList = idOrAssignop->child; // If present, return values
                 functionID = outputList->next;
                 inputList = functionID->next;
             }
@@ -622,7 +645,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 varType formalVarType = inputParam->info.var.vtype;
                 symVarInfo formalVar = inputParam->info.var;
 
-                // TODO handle arrays!
                 if (actualVarType.vaType == VARIABLE) {
                     setExpSize(actualVarType.baseType, &sizeStr, &regSuffix);
                     fprintf(fp, "\t mov r12%s, %s [%s - %d] \n", regSuffix, sizeStr, baseRegister[actualVar.isIOlistVar], scale * (actualVarType.width + actualVar.offset)); 
@@ -644,11 +666,11 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 idNode = idNode->next;
             }
 
-            fprintf(fp, "\t sub rsp, 192 \n"); // to fix this! AR space needed
+            fprintf(fp, "\t sub rsp, %d \n", getIOlistSize(functionID->tkinfo->lexeme, symT)); 
             fprintf(fp, "\t push rbp \n");
             fprintf(fp, "\t push rbx \n");
             fprintf(fp, "\t mov rbx, rsp \n");
-            fprintf(fp, "\t add rbx, %d \n", 192 + 16); // to fix
+            fprintf(fp, "\t add rbx, %d \n", getIOlistSize(functionID->tkinfo->lexeme, symT) + 16); 
 
             fprintf(fp, "\t push rsi \n"); // Odd no of register
             fprintf(fp, "\t call %s \n", functionID->tkinfo->lexeme);
@@ -656,7 +678,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp, "\t pop rbx \n");
             fprintf(fp, "\t pop rbp \n");
-            fprintf(fp, "\t add rsp, 192 \n");
+            fprintf(fp, "\t add rsp, %d \n", getIOlistSize(functionID->tkinfo->lexeme, symT)); 
 
             if(outputList) {
                 idNode = outputList->child;
@@ -1086,79 +1108,44 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov word[rdi], si \n"); // only 1 location = 2B available!
                 }
 
-                else if(idVar.vtype.vaType == DYN_L_ARR) {
+                else {
                     fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
                     fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
                     fprintf(fp, "\t mov rsi, rsp \n");
                     fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
                     fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
 
-                    symVarInfo lbVar = idVar.vtype.si.vt_id->info.var;
+                    getArrBoundsInExpReg(id, fp);
+                    fprintf(fp, "\t sub %s, %s \n", expreg[1], expreg[0]); // UB - LB 
+                    fprintf(fp, "\t jae dyn_arr_valid_%p \n", id);
 
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
-                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
-                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
+                    fprintf(fp, "\t push rbx \n");
+                    RUNTIME_EXIT_WITH_ERROR(fp, "UPPER_BOUND_SMALL");
+                    fprintf(fp, "\t pop rbx \n");
 
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
-                    fprintf(fp, "\t mov DWORD [rdi], %d \n", idVar.vtype.ei.vt_num); 
+                    fprintf(fp, " dyn_arr_valid_%p: \n", id);
+                    fprintf(fp, "\t inc %s \n", expreg[1]);
 
-                    fprintf(fp, "\t mov edi, %d \n", idVar.vtype.ei.vt_num);
-                    fprintf(fp, "\t sub edi, esi \n"); 
-                    fprintf(fp, "\t inc edi \n");
+                    if(idVar.vtype.baseType == g_BOOLEAN)
+                        fprintf(fp, "\t shl %s, %d \n", expreg[1], 1);
+                    else if(idVar.vtype.baseType == g_INTEGER)
+                        fprintf(fp, "\t shl %s, %d \n", expreg[1], 2);
+                    else
+                        fprintf(fp, "\t shl %s, %d \n", expreg[1], 3);
 
-                    // TODO : USE ABOVE VAL! checks and align stack!
+                    fprintf(fp, "\t mov r12, %s \n", expreg[1]);
+                    fprintf(fp, "\t and r12, 15 \n");
+                    fprintf(fp, "\t cmp r12, 0 \n");
+                    fprintf(fp, "\t je dyn_arr_aligned_%p \n", id);
+                    
+                    fprintf(fp, "\t mov r13, 16 \n");
+                    fprintf(fp, "\t sub r13, r12 \n");
+                    fprintf(fp, "\t add %s, r13 \n", expreg[1]);
 
-                    fprintf(fp, "\t sub rsp, 192 \n");
+                    fprintf(fp, " dyn_arr_aligned_%p: \n", id);
+                    fprintf(fp, "\t sub rsp, %s \n", expreg[1]);
                 }
 
-                else if(idVar.vtype.vaType == DYN_R_ARR) {
-                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
-                    fprintf(fp, "\t mov rsi, rsp \n");
-                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
-                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
-
-                    symVarInfo ubVar = idVar.vtype.ei.vt_id->info.var;
-
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
-                    fprintf(fp, "\t mov DWORD [rdi], %d \n", idVar.vtype.si.vt_num); 
-
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
-                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[ubVar.isIOlistVar], 2 * (ubVar.vtype.width + ubVar.offset));
-                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
-
-                    fprintf(fp, "\t sub esi, %d \n", idVar.vtype.si.vt_num); 
-                    fprintf(fp, "\t inc esi \n");
-                    // TODO : USE ABOVE VAL! checks and align stack!
-
-                    fprintf(fp, "\t sub rsp, 192 \n");
-                }
-
-                else if(idVar.vtype.vaType == DYN_ARR) {
-                    fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
-                    fprintf(fp, "\t mov rsi, rsp \n");
-                    fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
-                    fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
-
-                    symVarInfo lbVar = idVar.vtype.si.vt_id->info.var;
-                    symVarInfo ubVar = idVar.vtype.ei.vt_id->info.var;
-
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Lower bound location
-                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
-                    fprintf(fp, "\t mov DWORD [rdi], esi \n"); 
-
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (2)); // Upper bound location
-                    fprintf(fp, "\t mov esi, DWORD [%s - %d] \n", baseRegister[ubVar.isIOlistVar], 2 * (ubVar.vtype.width + ubVar.offset));
-                    fprintf(fp, "\t mov DWORD [rdi], esi \n");  
-
-                    fprintf(fp, "\t sub esi, DWORD [%s - %d] \n", baseRegister[lbVar.isIOlistVar], 2 * (lbVar.vtype.width + lbVar.offset));
-                    fprintf(fp, "\t inc esi \n");
-
-                    // TODO : USE ABOVE VAL! checks and align stack!
-
-                    fprintf(fp, "\t sub rsp, 192 \n");
-                }
 
                 id = id->next;
                 fprintf(fp, "\t ;array declaration done \n\n");
