@@ -148,7 +148,6 @@ int main(int argc, char *argv[]) {
                 printTree(root, NULL);   //printTree also frees the tree after printing it.
                 // passing NULL prints on stdout instead of in a file. Pass a file name to print in that file
                 destroyTree(root);
-
             }
             break;
 
