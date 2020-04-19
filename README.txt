@@ -30,10 +30,18 @@ SEMANTIC ANALYZER:
 //TODO: printf("Code compiles successfully..........\n"); if code compiles successfully i.e. after codeGen
 //TODO: destroy (free) the symbol table and other constructs (including AST) for continuous execution in driver. Every loop iteration must be a fresh start.
 //TODO: sort errors based on line nos.
-
+//TODO: traverse list for while stupid check has infinite loop for typeCheckTESTCASE.txt
 
 TYPE CHECKER:
 //TODO: handle TYPE ERRORs for array assignment a:=b where atleast one of a or b is a (partially) dynamic array.
+//TODO: statements like
+        a := arr[4];
+        are generating TYPE ERROR.
+        though, statements like
+        a := arr[4] + 2;
+        are not generating TYPE ERROR
+        (a is integer variable, arr is Static integer array) check with other types of arrays too and see if typeCheckTESTCASE.txt compiles successfully
+
 
 
 CODE GENERATION:
