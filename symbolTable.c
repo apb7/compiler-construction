@@ -1642,7 +1642,7 @@ int computeARSize(symbolTable *st, bool isFuncTable){
 
 void buildSymbolTable(ASTNode *root){
     if(root == NULL){
-        printf("NULL pointer provided to buildSymbolTable(..).\n");
+//        printf("NULL pointer provided to buildSymbolTable(..).\n");
         return;
     }
     switch(root->gs){
