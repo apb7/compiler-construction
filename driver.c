@@ -27,9 +27,6 @@
 #include "codeGen.h"
 
 
-
-//destroy trees, close if open, do not close STDOUT
-
 // Variables defined in lexer.c
 extern unsigned int fp;
 extern unsigned int bp;
@@ -59,7 +56,6 @@ int main(int argc, char *argv[]) {
         printf("Usage: %s <source code file> <assembly code output file>\n", argv[0]);
         exit(1);
     }
-
 
 
 //    printf("\n######################## STAGE 2 INFO ########################\n");

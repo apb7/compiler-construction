@@ -24,7 +24,9 @@ start
 	declare index:integer;
 	declare t:integer;
 	declare fib: array[1..n] of integer;
-	index:= 3;
+	get_value(fib);
+	print(fib);
+	**index:= 3;
 	fib[1] := 0;
 	fib[2] := 1;
 	while(index <= n)
@@ -34,8 +36,9 @@ start
 		t:=t-1;
 		fib[index]:=fib[index]+fib[t];
 		index:= index+1;
-	end
+	end**
 	res:=fib[n];
+	print(res);
 end
 
 <<module factorialN>>
@@ -44,7 +47,7 @@ returns  [res: integer];
 start
 	declare index:integer;
 	declare t:integer;
-	declare fact: array[1..p] of integer;
+	declare fact: array[1..n] of integer;
 	index := 2;
 	fact[1] := 1;
 	while(index <= n)

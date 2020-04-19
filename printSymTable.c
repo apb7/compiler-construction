@@ -170,7 +170,8 @@ void printSymbolTable(symbolTable* st, bool onlyArrayInfo, char *fname){
     if(onlyArrayInfo)
         fprintf(fp, "\n");
     fprintf(fp,"########################################################################## ~ ** ~ ##########################################################################\n\n");
-    fprintf(fp,"NOTE: The variables which are undeclared and used as array indices are stated as NULL under RANGE header.\n");
+    fprintf(fp,"NOTE: The variables which are undeclared and used as array ranges are stated as NULL under RANGE header.\n"
+               "\t  The dynamic ranges of arrays in input list are printed as '----' because they are placeholders and not associated with any variable.\n");
     fcloseSafe(fp);
 }
 
