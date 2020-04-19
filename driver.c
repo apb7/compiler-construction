@@ -57,7 +57,7 @@ extern symbolTable funcTable;
 int main(int argc, char *argv[]) {
 //    printf("%d",sizeof(symbolTable));
     if(argc != 3) {
-        printf("Usage: %s <source code file> <parse tree output file>\n", argv[0]);
+        printf("Usage: %s <source code file> <assembly code output file>\n", argv[0]);
         exit(1);
     }
 
