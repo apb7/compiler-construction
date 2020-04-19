@@ -111,6 +111,7 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
         fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
         fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[1],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar||rightStn->info.var.isIOlistVar], toSub);
     }
+    
     if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == STAT_ARR){
         //get the left bound to expreg[0]
         fprintf(fp,"\t mov %s, %d \n",expreg[0],arrVtype.si.vt_num);
@@ -119,14 +120,6 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
         //get the right bound to expreg[1]
         fprintf(fp,"\t mov %s, %d \n",expreg[1],arrVtype.ei.vt_num);
     }
-}
-
-void getArrBoundsInExpRegWrapper(symTableNode *stNode, FILE *fp){
-    ASTNode *dummyAST = malloc(sizeof(ASTNode));
-    dummyAST->stNode = stNode;
-    
-    getArrBoundsInExpReg(dummyAST,fp);
-    free(dummyAST);
 }
 
 //prereq: lower bound in expreg[0], index in expreg[2]
@@ -449,13 +442,15 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp, "section .data \n");
 
-            fprintf(fp,"\t msgBoolean: db \"Input: Enter a boolean value:\", 10, 0 \n");
+            fprintf(fp,"\t msgBoolean: db \"Input: Enter a boolean value\", 10, 0 \n");
             fprintf(fp,"\t inputBoolean: db \"%%hd\", 0 \n");
+            fprintf(fp,"\t msgBooleanArr: db \"Input: Enter %%d array elements of boolean type for range %%d to %%d\", 10, 0 \n");
 
-            fprintf(fp,"\t msgInt: db \"Input: Enter an integer value:\", 10, 0 \n");
+            fprintf(fp,"\t msgInt: db \"Input: Enter an integer value\", 10, 0 \n");
             fprintf(fp,"\t inputInt: db \"%%d\", 0 \n");
+            fprintf(fp,"\t msgIntArr: db \"Input: Enter %%d array elements of integer type for range %%d to %%d\", 10, 0 \n");
 
-            fprintf(fp,"\t msgFloat: db \"Input: Enter a float value:\", 10, 0 \n");
+            fprintf(fp,"\t msgFloat: db \"Input: Enter a float value\", 10, 0 \n");
             fprintf(fp,"\t inputFloat: db \"%%lf\",0 \n");
 
             fprintf(fp,"\t outputBooleanTrue: db \"Output: true\", 10, 0, \n");
@@ -470,7 +465,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp,"\t booleanFalse: db \"false \", 0 \n");
             fprintf(fp,"\t newLine: db \" \", 10, 0 \n");
 
-            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bounds\", 10, 0 \n");
+            fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bound\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH2: db \"RUN TIME ERROR:  Bounds do not match for formal and actual arrays\", 10, 0 \n");
             fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound\", 10, 0 \n");
@@ -674,24 +669,33 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                     fprintf(fp, "\t mov word [rsp - %d], si \n",  scale * (arrBaseSize + formalVar.offset)); // base address
 
-                    getArrBoundsInExpRegWrapper(inputParam, fp);
+                    varType arrVtype = inputParam->info.var.vtype;
 
-                    fprintf(fp, "\t cmp %s, r12 \n", expreg[0]);
-                    fprintf(fp, "\t je lbound_match_%p", idNode);
+                    if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == STAT_ARR){
+                        //get the left bound to expreg[0]
+                        fprintf(fp,"\t mov %s, %d \n",expreg[0],arrVtype.si.vt_num);
+                        fprintf(fp, "\t cmp %s, r12 \n", expreg[0]);
+                        fprintf(fp, "\t je lbound_match_%p \n", idNode);
 
-                    fprintf(fp, "\t push rbx \n");
-                    RUNTIME_EXIT_WITH_ERROR(fp, "ARR_TYPE_MISMATCH2");
-                    fprintf(fp, "\t pop rbx \n");
-
-                    fprintf(fp, "lbound_match_%p: \n", idNode);
-                    fprintf(fp, "\t cmp %s, r13 \n", expreg[1]);
-                    fprintf(fp, "\t je ubound_match_%p", idNode);
-
-                    fprintf(fp, "\t push rbx \n");
-                    RUNTIME_EXIT_WITH_ERROR(fp, "ARR_TYPE_MISMATCH2");
-                    fprintf(fp, "\t pop rbx \n");
+                        fprintf(fp, "\t push rbx \n");
+                        RUNTIME_EXIT_WITH_ERROR(fp, "ARR_TYPE_MISMATCH2");
+                        fprintf(fp, "\t pop rbx \n");
+                    }
 
                     fprintf(fp, "lbound_match_%p: \n", idNode);
+
+                    if(arrVtype.vaType == DYN_L_ARR || arrVtype.vaType == STAT_ARR){
+                        //get the right bound to expreg[1]
+                        fprintf(fp,"\t mov %s, %d \n",expreg[1],arrVtype.ei.vt_num);
+                        fprintf(fp, "\t cmp %s, r13 \n", expreg[1]);
+                        fprintf(fp, "\t je ubound_match_%p \n", idNode);
+
+                        fprintf(fp, "\t push rbx \n");
+                        RUNTIME_EXIT_WITH_ERROR(fp, "ARR_TYPE_MISMATCH2");
+                        fprintf(fp, "\t pop rbx \n");
+                    }                  
+
+                    fprintf(fp, "ubound_match_%p: \n", idNode);
                 }
                 inputParam = inputParam->next;
                 idNode = idNode->next;
@@ -804,28 +808,33 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                 fprintf(fp, "\t push rbp \n");
 
-                if(idVarType.baseType == g_INTEGER) {
-                    fprintf(fp, "\t mov rdi, msgInt \n");
-                    fprintf(fp, "\t call printf \n");
-                }
-                else if(idVarType.baseType == g_BOOLEAN) {
-                    fprintf(fp, "\t mov rdi, msgBoolean \n");
-                    fprintf(fp, "\t call printf \n");
-                }
+                if(idVarType.baseType == g_INTEGER) 
+                    fprintf(fp, "\t mov rdi, msgIntArr \n");
+                else if(idVarType.baseType == g_BOOLEAN) 
+                    fprintf(fp, "\t mov rdi, msgBooleanArr \n");
                 else{
                     printf("Real array!\n");
                     return;
                 }
 
-                fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
-                fprintf(fp, "\t sub rsi, %d \n", scale * (arrBaseSize + idVar.offset));
-                fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
-                fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
-
                 getArrBoundsInExpReg(siblingId, fp);
 
                 fprintf(fp, "\t mov r12, %s \n", expreg[0]); // lb
                 fprintf(fp, "\t mov r13, %s \n", expreg[1]); // ub
+
+                fprintf(fp, "\t sub %s, %s \n", expreg[1], expreg[0]);
+                fprintf(fp, "\t inc %s \n", expreg[1]);
+
+                fprintf(fp, "\t mov rsi, %s \n", expreg[1]); // no of elems
+                fprintf(fp, "\t mov rdx, r12 \n"); // lb
+                fprintf(fp, "\t mov rcx, r13 \n"); // ub
+
+                fprintf(fp, "\t call printf \n");
+
+                fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar may be 0 or 1
+                fprintf(fp, "\t sub rsi, %d \n", scale * (arrBaseSize + idVar.offset));
+                fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
+                fprintf(fp, "\t add rsi, [stack_top] \n"); // address of first elem!
 
                 if(idVarType.baseType == g_INTEGER)
                     fprintf(fp, "\t mov rdi, inputInt \n");
@@ -1032,7 +1041,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                 if(idVarType.baseType == g_BOOLEAN) {
                     fprintf(fp, "\t cmp word[%s - %d], 0 \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
-                    fprintf(fp, "\t jz boolPrintFalse _%p \n", siblingId);
+                    fprintf(fp, "\t jz boolPrintFalse_%p \n", siblingId);
 
                     fprintf(fp, " boolPrintTrue_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
