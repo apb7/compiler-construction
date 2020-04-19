@@ -1648,6 +1648,7 @@ void buildSymbolTable(ASTNode *root){
     switch(root->gs){
         case g_program:
         {
+            initErrorStack();
             nextGlobalOffset = 0;
             haveSemanticErrors = false;
             ASTNode *ptr = root->child;
@@ -1657,6 +1658,13 @@ void buildSymbolTable(ASTNode *root){
             }
             handleUndefinedModules();
             computeARSize(&funcTable,true);
+            if(!haveSemanticErrors){
+                printf("Input source code is semantically correct...........\n");
+            }
+            else{
+                printAllErrors();
+            }
+            destroyErrorStack();
         }
             break;
         case g_moduleDeclarations:

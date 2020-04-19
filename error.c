@@ -254,16 +254,31 @@ void foundNewError(error e){
 
 void printAllErrors() {
     errorPtr_stack *tmpStack = errorPtr_stack_create();
-//    errorPtr_stack_print(errorStack,stdout);
-    while (!errorPtr_stack_isEmpty(errorStack)) {
-        errorPtr_stack_push(tmpStack, errorPtr_stack_pop(errorStack));
+    int size = errorStack->size;
+    error **errorArray = (error **)(malloc(size * sizeof(error*)));
+    for(int i=size-1; i>=0; i--){
+        errorArray[i] = errorPtr_stack_pop(errorStack);
     }
-    while (!errorPtr_stack_isEmpty(tmpStack)) {
-        error *topNode = errorPtr_stack_pop(tmpStack);
-        printError(*topNode);
-        if(topNode->errType == LEXICAL)
-            free((topNode->edata).le.errTk);
-        free(topNode);
+
+    //TODO: stable sort errors based on line nos.
+    for(int i=1; i<size;i++){
+        error *tmp = errorArray[i];
+        int j;
+        for(j = i-1; j>=0; j--){
+            if(errorArray[j]->lno > tmp->lno)
+                errorArray[j+1] = errorArray[j];
+            else
+                break;
+        }
+        errorArray[j+1] = tmp;
     }
-    errorPtr_stack_del_head(tmpStack);
+
+    for(int i=0; i<size; i++){
+        error *e = errorArray[i];
+        printError(*e);
+        if(e->errType == LEXICAL)
+            free((e->edata).le.errTk);
+        free(e);
+    }
+    free(errorArray);
 }
