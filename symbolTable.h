@@ -14,12 +14,10 @@
 
 //__________________________________________________________________________________________
 // for printing the symbol table
-void printSymbolTable(symbolTable* st, char *fname);
-void printCurrSymTable(symbolTable *st, int level, FILE *fp);
+void printSymbolTable(symbolTable* st, bool onlyArrayInfo, char *fname);
+void printCurrSymTable(symbolTable *st, bool onlyArrayInfo, int level, FILE *fp);
 // for printing the size of activation records
 void printARSizes(symbolTable *funcTable, char *fname);
-// for printing the type expression of all arrays in source code
-void printArrayInfo(symbolTable *funcTable, char *fname);
 //__________________________________________________________________________________________
 
 

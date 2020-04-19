@@ -1362,8 +1362,8 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
             traverse(currNode->next, myVarList, funcInfo, currST);
         }
 
-
 }
+
 void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
     if(iterativeStmtNode==NULL || iterativeStmtNode->child==NULL) {
         fprintf(stderr,"handleIterativeStmt: NULL node found.\n");
