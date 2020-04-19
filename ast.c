@@ -202,9 +202,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             ASTNode *AST_child = buildASTTree(parse_child);
             
-            if(AST_child == NULL)
-                return NULL;
-            
             ASTNode *newNode = createASTNode(parseNodeRoot->child->next); // DRIVER
             AST_child->parent = newNode;
             newNode->child = AST_child;
@@ -302,11 +299,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
                 parse_child = parse_child->next; // <N1>
 
-                // TO REMOVE!!!
-                if(parse_child == NULL) {
-                    printf("Error within rule 57\n");
-                    return NULL;
-                }
             }
             return newNode;
         }
@@ -348,12 +340,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
                 AST_child->parent = newNode;
 
                 parse_child = parse_child->next; // <N2>
-
-                // TO REMOVE!!!
-                if(parse_child == NULL) {
-                    printf("Error within rule 57\n");
-                    return NULL;
-                }
             }
             return newNode;
         }
@@ -422,9 +408,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             ASTNode *AST_grandchild = buildASTTree(parse_child);
 
-            if(AST_grandchild == NULL)
-                return NULL;
-
             ASTNode *newNode = createASTNode(parseNodeRoot);
             parse_child = parseNodeRoot->child; // START
 
@@ -435,7 +418,8 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             AST_child->start_line_no = AST_child->tkinfo->lno;
             AST_child->end_line_no = parse_child->next->next->tkinfo->lno;
 
-            AST_grandchild->parent = AST_child;
+            if (AST_grandchild != NULL)
+                AST_grandchild->parent = AST_child;
             AST_child->child = AST_grandchild;
 
             return newNode;
@@ -717,12 +701,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
                 AST_child->parent = newNode;
 
                 parse_child = parse_child->next; // N3
-                
-                // TO REMOVE!!!
-                if(parse_child == NULL) {
-                    printf("Error within rule 57\n");
-                    return NULL;
-                }
             }
 
             return newNode;
@@ -930,11 +908,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
                 parse_child = parse_child->next->next->next; //<N9>
 
-                // TO REMOVE!!!
-                if(parse_child == NULL) {
-                    printf("Error within rule 98\n");
-                    return NULL;
-                }
             }
 
             return newNode;
@@ -1049,7 +1022,7 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
             if (AST_grandchild != NULL)
                AST_grandchild->parent = AST_sibling;
-               
+
             AST_sibling->child = AST_grandchild;
 
             return newNode;
@@ -1078,7 +1051,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
         default:
         {
             printf("%d entered here\n", parseNodeRoot->gRuleIndex + 2);
-            printf("E\nE\nE\nE\nE\n");
             return NULL;
         }
     }
