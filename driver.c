@@ -253,9 +253,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
                 printSymbolTable(&funcTable,false,NULL);// NULL prints to console, pass a file name to print in the file
 
                 destroySymbolTable(&funcTable,true);
@@ -281,10 +278,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
-
                 printARSizes(&funcTable,NULL); // NULL prints to console, pass file name to print in the file
 
                 destroySymbolTable(&funcTable,true);
@@ -315,10 +308,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
-
                 printSymbolTable(&funcTable, true, NULL);// NULL prints to console, pass a file name to print in the file
 
                 destroySymbolTable(&funcTable,true);
@@ -355,9 +344,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
 
                 //____________________________________________________
                 end_time = clock();
@@ -365,7 +351,7 @@ int main(int argc, char *argv[]) {
                 total_CPU_time  =  (double) (end_time - start_time);
                 total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
 
-                printf("Total CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
+                printf("\nTotal CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
                 destroySymbolTable(&funcTable,true);
                 destroyAST(ASTroot);
                 destroyTree(root);
@@ -397,7 +383,6 @@ int main(int argc, char *argv[]) {
 
                 buildSymbolTable(ASTroot);
                 if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
                     FILE *fpout = fopen(argv[2],"w");
                     generateCode(ASTroot, &funcTable, fpout);
                     printf("Code compiles successfully..........\n");

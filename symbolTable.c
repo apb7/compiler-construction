@@ -1659,7 +1659,7 @@ void buildSymbolTable(ASTNode *root){
             handleUndefinedModules();
             computeARSize(&funcTable,true);
             if(!haveSemanticErrors){
-                printf("Input source code is semantically correct...........\n");
+                printf("Input source code is semantically correct and type checked..........\n");
             }
             else{
                 printAllErrors();
