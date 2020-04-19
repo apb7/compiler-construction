@@ -594,7 +594,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
 
-        case g_WHILE: {
+        case g_WHILE:
+        {
             fprintf(fp,"\t ; WHILE starts \n");
 
             fprintf(fp," WHILE_loop_%p: \n", root->next->next); //pointer to WHILE's START ASTNode (uniqueness assured across entire code)
@@ -933,7 +934,50 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                 // The only registers that the called function is required to preserve (the calle-save registers) are:
                 // rbp, rbx, r12, r13, r14, r15. All others are free to be changed by the called function.
-                if(idVarType.baseType == g_INTEGER) {
+                if(idVarType.baseType == g_BOOLEAN) {
+                    getArrBoundsInExpReg(siblingId, fp);
+
+                    if(idOrNum->gs == g_NUM) {
+                        fprintf(fp, "\t mov %s, %d \n", expreg[2], idOrNum->tkinfo->value.num);
+                    }
+                    else {
+                        varType idVarType = idOrNum->stNode->info.var.vtype;
+                        symVarInfo idVar = idOrNum->stNode->info.var;
+
+                        // DWORD because ID will (and should) always be of type INTEGER.
+                        fprintf(fp, "\t movsx %s, DWORD [%s - %d] \n", expreg[2], baseRegister[idVar.isIOlistVar], scale * (idVarType.width + idVar.offset));
+                    }
+
+                    fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[1]);
+                    fprintf(fp, "\t jbe stat_valid_ub_%p \n", idOrNum); // UB satisfied
+                    RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
+
+                    fprintf(fp, "stat_valid_ub_%p: \n", idOrNum);
+                    fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[0]); 
+                    fprintf(fp, "\t jae stat_valid_lb_%p \n", idOrNum); // LB satisfied
+                    RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
+
+                    fprintf(fp, "stat_valid_lb_%p: \n", idOrNum);
+
+                    //prereq: lower bound in expreg[0], index in expreg[2]
+                    //outcome: address of array element at idx in expreg[1]
+                    getArrAddrAtIdx(siblingId, fp);
+
+                    fprintf(fp, "\t cmp word[%s], 0 \n", expreg[1]);
+                    fprintf(fp, "\t jz boolPrintFalse_%p \n", idOrNum);
+
+                    fprintf(fp, " boolPrintTrue_%p: \n", idOrNum);
+                    fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
+                    fprintf(fp, "\t jmp boolPrintEnd_%p \n", idOrNum);
+
+                    fprintf(fp, " boolPrintFalse_%p: \n", idOrNum);
+                    fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
+
+                    fprintf(fp, " boolPrintEnd_%p: \n", idOrNum);
+                    fprintf(fp, "\t call printf \n");
+
+                }
+                else if(idVarType.baseType == g_INTEGER) {
 
                     fprintf(fp, "\t mov rdi, outputInt \n");
 
@@ -941,7 +985,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                     // Bound check done at compile time, but no harm!
                     if (idOrNum->gs == g_NUM)
-                        fprintf(fp, "\t mov %s, %d \n", expreg[2], idOrNum->tkinfo->value.num );
+                        fprintf(fp, "\t mov %s, %d \n", expreg[2], idOrNum->tkinfo->value.num);
 
                     // ID, we need to do bounds check!
                     else {
@@ -953,16 +997,16 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     }
 
                     fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[1]);
-                    fprintf(fp, "\t jbe stat_valid1_%p \n", idOrNum); // UB satisfied
+                    fprintf(fp, "\t jbe stat_valid_ub_%p \n", idOrNum); // UB satisfied
                     RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
 
-                    fprintf(fp, "stat_valid1_%p: \n", idOrNum);
+                    fprintf(fp, "stat_valid_ub_%p: \n", idOrNum);
                     fprintf(fp, "\t cmp %s, %s \n", expreg[2], expreg[0]); 
-                    fprintf(fp, "\t jae stat_valid2_%p \n", idOrNum); // LB satisfied
+                    fprintf(fp, "\t jae stat_valid_lb_%p \n", idOrNum); // LB satisfied
                     RUNTIME_EXIT_WITH_ERROR (fp, "OUT_OF_BOUNDS");
 
-                    fprintf(fp, "stat_valid2_%p: \n", idOrNum);
-                                            
+                    fprintf(fp, "stat_valid_lb_%p: \n", idOrNum);
+
                     //prereq: lower bound in expreg[0], index in expreg[2]
                     //outcome: address of array element at idx in expreg[1]
                     getArrAddrAtIdx(siblingId, fp);
@@ -988,16 +1032,16 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
                 if(idVarType.baseType == g_BOOLEAN) {
                     fprintf(fp, "\t cmp word[%s - %d], 0 \n", baseRegister[idVar.isIOlistVar], 2 * (idVarType.width + idVar.offset));
-                    fprintf(fp, "\t jz boolPrintFalse%d \n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\t jz boolPrintFalse _%p \n", siblingId);
 
-                    fprintf(fp, " boolPrintTrue%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintTrue_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, outputBooleanTrue \n");
-                    fprintf(fp, "\t jmp boolPrintEnd%d \n", siblingId->tkinfo->lno);
+                    fprintf(fp, "\t jmp boolPrintEnd_%p \n", siblingId);
 
-                    fprintf(fp, " boolPrintFalse%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintFalse_%p: \n", siblingId);
                     fprintf(fp, "\t mov rdi, outputBooleanFalse \n");
 
-                    fprintf(fp, " boolPrintEnd%d: \n", siblingId->tkinfo->lno);
+                    fprintf(fp, " boolPrintEnd_%p: \n", siblingId);
                     fprintf(fp, "\t call printf \n");
                 }
                 else if(idVarType.baseType == g_INTEGER) {
