@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 // nasm -felf64 code.asm && gcc code.o && ./a.out
 // nasm -felf64 code.asm && gcc -no-pie code.o && ./a.out
 
@@ -22,10 +29,6 @@ void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
 }
 extern char *inverseMappingTable[];
 
-
-void printLeaf(ASTNode* leaf, FILE* fp) {
-
-}
 
 char *baseRegister[2] = {"RBP", "RBX"};
 
