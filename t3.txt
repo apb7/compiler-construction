@@ -1,16 +1,12 @@
 ** This testcase demonstrates correctness of module structure with declaration and simple statements**
 <<<driver program>>>
 start
-	declare index,j:integer;	
+	declare index:integer;	
+	declare A:array[1..15] of boolean;
 
 	for(index in  1..15)
 	start
-		for(j in 1..15)
-		start
-			print(j);
-			print(index);
-		end
-		print(index);
+		print(A[index]);
 	end
 
 end
