@@ -1443,7 +1443,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             currST->startNode = ptr;
             strcpy(currST->funcName,funcInfo->funcName);
         }
-        ptr=ptr->child;
+        ptr=ptr->child; // on statements
         handleStatements(ptr,funcInfo,currST);
         int change=0;
         cur=myVarList;
@@ -1457,7 +1457,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             cnt++;
         }
         if(cnt>0 && !change) {
-            throwSemanticError(ptr->parent->parent->child->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_VARS_UNASSIGNED);
+            throwSemanticError(whileNode->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_VARS_UNASSIGNED);
         }
         cur=myVarList;
         while(cur!=NULL) {
