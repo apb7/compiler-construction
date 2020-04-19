@@ -133,10 +133,10 @@ void removeComments(char *testcaseFile, char *cleanFile) {
 
     free(buffer_to_write);
 
-    if(cleanFile != NULL)
-        fclose(fp_cleanFile);
 
-    fclose(fp_testcaseFile);
+    fcloseSafe(fp_cleanFile);
+
+    fcloseSafe(fp_testcaseFile);
 }
 
 // Prints the string in global buffer from start to end, not including end.

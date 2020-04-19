@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <stdio.h>
 /*
  * Some helper functions
  */
@@ -83,6 +83,12 @@ char **strSplit(char *str, char tk){
         arr[i++] = token;
     arr[i] = NULL;
     return arr;
+}
+
+void fcloseSafe(FILE *fp){
+    if(fp != NULL && fp != stdout){
+        fclose(fp);
+    }
 }
 
 /*

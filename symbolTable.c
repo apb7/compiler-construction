@@ -1457,7 +1457,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             cur=cur->next;
             cnt++;
         }
-        if(!change) {
+        if(cnt>0 && !change) {
             throwSemanticError(ptr->parent->parent->child->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_VARS_UNASSIGNED);
         }
         cur=myVarList;

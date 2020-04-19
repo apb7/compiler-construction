@@ -6,9 +6,4 @@ typedef enum{
 } primitiveDataType;
 
 varType* getDataType(ASTNode *ptr);
-
 primitiveDataType getExpressionPrimitiveType(ASTNode *ptr);
-
-void checkTypeAssignmentStmt(ASTNode* rt);
-
-void checkType(ASTNode *root);
