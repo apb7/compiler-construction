@@ -17,14 +17,13 @@ start
     declare c:integer;
     for (a in 4..5)
     start
-    a:=4;
         for (c in 2..5)
             start
                flag:=true;
             end
        flag:=true;
     end
-
+    a:=4;
 end
 
 **verify the output of the lexical analyzer as well**

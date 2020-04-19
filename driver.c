@@ -55,18 +55,26 @@ extern bool haveSemanticErrors;
 extern symbolTable funcTable;
 
 int main(int argc, char *argv[]) {
-//    printf("%d",sizeof(symbolTable));
     if(argc != 3) {
         printf("Usage: %s <source code file> <assembly code output file>\n", argv[0]);
         exit(1);
     }
 
+
+
+//    printf("\n######################## STAGE 2 INFO ########################\n");
+    printf("\n\t LEVEL 4: AST / Symbol Table / Type Checking / Semantic Rules modules work / Handled static and dynamic arrays in type checking and code generation.\n");
+
+//    printf("\n########################### ~ ** ~ ###########################\n\n");
+
+    printf("\n\t######################## STAGE 1 INFO ########################\n");
     printf("\t FIRST and FOLLOW set automated. \n");
     printf("\t Both lexical and syntax analysis modules implemented. \n");
-    printf("\t Modules work with all testcases. \n");
+    printf("\t Modules work with all stage 1 testcases. \n");
     printf("\t Source code is parsed successfully. \n");
-    printf("\t Parse tree is printed in the output file. \n");
-    printf("\t Error detection and recovery done. \n\n");
+    printf("\t Parse tree is printed on the console (option 2). \n");
+    printf("\t Error detection and recovery done.");
+    printf("\n\t########################### ~ ** ~ ###########################\n\n");
 
     mt = createHashTable(SYMBOL_HT_SIZE); // 131 is the nearest prime > 114 (# of symbols (NT + T))
     fillHashTable(inverseMappingTable,mt);
@@ -85,14 +93,12 @@ int main(int argc, char *argv[]) {
 
     populateGrammarStruct("grammar.txt");
 
-//     printGrammar();
 
     populateFirstSet();
     populateFollowSet();
     populateParseTable();
     modifyParseTable_Err_Recovery();
 
-//    printParseTable();
 
     char userInput;
 
@@ -106,21 +112,20 @@ int main(int argc, char *argv[]) {
                "\n\t Press 6 to print Activation Record sizes of every function."
                "\n\t Press 7 to print the type expressions and width of array variables ."
                "\n\t Press 8 to report errors and display total compiling time."
-               "\n\t Press 9 to generate assembly code."
-               "\n\t Press # to build and printSymTable1 (testing)."
-               "\n\t Press $ to build and printSymTable2 (testing)."
-               "\n\t Press q to remove comments.\n");
+               "\n\t Press 9 to generate assembly code.\n");
+            /* "\n\t Press # to build and printSymTable1 (archived)."
+               "\n\t Press $ to build and printSymTable2 (archived)."
+               "\n\t Press q to remove comments (archived)." */
 
+        printf("------------------------------------------------------------------------------------------------"
+               "--------------------------------------------------------------------\n");
 
         scanf(" %c", &userInput);
+
         switch(userInput) {
 
             case '0':
                 return 0;
-                break;
-
-            case 'q':
-                removeComments(argv[1], NULL);
                 break;
 
             case '1':
@@ -128,16 +133,19 @@ int main(int argc, char *argv[]) {
                 FILE *fp_arg = fopen(argv[1], "r");
                 tokenInfo *tk;
 
-                printf("%12s %20s %20s \n", "Line_number", "lexeme", "Token_name");
+                printf("\n################ TOKEN LIST ################\n");
+                printf("\n%-12s %-20s %-20s\n", "LINE NO.", "LEXEME", "TOKEN NAME");
 
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 while((tk = getNextToken(fp_arg)) != NULL) {
-                    printf("%12d %20s %20s\n", tk->lno, tk->lexeme, inverseMappingTable[tk->type]);
+                    printf("%-12d %-20s %-20s\n", tk->lno, tk->lexeme, inverseMappingTable[tk->type]);
                     free(tk);
                 }
+                printf("\n################## ~ ** ~ ##################\n\n");
                 fcloseSafe(fp_arg);
-            } break;
+            }
+            break;
 
             case '2':
             {
@@ -145,13 +153,18 @@ int main(int argc, char *argv[]) {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                printf("\n####################################################################### PARSE TREE "
+                        "#######################################################################\n");
+                printf("\nThe following parse tree has been printed in inorder traversal order:"
+                       "\nLeftmost child ‐‐> parent node‐‐> remaining siblings (excluding the leftmost child)\n\n");
                 printTree(root, NULL);   //printTree also frees the tree after printing it.
+                printf("\n########################################################################## ~ ** ~ "
+                       "##########################################################################\n\n");
+
                 // passing NULL prints on stdout instead of in a file. Pass a file name to print in that file
                 destroyTree(root);
             }
             break;
-
-
 
             case '3':
             {
@@ -160,7 +173,7 @@ int main(int argc, char *argv[]) {
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 if(!stage1ErrorFree) {
-                    printf("The given source code has syntactic errors. Cannot print Abstract Syntax Tree.\n");
+                    printf("\nThe given source code has syntactic errors. Cannot print Abstract Syntax Tree.\n");
                     break;
                 }
                 if(!root){
@@ -168,28 +181,36 @@ int main(int argc, char *argv[]) {
                 }
                 ASTNode *ASTroot = buildASTTree(root);
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, cannot print AST.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, cannot print AST.\n");
                     break;
                 }
-                printf("\t The following AST has been printed in inorder traversal order:"
-                       "\n\t We print the leftmost child recursively then the parent then all remaining children.\n");
+                printf("\n################################################################### ABSTRACT SYNTAX TREE "
+                       "###################################################################\n");
+                printf("\nThe following AST has been printed in inorder traversal order:"
+                       "\nLeftmost child ‐‐> parent node‐‐> remaining siblings (excluding the leftmost child)\n\n");
                 print_Inorder_ASTTree(ASTroot, NULL); // NULL prints to console, pass a file name to print in the file
+                printf("\n########################################################################## ~ ** ~ "
+                       "##########################################################################\n\n");
+
+                // The following will print the AST in Level-Depth traversal order
 //                print_ASTTree(ASTroot, NULL); // NULL prints to console, pass a file name to print in the file
 
                 destroyAST(ASTroot);
                 destroyTree(root);
             }
             break;
-            case '4':{
+
+            case '4':
+            {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 int numParseNodes = count_nodes_parseTree(root);
                 unsigned long memParseTree = numParseNodes * (sizeof(treeNode) + sizeof(tokenInfo));
-                printf("%-27s %-1s %-10d %-20s %-10lu\n", "Parse tree Number of nodes ","=",numParseNodes, "Allocated Memory =",memParseTree);
+                printf("\n%-27s %-1s %-10d %-20s %-10lu\n", "Parse tree Number of nodes ","=",numParseNodes, "Allocated Memory =",memParseTree);
                 if(!stage1ErrorFree) {
-                    printf("The given source code has syntactic errors. Cannot compute memory usage by Abstract Syntax Tree.\n");
+                    printf("\nThe given source code has syntactic errors. Cannot compute memory usage by Abstract Syntax Tree.\n");
                     break;
                 }
                 if(!root){
@@ -197,7 +218,7 @@ int main(int argc, char *argv[]) {
                 }
                 ASTNode *ASTroot = buildASTTree(root);
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, cannot compute its memory usage.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, cannot compute its memory usage.\n");
                     break;
                 }
                 int numASTNodes = count_nodes_ASTTree(ASTroot);
@@ -211,7 +232,6 @@ int main(int argc, char *argv[]) {
             }
             break;
 
-
             case '5':
             {
                 // Initialise lexer every time.
@@ -219,7 +239,7 @@ int main(int argc, char *argv[]) {
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 if(!stage1ErrorFree) {
-                    printf("The given source code has syntactic errors. Cannot print Symbol Table.\n");
+                    printf("\nThe given source code has syntactic errors. Cannot print Symbol Table.\n");
                     break;
                 }
                 if(!root){
@@ -228,42 +248,36 @@ int main(int argc, char *argv[]) {
                 ASTNode *ASTroot = buildASTTree(root);
 
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, Symbol Table is also empty.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, Symbol Table is also empty.\n");
                     break;
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
-                printSymbolTable(&funcTable,NULL);// NULL prints to console, pass a file name to print in the file
+                printSymbolTable(&funcTable,false,NULL);// NULL prints to console, pass a file name to print in the file
 
                 destroySymbolTable(&funcTable,true);
                 destroyAST(ASTroot);
                 destroyTree(root);
             }
             break;
+
             case '6':
             {
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 if(!stage1ErrorFree)
-                    printf("The given source code has syntactic errors. Cannot print Activation Record Sizes.\n");
+                    printf("\nThe given source code has syntactic errors. Cannot print Activation Record Sizes.\n");
                 if(!root){
                     break;
                 }
                 ASTNode *ASTroot = buildASTTree(root);
 
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, AR sizes are undefined.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, AR sizes are undefined.\n");
                     break;
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
-
                 printARSizes(&funcTable,NULL); // NULL prints to console, pass file name to print in the file
 
                 destroySymbolTable(&funcTable,true);
@@ -271,6 +285,7 @@ int main(int argc, char *argv[]) {
                 destroyTree(root);
             }
             break;
+
             case '7':
             {
                 // Initialise lexer every time.
@@ -278,7 +293,7 @@ int main(int argc, char *argv[]) {
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
                 if(!stage1ErrorFree) {
-                    printf("The given source code has syntactic errors. Cannot print array information.\n");
+                    printf("\nThe given source code has syntactic errors. Cannot print array information.\n");
                     break;
                 }
                 if(!root){
@@ -288,22 +303,19 @@ int main(int argc, char *argv[]) {
 
 
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, there is no array information to be printed.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, there is no array information to be printed.\n");
                     break;
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
-
-                printArrayInfo(&funcTable,NULL);// NULL prints to console, pass a file name to print in the file
+                printSymbolTable(&funcTable, true, NULL);// NULL prints to console, pass a file name to print in the file
 
                 destroySymbolTable(&funcTable,true);
                 destroyAST(ASTroot);
                 destroyTree(root);
             }
             break;
+
             case '8':
             {
                 clock_t start_time, end_time;
@@ -317,22 +329,21 @@ int main(int argc, char *argv[]) {
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
 
-                if(!stage1ErrorFree)
+                if(!stage1ErrorFree) {
+                    printf("\nThe given source code has syntactic errors. Cannot proceed to built AST.\n");
                     break;
+                }
 
                 if(!root){
                     break;
                 }
                 ASTNode *ASTroot = buildASTTree(root);
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, cannot proceed for building symbol table.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, cannot proceed for building symbol table.\n");
                     break;
                 }
 
                 buildSymbolTable(ASTroot);
-                if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
-                }
 
                 //____________________________________________________
                 end_time = clock();
@@ -340,12 +351,13 @@ int main(int argc, char *argv[]) {
                 total_CPU_time  =  (double) (end_time - start_time);
                 total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
 
-                printf("Total CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
+                printf("\nTotal CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
                 destroySymbolTable(&funcTable,true);
                 destroyAST(ASTroot);
                 destroyTree(root);
             }
-                break;
+            break;
+
             case '9':
             {
                 // Initialise lexer every time.
@@ -353,8 +365,11 @@ int main(int argc, char *argv[]) {
 
                 treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
 
-                if(!stage1ErrorFree)
+                if(!stage1ErrorFree) {
+                    printf("\nThe given source code has syntactic errors. Cannot proceed to build AST.\n");
                     break;
+                }
+
                 if(!root){
                     break;
                 }
@@ -362,17 +377,19 @@ int main(int argc, char *argv[]) {
 
 
                 if(!ASTroot) {
-                    printf("Trivial source code. AST is empty. Hence, assembly code cannot be generated.\n");
+                    printf("\nTrivial source code. AST is empty. Hence, assembly code cannot be generated.\n");
                     break;
                 }
 
                 buildSymbolTable(ASTroot);
                 if(!haveSemanticErrors){
-                    printf("Input source code is semantically correct and type checked..........\n");
                     FILE *fpout = fopen(argv[2],"w");
                     generateCode(ASTroot, &funcTable, fpout);
                     printf("Code compiles successfully..........\n");
                     fcloseSafe(fpout);
+                }
+                else{
+                    printf("\nThe given source code has semantic errors. Cannot proceed to generate assembly code.\n");
                 }
                 destroySymbolTable(&funcTable,true);
                 destroyAST(ASTroot);
@@ -381,60 +398,85 @@ int main(int argc, char *argv[]) {
             }
             break;
 
-            // TODO: Leave the below as it is. These are for testing. Just remove their menu options from the print menu.
+            // --------------------------------- ARCHIVED CASES FOR TESTING --------------------------------
+
+            /*
+            case 'q':
+                printf("\n############################## SOURCE CODE W/O COMMENTS ##############################\n");
+                removeComments(argv[1], NULL);
+                printf("\n####################################### ~ ** ~ #######################################\n\n");
+                break;
+
             case '#':
             {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
-                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
 
-                if(!stage1ErrorFree)
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                if(!stage1ErrorFree) {
+                    printf("\nThe given source code has syntactic errors. Cannot print Symbol Table.\n");
                     break;
+                }
                 if(!root){
                     break;
                 }
                 ASTNode *ASTroot = buildASTTree(root);
 
-                extern symbolTable funcTable;
-//                makeSampleSymTableForTest(&funcTable);
-                buildSymbolTable(ASTroot);
-
-                if(ASTroot != NULL) {
-                    printf("symbol table built\n");
+                if(!ASTroot) {
+                    printf("\nTrivial source code. AST is empty. Hence, Symbol Table is also empty.\n");
+                    break;
                 }
 
-                printSymbolTable1(&funcTable,NULL); // NULL prints to console, pass file name to print in the file
+                buildSymbolTable(ASTroot);
+                if(!haveSemanticErrors){
+                    printf("Input source code is semantically correct and type checked..........\n");
+                }
+                printSymbolTable1(&funcTable,NULL);// NULL prints to console, pass a file name to print in the file
 
+                destroySymbolTable(&funcTable,true);
+                destroyAST(ASTroot);
+                destroyTree(root);
             }
             break;
+
             case '$':
             {
                 // Initialise lexer every time.
                 fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
-                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
 
-                if(!stage1ErrorFree)
+                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
+                if(!stage1ErrorFree) {
+                    printf("\nThe given source code has syntactic errors. Cannot print Symbol Table.\n");
                     break;
+                }
                 if(!root){
                     break;
                 }
                 ASTNode *ASTroot = buildASTTree(root);
 
-                extern symbolTable funcTable;
-//                makeSampleSymTableForTest(&funcTable);
-                buildSymbolTable(ASTroot);
-
-                if(ASTroot != NULL) {
-                    printf("symbol table built.\n");
+                if(!ASTroot) {
+                    printf("\nTrivial source code. AST is empty. Hence, Symbol Table is also empty.\n");
+                    break;
                 }
 
-                printSymbolTable2(&funcTable, NULL);// NULL prints to console, pass file name to print in the file
+                buildSymbolTable(ASTroot);
+                if(!haveSemanticErrors){
+                    printf("Input source code is semantically correct and type checked..........\n");
+                }
+                printSymbolTable2(&funcTable,NULL);// NULL prints to console, pass a file name to print in the file
 
+                destroySymbolTable(&funcTable,true);
+                destroyAST(ASTroot);
+                destroyTree(root);
             }
             break;
+            */
+
             default:
                 printf("Invalid Choice. Please try again! \n");
         }
+        printf("------------------------------------------------------------------------------------------------"
+               "--------------------------------------------------------------------\n");
 
     }
 

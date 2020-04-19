@@ -66,7 +66,7 @@ void printSymbolTable1(symbolTable* st, char *fname){
     }
 
     symTableNode *currSTN = NULL;
-    fprintf(fp,"################################# SYMBOL TABLE #################################\n\n");
+    fprintf(fp,"\n\n################################# SYMBOL TABLE #################################\n\n");
     fprintf(fp,"################################# FUNCTION TABLE #################################\n\n");
     fprintf(fp,"%-4s%-20s%-7s%-6s\n", "SNO", "Func-Name", "Status", "Line");
     int sno = 1;

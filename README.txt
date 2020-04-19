@@ -9,12 +9,14 @@ ASSUMPTIONS:
     execute at runtime. Thus it is assumed that all the output list variables are assigned in the source code and this
     is not checked at runtime.
 4. The variable bounds in dynamic arrays are assumed to be positive since for static they are NUM.
-
+5. (remove maybe) In format strings, it is assumed that all the involved integers to be printed are of atmost 4 digits.
 
 
 
 
 TODOs: (add here if any for combined tracking of all remaining work)
+//TODO: check that all the errors must be thrown in respective cases
+//TODO: change the names of arSize and scopeSize
 //TODO: verify that the parameters passed to throwSemanticError will never cause a NULL->thkinfo.... type error
 //TODO: formatting in prints on the console, align all by \t
 //TODO: remove the list that codeGen prints on console

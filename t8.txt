@@ -44,7 +44,7 @@ returns  [res: integer];
 start
 	declare index:integer;
 	declare t:integer;
-	declare fact: array[1..n] of integer;
+	declare fact: array[1..p] of integer;
 	index := 2;
 	fact[1] := 1;
 	while(index <= n)

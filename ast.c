@@ -1180,7 +1180,7 @@ void print_Inorder_ASTTree(ASTNode *ASTNodeRoot, char *fname) {
         return;
     }
 
-    fprintf(fp, "%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n", "[LEXEME]", "[LINE_NO]", "[TOKEN_NAME]", "[VALUE]", "[PARENT_NODE]", "[IS_LEAF]", "[NODE_SYMBOL]");
+    fprintf(fp, "%-21s%-15s%-25s%-15s%-25s%-10s%s\n", "[LEXEME]", "[LINE_NO]", "[TOKEN_NAME]", "[VALUE]", "[PARENT_NODE]", "[IS_LEAF]", "[NODE_SYMBOL]");
     printASTTreeUtil(ASTNodeRoot, fp);
 
 }
