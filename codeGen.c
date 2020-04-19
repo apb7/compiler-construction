@@ -121,6 +121,14 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
     }
 }
 
+void getArrBoundsInExpRegWrapper(symTableNode *stNode, FILE *fp){
+    ASTNode *dummyAST = malloc(sizeof(ASTNode));
+    dummyAST->stNode = stNode;
+    
+    getArrBoundsInExpReg(dummyAST,fp);
+    free(dummyAST);
+}
+
 //prereq: lower bound in expreg[0], index in expreg[2]
 //outcome: address of array element at idx in expreg[1]
 //affects: expreg[2] value destroyed
@@ -464,7 +472,8 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bounds\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
-            fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound \", 10, 0 \n");
+            fprintf(fp, "\t ARR_TYPE_MISMATCH2: db \"RUN TIME ERROR:  Bounds do not match for formal and actual arrays\", 10, 0 \n");
+            fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound\", 10, 0 \n");
 
             fprintf(fp, "\n section .text \n");
             fprintf(fp, "\t global main \n");
@@ -657,11 +666,32 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                     fprintf(fp, "\t mov dword [rsp - %d], %sd \n",  scale * (arrBaseSize + formalVar.offset + getSizeByType(g_INTEGER)), expreg[0]); // lb
                     fprintf(fp, "\t mov dword [rsp - %d], %sd \n",  scale * (arrBaseSize + formalVar.offset + 2*getSizeByType(g_INTEGER)), expreg[1]); // ub
 
-                    // TODO : bound check!!
+                    fprintf(fp, "\t mov r12, %s \n", expreg[0]);
+                    fprintf(fp, "\t mov r13, %s \n", expreg[1]);
+
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[actualVar.isIOlistVar]); 
                     fprintf(fp, "\t sub rsi, %d \n", scale * (arrBaseSize + actualVar.offset));
                     fprintf(fp, "\t movsx rsi, word[rsi] \n"); // move base val
                     fprintf(fp, "\t mov word [rsp - %d], si \n",  scale * (arrBaseSize + formalVar.offset)); // base address
+
+                    getArrBoundsInExpRegWrapper(inputParam, fp);
+
+                    fprintf(fp, "\t cmp %s, r12 \n", expreg[0]);
+                    fprintf(fp, "\t je lbound_match_%p", idNode);
+
+                    fprintf(fp, "\t push rbx \n");
+                    RUNTIME_EXIT_WITH_ERROR(fp, "ARR_TYPE_MISMATCH2");
+                    fprintf(fp, "\t pop rbx \n");
+
+                    fprintf(fp, "lbound_match_%p: \n", idNode);
+                    fprintf(fp, "\t cmp %s, r13 \n", expreg[1]);
+                    fprintf(fp, "\t je ubound_match_%p", idNode);
+
+                    fprintf(fp, "\t push rbx \n");
+                    RUNTIME_EXIT_WITH_ERROR(fp, "ARR_TYPE_MISMATCH2");
+                    fprintf(fp, "\t pop rbx \n");
+
+                    fprintf(fp, "lbound_match_%p: \n", idNode);
                 }
                 inputParam = inputParam->next;
                 idNode = idNode->next;

@@ -11,15 +11,18 @@
 #include "astDef.h"
 #include <stdbool.h>
 
-ASTNode* createASTNode(ASTNode *parent, parseNode *parseNode);
+bool isLeafNodeAST(ASTNode *ptr);
+ASTNode* createASTNode(parseNode *parseNode);
 
 ASTNode* create_self_node_with_single_child(parseNode *parseNodeRoot);
-ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot);
+ASTNode* createASTNodeForRightRecursiveRule(parseNode *parseNodeRoot, gSymbol g_op1, gSymbol g_op2);
 ASTNode* simple_recursive_list_non_empty(parseNode *parseNodeRoot, int stop_condition);
 
 ASTNode* buildASTTree(parseNode *parseNodeRoot);
 
-void print_ASTTree(ASTNode *ASTNoderoot);
+void print_Inorder_ASTTree(ASTNode *ASTNodeRoot, char *fname);
+void print_ASTTree_LevelDepth(ASTNode *ASTNodeRoot, FILE *fp);
+void print_ASTTree(ASTNode *ASTNoderoot, char *fname);
 int count_nodes_ASTTree(ASTNode *root);
 int count_nodes_parseTree(parseNode *root);
 void destroyAST(ASTNode *root);

@@ -11,6 +11,8 @@
 #include "set.h"
 #include "parserDef.h"
 
+int isTerminal(gSymbol symbol);
+
 void printRuleRange();
 void populateGrammarStruct(char *grFile);
 void printGrammar();
@@ -26,7 +28,8 @@ void printFollow();
 void printPredictSets();
 treeNode *parseInputSourceCode(char *src);
 grammarNode createRuleNode(char *rule, int ruleIndex);
-void printTreeOld(treeNode *root);
+void printTreeOld(treeNode *root, char *fname);
+void printTreeUtil(treeNode* cur, FILE* fpt);
 void printTree(treeNode* root,  char* fname);
 void destroyTree(treeNode *root);
 

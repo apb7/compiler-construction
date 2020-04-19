@@ -191,6 +191,8 @@ void populateGrammarStruct(char *grammarFile) {
     }
     ruleRangeArr[ntx(grammarArr[0].lhs)].start = 0;
     ruleRangeArr[ntx(grammarArr[numRules - 1].lhs)].end = numRules - 1;
+
+    fcloseSafe(fp);
 }
 
 /* ------------------ GRAMMAR REPRESENTATION ENDS ------------------*/
@@ -684,6 +686,7 @@ treeNode *parseInputSourceCode(char *src){
     destroyErrorStack();
     treeNodePtr_stack_del_head(parseStack);
     treeNodePtr_stack_del_head(tmpStack);
+    fcloseSafe(srcFilePtr);
     return parseTreeRoot;
 }
 
@@ -835,10 +838,15 @@ void printTreeUtil(treeNode* cur, FILE* fpt) {
 void printTree(treeNode* root,  char* fname) {
     if(!root)
         return;
-    FILE *fpt = fopen(fname,"w");
-    fprintf(fpt,"%-21s%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[GR_RULE_INDEX]","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
-    printTreeUtil(root, fpt);
-    fclose(fpt);
+    FILE *fp;
+    fname == NULL ? (fp = stdout) : (fp = fopen(fname, "w"));
+    if(fp == NULL){
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+    fprintf(fp, "%-21s%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n", "[GR_RULE_INDEX]", "[LEXEME]", "[LINE_NO]", "[TOKEN_NAME]", "[VALUE]", "[PARENT_NODE]", "[IS_LEAF]", "[NODE_SYMBOL]");
+    printTreeUtil(root, fp);
+    fcloseSafe(fp);
     destroyTree(root);
 }
 
@@ -863,20 +871,25 @@ void printInfoTreeNode(treeNode *ptr){
         printf("(%s->%s)\t",inverseMappingTable[ptr->parent->gs],inverseMappingTable[ptr->gs]);
 }
 
-void printTreeOld(treeNode *root){
+void printTreeOld(treeNode *root, char *fname){
     if(!root)
         return;
+    FILE *fp;
+    fname == NULL ? (fp = stdout) : (fp = fopen(fname, "w"));
+    if(fp == NULL){
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+
     treeNodePtr_stack *s1 = treeNodePtr_stack_create();
     treeNodePtr_stack *s2 = treeNodePtr_stack_create();
 
     treeNode *child = root->child;
 
-    FILE *fpt = fopen("outputPrint.txt","w");
-
-    fprintf(fpt,"%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n","[LEXEME]","[LINE_NO]","[TOKEN_NAME]","[VALUE]","[PARENT_NODE]","[IS_LEAF]","[NODE_SYMBOL]");
+    fprintf(fp, "%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n", "[LEXEME]", "[LINE_NO]", "[TOKEN_NAME]", "[VALUE]", "[PARENT_NODE]", "[IS_LEAF]", "[NODE_SYMBOL]");
 
     printInfoTreeNode(root);
-    printTreeNode(root,fpt);
+    printTreeNode(root, fp);
 
     putAllChildrenInSt(child,s1);
 
@@ -888,13 +901,15 @@ void printTreeOld(treeNode *root){
         while(!treeNodePtr_stack_isEmpty(s2)){
             treeNode *curr = treeNodePtr_stack_top(s2);
             putAllChildrenInSt(curr->child,s1);
-            printTreeNode(curr,fpt);
+            printTreeNode(curr, fp);
             printInfoTreeNode(curr);
 //            printf("%d\t",curr->gs);
             treeNodePtr_stack_pop(s2);
         }
         printf("\n\n");
     }
+
+    fcloseSafe(fp);
 }
 
 /*----------- TEST TREE PRINTING ENDS -----------*/
