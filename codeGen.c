@@ -160,16 +160,18 @@ void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
 }
 
 //prereq: lower bound in expreg[0], upper bound in expreg[1], index in expreg[2]
-void boundCheckArrAndExit(void *someRefPtr, FILE *fp){
+void boundCheckArrAndExit(void *someRefPtr, FILE *fp, bool stackAligned) {
     //someRefPtr is any unique address
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[0]);
     fprintf(fp,"\t jge lb_ok_%p \n",someRefPtr);
-    fprintf(fp,"\t push r8 ;just for stack alignment\n");
+    if(!stackAligned)
+        fprintf(fp,"\t push r8 ;just for stack alignment\n");
     RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
     fprintf(fp,"lb_ok_%p: \n",someRefPtr);
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[1]);
     fprintf(fp,"\t jle rb_ok_%p \n",someRefPtr);
-    fprintf(fp,"\t push r8 ;just for stack alignment\n");
+    if(!stackAligned)
+        fprintf(fp,"\t push r8 ;just for stack alignment\n");
     RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
     fprintf(fp,"rb_ok_%p: \n",someRefPtr);
 }
@@ -207,7 +209,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
             }
             //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-            boundCheckArrAndExit(idNode->next,fp);
+            boundCheckArrAndExit(idNode->next, fp, true);
             getArrAddrAtIdx(idNode,fp);
             setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
             fprintf(fp,"\t pop %s \n",expreg[0]);
@@ -331,7 +333,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                             fprintf(fp,"\t mov %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
                         }
                         //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-                        boundCheckArrAndExit(astNode->next,fp);
+                        boundCheckArrAndExit(astNode->next, fp, false);
                         //toSub from array base
                         getArrValueAtIdxInReg(astNode,fp);
                         fprintf(fp,"\t push %s \n",expreg[0]);
