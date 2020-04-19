@@ -261,7 +261,17 @@ void printAllErrors() {
     }
 
     //TODO: stable sort errors based on line nos.
-
+    for(int i=1; i<size;i++){
+        error *tmp = errorArray[i];
+        int j;
+        for(j = i-1; j>=0; j--){
+            if(errorArray[j]->lno > tmp->lno)
+                errorArray[j+1] = errorArray[j];
+            else
+                break;
+        }
+        errorArray[j+1] = tmp;
+    }
 
     for(int i=0; i<size; i++){
         error *e = errorArray[i];
