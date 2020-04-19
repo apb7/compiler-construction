@@ -1008,7 +1008,10 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             parse_child = parse_child->next; // <statements>
 
             ASTNode *AST_grandchild = buildASTTree(parse_child);
-            AST_grandchild->parent = AST_sibling;
+            
+            if (AST_grandchild != NULL)
+                AST_grandchild->parent = AST_sibling;
+    
             AST_sibling->child = AST_grandchild;
 
             return newNode;
@@ -1043,7 +1046,10 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
             parse_child = parse_child->next; // <statements>
 
             ASTNode *AST_grandchild = buildASTTree(parse_child);
-            AST_grandchild->parent = AST_sibling;
+
+            if (AST_grandchild != NULL)
+               AST_grandchild->parent = AST_sibling;
+               
             AST_sibling->child = AST_grandchild;
 
             return newNode;

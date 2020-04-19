@@ -1124,13 +1124,13 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                     }
                     else{
                         bool errd = false;
-                        if((vt1->vaType == STAT_ARR || vt1->vaType == DYN_L_ARR) && (vt2->vaType == STAT_ARR || vt2->vaType == DYN_L_ARR)){
+                        if((vt1->vaType == STAT_ARR || vt1->vaType == DYN_R_ARR) && (vt2->vaType == STAT_ARR || vt2->vaType == DYN_R_ARR)){
                             if(vt1->si.vt_num != vt2->si.vt_num){
                                 throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                                 errd = true;
                             }
                         }
-                        if(!errd && (vt1->vaType == STAT_ARR || vt1->vaType == DYN_R_ARR) && (vt2->vaType == STAT_ARR || vt2->vaType == DYN_R_ARR)){
+                        if(!errd && (vt1->vaType == STAT_ARR || vt1->vaType == DYN_L_ARR) && (vt2->vaType == STAT_ARR || vt2->vaType == DYN_L_ARR)){
                             if(vt1->ei.vt_num != vt2->ei.vt_num){
                                 throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                             }
@@ -1338,7 +1338,10 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
     if(currNode == NULL)
         return;
     int isVar; gSymbol ty;
-        if(currNode->gs == g_ID) {
+        if(currNode->gs == g_var_id_num) {
+            currNode = currNode->child;
+            if(currNode->gs != g_ID)
+                return;
             if(*myVarList == NULL) {
                 *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
                 (*myVarList)->node=findType(currNode, currST, funcInfo, &isVar, &ty);
@@ -1354,8 +1357,11 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
                 last->next=tmp;
             }
         }
-        traverse(currNode->child, myVarList, funcInfo, currST);
-        traverse(currNode->next, myVarList, funcInfo, currST);
+        else{
+            traverse(currNode->child, myVarList, funcInfo, currST);
+            traverse(currNode->next, myVarList, funcInfo, currST);
+        }
+
 
 }
 void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST){
@@ -1409,27 +1415,20 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
     else if(ptr->gs==g_WHILE) {
         whileVarList *myVarList = NULL;
         int loopLevel=curr_level++;
+        ASTNode *whileNode = ptr;
         ptr=ptr->next; //on expression
         handleExpressionSafe(ptr,funcInfo,currST);  //to do existence checking for all its IDs
         // DONE: verify typeof(ptr)
         varType *vt = getDataType(ptr);
-        if(vt != NULL && vt->baseType != T_BOOLEAN){
-            // if vt is NULL, short-circuiting saves the evaluation of second preposition and hence segFault is avoided
-            throwSemanticError(ptr->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
+        if(vt != NULL && vt->baseType != g_BOOLEAN){
+            throwSemanticError(whileNode->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
         //LIST OF VARIABLES IN EXPRESSION
         if(ptr->gs == g_TRUE || ptr->gs == g_FALSE)
             myVarList = NULL;
         else{
             //ptr is var_id_num or operator
-            gSymbol ty; int isVar;
-            ASTNode* currNode = ptr->child;
-            if(ptr->gs==g_ID) {
-                myVarList = (whileVarList*)malloc(sizeof(whileVarList));
-                myVarList->node=findType(ptr, currST, funcInfo, &isVar, &ty);
-                myVarList->next=NULL;
-            }
-            traverse(currNode,&myVarList, funcInfo, currST);
+            traverse(ptr,&myVarList, funcInfo, currST);
         }
         whileVarList* cur=myVarList;
         int cnt=0;
