@@ -247,6 +247,18 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
                 fprintf(fp,"rb_match_%p_%p:\n",arr1Node,arr2Node);
                 //match successful, now copy
+
+                //get base address of arr2
+                int toSub2 = scale * (arr2Node->stNode->info.var.offset + arrBaseSize);
+                bool isIOlistVar2 = arr2Node->stNode->info.var.isIOlistVar;
+                fprintf(fp,"\t mov %sw, word[%s-%d] \n",expreg[0],baseRegister[isIOlistVar2],toSub2);
+
+                //copy base address to arr1
+                int toSub1 = scale * (arr1Node->stNode->info.var.offset + arrBaseSize);
+                bool isIOlistVar1 = arr1Node->stNode->info.var.isIOlistVar;
+                fprintf(fp,"\t mov word[%s-%d], %sw \n",baseRegister[isIOlistVar1],toSub1,expreg[0]);
+
+                /* //ARRAY COPY IMPLEMENTATION
                 fprintf(fp,"\t mov [asgnLB], %s \n",expreg[0]);
                 fprintf(fp,"\t mov [asgnRB], %s \n",expreg[1]);
                 //prereq: lower bound in expreg[0], index in expreg[2]
@@ -277,6 +289,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t inc %s \n",expreg[0]);
                 fprintf(fp,"\t cmp %s, [asgnRB] \n",expreg[0]);
                 fprintf(fp,"\t jle arr_asgn_%p_%p \n",arr1Node,arr2Node);
+                 */
             }
         }
     }

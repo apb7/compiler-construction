@@ -42,22 +42,30 @@ void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, boo
             case DYN_L_ARR:
                 if (vt.si.vt_id != NULL)
                     sprintf(rng, "[%s,%d]", vt.si.vt_id->lexeme, vt.ei.vt_num);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng, "[%s,%d]", "---", vt.ei.vt_num);
                 else
                     sprintf(rng, "[%s,%d]", "NULL", vt.ei.vt_num);
                 break;
             case DYN_R_ARR:
                 if (vt.ei.vt_id != NULL)
                     sprintf(rng, "[%d,%s]", vt.si.vt_num, vt.ei.vt_id->lexeme);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng, "[%d,%s]", vt.si.vt_num, "---");
                 else
                     sprintf(rng, "[%d,%s]", vt.si.vt_num, "NULL");
                 break;
             case DYN_ARR:
                 if (vt.si.vt_id != NULL)
                     sprintf(rng, "[%s,", vt.si.vt_id->lexeme);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng, "[%s,", "---");
                 else
                     sprintf(rng, "[%s,", "NULL");
                 if (vt.ei.vt_id != NULL)
                     sprintf(rng + strlen(rng), "%s]", vt.ei.vt_id->lexeme);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng + strlen(rng), "%s]", "---");
                 else
                     sprintf(rng + strlen(rng), "%s]", "NULL");
                 break;
@@ -92,22 +100,30 @@ void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, boo
             case DYN_L_ARR:
                 if (vt.si.vt_id != NULL)
                     sprintf(rng, "[%s,%d]", vt.si.vt_id->lexeme, vt.ei.vt_num);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng, "[%s,%d]", "---", vt.ei.vt_num);
                 else
                     sprintf(rng, "[%s,%d]", "NULL", vt.ei.vt_num);
                 break;
             case DYN_R_ARR:
                 if (vt.ei.vt_id != NULL)
                     sprintf(rng, "[%d,%s]", vt.si.vt_num, vt.ei.vt_id->lexeme);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng, "[%d,%s]", vt.si.vt_num, "---");
                 else
                     sprintf(rng, "[%d,%s]", vt.si.vt_num, "NULL");
                 break;
             case DYN_ARR:
                 if (vt.si.vt_id != NULL)
                     sprintf(rng, "[%s,", vt.si.vt_id->lexeme);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng, "[%s,", "---");
                 else
                     sprintf(rng, "[%s,", "NULL");
                 if (vt.ei.vt_id != NULL)
                     sprintf(rng + strlen(rng), "%s]", vt.ei.vt_id->lexeme);
+                else if(stNode->info.var.isIOlistVar)
+                    sprintf(rng + strlen(rng), "%s]", "---");
                 else
                     sprintf(rng + strlen(rng), "%s]", "NULL");
                 break;
