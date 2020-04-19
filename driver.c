@@ -249,6 +249,11 @@ int main(int argc, char *argv[]) {
                     generateCode(ASTroot, &funcTable, fpout);
                     fclose(fpout);
                 }
+
+                destroySymbolTable(&funcTable,true);
+                destroyAST(ASTroot);
+                destroyTree(root);
+
             }
             break;
 

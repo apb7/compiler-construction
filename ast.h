@@ -22,5 +22,5 @@ ASTNode* buildASTTree(parseNode *parseNodeRoot);
 void print_ASTTree(ASTNode *ASTNoderoot);
 int count_nodes_ASTTree(ASTNode *root);
 int count_nodes_parseTree(parseNode *root);
-
+void destroyAST(ASTNode *root);
 #endif

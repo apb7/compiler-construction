@@ -1159,3 +1159,15 @@ int count_nodes_parseTree(parseNode *root) {
 
     return count;
 }
+
+void destroyAST(ASTNode *root){
+    if(root == NULL)
+        return;
+    ASTNode* child=root->child;
+    while(child != NULL) {
+        ASTNode* tmp = child->next;
+        destroyAST(child);
+        child=tmp;
+    }
+    free(root);
+}

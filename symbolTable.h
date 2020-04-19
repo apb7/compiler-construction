@@ -60,7 +60,7 @@ void handlePendingCalls(symFuncInfo *funcInfo);
 void handleOtherModule(ASTNode *moduleNode);
 void handleUndefinedModules();
 void buildSymbolTable(ASTNode *root);
-
+void destroySymbolTable(symbolTable *st, bool isFuncTable);
 
 
 #endif //SYMBOLTABLE_H
