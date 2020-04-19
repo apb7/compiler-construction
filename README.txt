@@ -15,7 +15,16 @@ ASSUMPTIONS:
 
 
 TODOs: (add here if any for combined tracking of all remaining work)
-
+//TODO: formatting in prints on the console, align all by \t
+//TODO: remove the list that codeGen prints on console
+//TODO: test the code on empty source file and empty for and while loops, etc
+//TODO: stBreak.txt lead to segFaults in ST print funcs
+//TODO: destroy funcs lead to double free error and malloc_consolidate() error
+//TODO: check the while loop functioning when next of while is var_id_num e.g. while(a)
+//TODO: stupider while check fails at while(arr[abc])
+//TODO: test the stupider while check while(true) and while(1<2) are now error free
+//TODO: comment the testing options in driver.c
+//TODO: fill her performa and put our name on top of each file
 //TODO: make makefile submission ready
     $./compiler      testcase.txt       code.asm  should work at the console
 //TODO: handle memory leaks

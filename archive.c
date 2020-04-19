@@ -4,6 +4,8 @@
 #include "symbolHash.h"
 #include "symbolTableDef.h"
 #include "archive.h"
+#include "util.h"
+
 // ################################################################# printSymTable1 starts ########################################################
 
 extern char *inverseMappingTable[];
@@ -53,9 +55,16 @@ void printVarEntry1(symTableNode *stNode, int sno, FILE *fp){
     fprintf(fp, " %-5d %-6d\n", stNode->info.var.lno, stNode->info.var.offset);
 }
 
-void printSymbolTable1(symbolTable* st, FILE *fp){
+void printSymbolTable1(symbolTable* st, char *fname){
     if(st == NULL)
         return;
+    FILE *fp;
+    fname == NULL ? fp = stdout : (fp = fopen(fname,"w"));
+    if(fp == NULL) {
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+
     symTableNode *currSTN = NULL;
     fprintf(fp,"################################# SYMBOL TABLE #################################\n\n");
     fprintf(fp,"################################# FUNCTION TABLE #################################\n\n");
@@ -95,6 +104,7 @@ void printSymbolTable1(symbolTable* st, FILE *fp){
         }
     }
     fprintf(fp,"##################################### ~ ** ~ #####################################\n\n");
+    fcloseSafe(fp);
 }
 
 void printCurrSymTable1(symbolTable *st,int level, FILE *fp){
@@ -130,10 +140,17 @@ void printCurrSymTable1(symbolTable *st,int level, FILE *fp){
 #define BOUND_STRING SYM_NODE_FOR_ONE_BOUND*2 + 50 // for dynamic array's bounds' info
 #define GENERAL_SYM_NODE TYPE_STRING_WO_BOUND_INFO +  BOUND_STRING + 120 // for any general symbol table node (possibly a dynamic array requiring both bounds as VARIABLE INTEGER symbol table nodes i.e. the largest possible)
 
-void printSymbolTable2(symbolTable* st, FILE *fp){
+void printSymbolTable2(symbolTable* st, char *fname){
     // prints the whole SymbolTable Structure by calling printCurrSymTable2
     if(st == NULL)
         return;
+    FILE *fp;
+    fname == NULL ? fp = stdout : (fp = fopen(fname,"w"));
+    if(fp == NULL) {
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+
     symTableNode *currST = NULL;
     fprintf(fp,"\n\n####################################################################### SYMBOL TABLE #######################################################################\n\n");
     for(int i=0; i<SYMBOL_TABLE_SIZE; i++){
@@ -146,6 +163,7 @@ void printSymbolTable2(symbolTable* st, FILE *fp){
         }
     }
     fprintf(fp,"########################################################################## ~ ** ~ ##########################################################################\n\n");
+    fcloseSafe(fp);
 }
 
 void printAtAlignment(char *toPrint, int align, FILE *fp){

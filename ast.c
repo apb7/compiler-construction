@@ -2,14 +2,14 @@
 #include "lexerDef.h"
 #include "parserDef.h"
 #include "symbolTableDef.h"
+#include "util.h"
+#include "ast.h"
+#include "parser.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 extern char *inverseMappingTable[];
-
-ASTNode* buildASTTree(parseNode* parseNodeRoot);
-
 
 ASTNode* createASTNode(parseNode *parseNode) {
     ASTNode *newNode = malloc(sizeof(ASTNode));
@@ -1056,33 +1056,136 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
     }
 }
 
-void print_ASTTree(ASTNode *ASTNodeRoot) {
-
+void print_ASTTree_LevelDepth(ASTNode *ASTNodeRoot, FILE *fp){
     if(ASTNodeRoot == NULL) {
-        printf("NULL\n");
+        fprintf(fp,"NULL\n");
         return;
     }
 
     if (ASTNodeRoot->child == NULL)
         return;
 
-    printf("%s \n", inverseMappingTable[ASTNodeRoot->gs]);
+    fprintf(fp,"%s \n", inverseMappingTable[ASTNodeRoot->gs]);
 
     ASTNode *child = ASTNodeRoot->child;
 
     while(child!=NULL) {
-        printf("%s\t", inverseMappingTable[child->gs]);
+        fprintf(fp,"%s\t", inverseMappingTable[child->gs]);
         child = child->next;
     }
-    printf("\n\n");
+    fprintf(fp,"\n\n");
 
     child = ASTNodeRoot->child;
 
     while(child!=NULL) {
-        print_ASTTree(child);
+        print_ASTTree_LevelDepth(child, fp);
         child = child->next;
     }
 }
+
+void print_ASTTree(ASTNode *ASTNodeRoot, char *fname) {
+    FILE *fp;
+    fname == NULL ? (fp = stdout) : (fp = fopen(fname, "w"));
+    if(fp == NULL){
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+
+    print_ASTTree_LevelDepth(ASTNodeRoot, fp);
+    fcloseSafe(fp);
+}
+
+bool isLeafNodeAST(ASTNode *ptr) {
+    if(ptr == NULL)
+        return false;
+    if(ptr->child == NULL)
+        return true;
+    else
+        return false;
+}
+
+void printASTTreeNode(ASTNode *ptr, FILE *fp){
+    const char blank[] = "----";
+    bool isLeaf = isLeafNodeAST(ptr);
+    if(fp == NULL){
+        fprintf(stderr,"printTreeNode: Invalid file pointer.\n");
+        return;
+    }
+    if(!ptr)
+        return;
+
+    if(isLeaf && ptr->gs != g_EPS && ptr->tkinfo != NULL){
+        fprintf(fp,"%-21s",ptr->tkinfo->lexeme);
+        fprintf(fp,"%-15u",ptr->tkinfo->lno);
+    }
+    else
+        fprintf(fp,"%-21s%-15s",blank,blank);
+
+    if(isTerminal(ptr->gs))
+        fprintf(fp,"%-25s",inverseMappingTable[ptr->gs]);
+    else
+        fprintf(fp,"%-25s",blank);
+
+    if(ptr->gs == g_NUM){
+        fprintf(fp,"%-15d",(ptr->tkinfo->value).num);
+    }
+    else if(ptr->gs == g_RNUM){
+        fprintf(fp,"%-15f",(ptr->tkinfo->value).rnum);
+    }
+    else{
+        fprintf(fp,"%-15s",blank);
+    }
+
+    if(ptr->parent == NULL)
+        fprintf(fp,"%-25s","ROOT");
+    else
+        fprintf(fp,"%-25s",inverseMappingTable[ptr->parent->gs]);
+
+    if(isLeaf){
+        fprintf(fp,"%-10s","yes");
+        fprintf(fp,"%s\n",blank);
+    }
+    else{
+        fprintf(fp,"%-10s","no");
+        fprintf(fp,"%s\n",inverseMappingTable[ptr->gs]);
+    }
+
+
+}
+
+void printASTTreeUtil(ASTNode* cur, FILE* fpt) {
+    if(cur==NULL) return;
+    ASTNode* lchild=cur->child;
+    if(lchild==NULL) {
+        printASTTreeNode(cur, fpt);
+        return ;
+    }
+    printASTTreeUtil(lchild, fpt);
+    printASTTreeNode(cur, fpt);
+    ASTNode* rchild = lchild->next;
+    while(rchild != NULL) {
+        printASTTreeUtil(rchild, fpt);
+        rchild=rchild->next;
+    }
+}
+
+void print_Inorder_ASTTree(ASTNode *ASTNodeRoot, char *fname) {
+    if(ASTNodeRoot == NULL) {
+        return;
+    }
+    FILE *fp;
+    fname == NULL ? (fp = stdout) : (fp = fopen(fname, "w"));
+    if(fp == NULL){
+        fprintf(stderr,"ERROR: Failed to open %s", fname);
+        return;
+    }
+
+    fprintf(fp, "%-21s%-15s%-25s%-15s%-25s%-10s%s\n\n", "[LEXEME]", "[LINE_NO]", "[TOKEN_NAME]", "[VALUE]", "[PARENT_NODE]", "[IS_LEAF]", "[NODE_SYMBOL]");
+    printASTTreeUtil(ASTNodeRoot, fp);
+
+    destroyAST(ASTNodeRoot);
+}
+
 
 void print_ParseTree(parseNode *parseNodeRoot) {
 
