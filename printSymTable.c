@@ -31,7 +31,7 @@ void printVarEntry(symTableNode *stNode, char *funcName, ASTNode *startNode, boo
         fprintf(fp, "%-10s%-18s", va, sd);
         ty = inverseMappingTable[stNode->info.var.vtype.baseType];
         varType vt = stNode->info.var.vtype;
-        char rng[26];
+        char rng[63];
         switch (stNode->info.var.vtype.vaType) {
             case VARIABLE:
                 sprintf(rng, "%s", "---");

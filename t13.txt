@@ -19,9 +19,10 @@ start
     start
         for (c in 2..5)
             start
-               flag:=true;
+               flag:=b;
             end
        flag:=true;
+       a:=7;
     end
     a:=4;
 end
