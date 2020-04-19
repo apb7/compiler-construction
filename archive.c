@@ -108,6 +108,8 @@ void printSymbolTable1(symbolTable* st, char *fname){
 }
 
 void printCurrSymTable1(symbolTable *st,int level, FILE *fp){
+    if(st == NULL)
+        return;
     fprintf(fp,"################################# Level %d #################################\n\n",level);
     fprintf(fp,"%-4s %-20s %-10s %-10s %-25s %-25s %-5s %-6s\n","SNO","LEXEME","VAR/ARR","TYPE","LB","UB","LINE","OFFSET");
     int sno = 1;
@@ -288,6 +290,8 @@ void printThisST(symTableNode **stp, int align, FILE *fp){
 }
 
 void printScopeDFS(symbolTable *st, int baseAlign, int level, FILE* fp){
+    if(st == NULL)
+        return;
     char lstr[LEVEL_STRING];
     sprintf(lstr, "--- LEVEL %d ---\n",level);
     printAtAlignment(lstr,baseAlign, fp);
