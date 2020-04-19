@@ -514,6 +514,10 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             generateCode(root->child, symT, fp);
 
             fprintf(fp, "\t mov rsp, rbp \n");
+            fprintf(fp, "\t push rsp \n");
+            fprintf(fp, "\t mov rax, 60 \n"); 
+            fprintf(fp, "\t xor rdi, rdi \n"); 
+            fprintf(fp, "\t syscall \n");
             fprintf(fp, "\t ; driver ends \n\n");
 
             return;
