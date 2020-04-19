@@ -73,7 +73,7 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
             toSub = scale * (leftStn->info.var.offset + leftStn->info.var.vtype.width);
         }
         fprintf(fp,"\t xor %s, %s \n",expreg[0],expreg[0]);
-        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[0],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar], toSub);
+        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[0],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar||leftStn->info.var.isIOlistVar], toSub);
     }
     if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == DYN_ARR){
         //get the right bound to expreg[1]
@@ -87,7 +87,7 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
             toSub = scale * (rightStn->info.var.offset + rightStn->info.var.vtype.width);
         }
         fprintf(fp,"\t xor %s, %s \n",expreg[1],expreg[1]);
-        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[1],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar], toSub);
+        fprintf(fp, "\t mov %s%s, %s[%s-%d] \n", expreg[1],expSizeRegSuffix, expSizeStr, baseRegister[isIOlistVar||rightStn->info.var.isIOlistVar], toSub);
     }
     if(arrVtype.vaType == DYN_R_ARR || arrVtype.vaType == STAT_ARR){
         //get the left bound to expreg[0]
