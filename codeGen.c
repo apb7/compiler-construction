@@ -511,6 +511,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             ASTNode *outputList = inputList->next;
             ASTNode *moduleDef = outputList->next;
 
+            if(outputList->gs == g_moduleDef)
+                moduleDef = outputList;
+
             fprintf(fp, "\n %s: \n", functionID->tkinfo->lexeme);
             fprintf(fp, "\t ; stack init starts \n");
             fprintf(fp, "\t mov rbp, rsp \n");
