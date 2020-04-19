@@ -12,7 +12,7 @@ start
     flag := a <=  b AND c <= a OR  (a<0 AND true);
     print(flag);
     a := 1;
-    while(flag AND hj OR true)
+    while(1<2)
     start
         ct:=0;
         while(ct<2)
