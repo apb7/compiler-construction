@@ -1155,6 +1155,10 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                     throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                 }
             }
+            if(vt1 != NULL)
+                free(vt1);
+            if(vt2 != NULL)
+                free(vt2);
         }
             break;
 
@@ -1167,17 +1171,21 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             bool inBounds = boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
 
             if(inBounds == false) {
+                if(vt1 != NULL)
+                    free(vt1);
                 vt1 = NULL;
             }
 
             handleExpressionSafe(idNode->next->next,funcInfo,currST);
             vt2 = getDataType(idNode->next->next);
             if (vt1 != NULL && vt2 != NULL) {
-                if(vt1->baseType == vt2->baseType && VARIABLE == vt2->vaType)
-                    return; // No error
-                else
+                if(!(vt1->baseType == vt2->baseType && VARIABLE == vt2->vaType))
                     throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
             }
+            if(vt1 != NULL)
+                free(vt1);
+            if(vt2 != NULL)
+                free(vt2);
         }
             break;
     }
@@ -1435,6 +1443,8 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         if(vt != NULL && vt->baseType != g_BOOLEAN){
             throwSemanticError(whileNode->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
+        if(vt != NULL)
+            free(vt);
         //LIST OF VARIABLES IN EXPRESSION
         if(ptr->gs == g_TRUE || ptr->gs == g_FALSE)
             myVarList = NULL;
