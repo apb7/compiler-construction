@@ -53,5 +53,5 @@ start
 		fact[index] := index * fact[t];
 		index := 1+index;
 	end
-	res := fib[n];
+	res := fact[n];
 end

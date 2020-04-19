@@ -8,7 +8,7 @@ ASSUMPTIONS:
 3. If any output variable is assigned in any one of the cases it is assumed as assigned even though that case may not
     execute at runtime. Thus it is assumed that all the output list variables are assigned in the source code and this
     is not checked at runtime.
-
+4. The variable bounds in dynamic arrays are assumed to be positive since for static they are NUM.
 
 
 
