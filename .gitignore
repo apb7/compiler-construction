@@ -79,3 +79,4 @@ CMakeLists.txt~
 /cgt
 *.asm
 test*
+./compiler

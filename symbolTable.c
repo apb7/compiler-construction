@@ -1346,7 +1346,7 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         }
     } else {// INTEGER type switch
         if(ptr->next==NULL) {
-            throwSemanticError(idNode->tkinfo->lno, NULL, NULL, SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH);
+            throwSemanticError(ptr->parent->end_line_no, NULL, NULL, SEME_MISSING_DEFAULT_IN_INTEGER_SWITCH);
             // TOCHECK: ERROR handle no default in g_INTEGER
         }
         ptr=ptr->child; //on NUM
