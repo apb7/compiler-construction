@@ -58,19 +58,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-//    printf("\n######################## STAGE 2 INFO ########################\n");
     printf("\n\t LEVEL 4: AST / Symbol Table / Type Checking / Semantic Rules modules work / Handled static and dynamic arrays in type checking and code generation.\n");
-
-//    printf("\n########################### ~ ** ~ ###########################\n\n");
-
-    printf("\n\t######################## STAGE 1 INFO ########################\n");
-    printf("\t FIRST and FOLLOW set automated. \n");
-    printf("\t Both lexical and syntax analysis modules implemented. \n");
-    printf("\t Modules work with all stage 1 testcases. \n");
-    printf("\t Source code is parsed successfully. \n");
-    printf("\t Parse tree is printed on the console (option 2). \n");
-    printf("\t Error detection and recovery done.");
-    printf("\n\t########################### ~ ** ~ ###########################\n\n");
 
     mt = createHashTable(SYMBOL_HT_SIZE); // 131 is the nearest prime > 114 (# of symbols (NT + T))
     fillHashTable(inverseMappingTable,mt);
@@ -340,6 +328,19 @@ int main(int argc, char *argv[]) {
                 }
 
                 buildSymbolTable(ASTroot);
+
+                if(!haveSemanticErrors){
+                    FILE *fpout = fopen(argv[2],"w");
+                    generateCode(ASTroot, &funcTable, fpout);
+                    printf("Code compiles successfully..........\n");
+                    fcloseSafe(fpout);
+                    char *ofilePath = generateOFilePath(argv[2]);
+                    printf("Please use the following command to run the asm file:\n\n\tnasm -felf64 %s && gcc %s && ./a.out\n\n",argv[2],ofilePath);
+                    free(ofilePath);
+                }
+                else{
+                    printf("\nThe given source code has semantic errors. Cannot proceed to generate assembly code.\n");
+                }
 
                 //____________________________________________________
                 end_time = clock();

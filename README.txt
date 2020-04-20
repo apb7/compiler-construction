@@ -38,6 +38,9 @@ REVIEW:
         (a is integer variable, arr is Static integer array) check with other types of arrays too and see if typeCheckTESTCASE.txt compiles successfully
 
 TODOs: (add here if any for combined tracking of all remaining work)
+//TODO: segFault.txt breaks codeGen, Fix needed!
+//TODO: typecheckTC2.txt must not compile (Line 21 TYPE ERROR)
+//TODO: put our names in all the files
 //TODO: check that all the errors must be thrown in respective cases
 //TODO: change the names of arSize and scopeSize
 //TODO: verify that the parameters passed to throwSemanticError will never cause a NULL->thkinfo.... type error
@@ -88,6 +91,10 @@ symbolTable.c
 
 codeGen.c
     // being worked on, delete this when all TODOs done
+    //TODO: Update runtime error messages:
+   // Array index out of bound[s]
+   // The passed array (actual parameter) bounds do not match the array (formal parameter) bounds in callee's input list, instead of
+   // Bounds do not match for formal and actual arrays
 
 driver.c
     // being worked on, delete this when all TODOs done

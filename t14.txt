@@ -105,7 +105,7 @@ start
 		    declare k:integer;
 		    a:=a+b;
 			break;
-		case 2: a:=a-b;
+		case 1: a:=a-b;
 		    for(k in 12..70)
             	start
                     while(a<=b)

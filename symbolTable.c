@@ -1034,6 +1034,8 @@ void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTa
     }
 }
 
+
+// NOTE: Ensure sync with bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) in typeCheck.c
 bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST){
     symTableNode *arrinfoEntry = checkIDInScopesAndLists(idNode,funcInfo,currST,false);
     //adding symTableNode pointer in ASTNode
