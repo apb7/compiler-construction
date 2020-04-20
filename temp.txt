@@ -14,11 +14,10 @@ end
 
 <<<driver program>>>
 start
-	declare a,b,c,d: integer;
+	declare c,a,b: integer;
 	a:=1;
 	b:=2;
 	declare arr: array [a..b] of integer;
-    declare e:integer;
     	print(999999);
     	print(a);
     	print(b);

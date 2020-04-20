@@ -46,6 +46,7 @@ bool assignIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST
 bool useIDinScope(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleModuleDeclaration(ASTNode *moduleIDNode);
 symTableNode *checkIDInScopesAndLists(ASTNode *idNode, symFuncInfo *funcInfo, symbolTable *currST, bool assign);
+void makeListWhileExpr(ASTNode* currNode, whileVarList **myVarList , symFuncInfo *funcInfo, symbolTable *currST);
 void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleModuleReuse(ASTNode *moduleReuseNode, symFuncInfo *funcInfo, symbolTable *currST);
 bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *funcInfo, symbolTable *currST);
