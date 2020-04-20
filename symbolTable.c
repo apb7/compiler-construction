@@ -1388,6 +1388,8 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
 
 }
 
+
+
 void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo, symbolTable *currST) {
     if(currNode == NULL)
         return;
@@ -1483,7 +1485,10 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             myVarList = NULL;
         else{
             //ptr is var_id_num or operator
+            ASTNode *tmpNext = ptr->next;
+            ptr->next = NULL;
             traverse(ptr,&myVarList, funcInfo, currST);
+            ptr->next = tmpNext;
         }
         whileVarList* cur=myVarList;
         int cnt=0;
