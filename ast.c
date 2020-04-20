@@ -23,7 +23,7 @@ ASTNode* createASTNode(parseNode *parseNode) {
 
     newNode->gs = parseNode->gs;
 
-    // TODO : copy token if its being freed
+    // DONE : copy token if its being freed
     newNode->tkinfo = parseNode->tkinfo;
     newNode->start_line_no = -1;
     newNode->end_line_no = -1;
@@ -953,7 +953,6 @@ ASTNode* buildASTTree(parseNode* parseNodeRoot) {
 
         // <iterativeStmt> -> FOR BO ID IN <range> BC START <statements> END
         case 104:
-        // TODO
         {
             ASTNode *newNode = createASTNode(parseNodeRoot);
 

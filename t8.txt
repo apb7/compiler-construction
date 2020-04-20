@@ -1,19 +1,17 @@
 **Program to calculate the factorial of n**
 
 declare module fibo;
-declare module factorialN;
-
 
 <<<driver program>>>
 start
 	declare k:integer;
 	declare s:integer;
-	get_value(k);
-	[s]:= use module factorialN with parameters k;
-	print(s); **factorial**
-
-	[s]:= use module fibo with parameters k;
-    print(s);
+	while(true)
+	start
+        get_value(k);
+        [s]:= use module fibo with parameters k;
+        print(s);
+    end
 
 end
 
@@ -21,40 +19,38 @@ end
 takes input[n : integer];
 returns  [res: integer];
 start
-	declare index:integer;
-	declare t:integer;
-	declare fib: array[1..n] of integer;
-	get_value(fib);
-	print(fib);
-	**index:= 3;
-	fib[1] := 0;
-	fib[2] := 1;
-	while(index <= n)
+    declare t:integer;
+	switch(n)
 	start
-	    t:=index-1;
-		fib[index] := fib[t];
-		t:=t-1;
-		fib[index]:=fib[index]+fib[t];
-		index:= index+1;
-	end**
-	res:=fib[n];
-	print(res);
+	case 1:
+	    res:=1;
+	    break;
+	case 2:
+	    res:=2;
+	    break;
+	default:
+	    n:=n-1;
+	    [res]:=use module fibo with parameters n;
+	    n:=n-1;
+	    [t]:=use module fibo with parameters n;
+	    res := res + t;
+	    break;
+	end
 end
 
 <<module factorialN>>
 takes input[n : integer];
 returns  [res: integer];
 start
-	declare index:integer;
-	declare t:integer;
-	declare fact: array[1..n] of integer;
-	index := 2;
-	fact[1] := 1;
-	while(index <= n)
+	switch(n)
 	start
-	    t:=index-1;
-		fact[index] := index * fact[t];
-		index := 1+index;
+	case 0:
+	    res:= 1;
+	    break;
+    default:
+        n:=n-1;
+        [res]:=use module factorialN with parameters n;
+        res:= (n+1)*res;
+        break;
 	end
-	res := fact[n];
 end

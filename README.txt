@@ -12,6 +12,29 @@ ASSUMPTIONS:
 5. (remove maybe) In format strings, it is assumed that all the involved integers to be printed are of atmost 4 digits.
 
 
+
+
+
+
+From symbolTable.c:
+
+//DONE: when the scope of the function ends, check if all its output parameters have been assigned.
+//DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
+//DONE: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
+//DONE: redeclaration of variables in input and output lists should be error. What if an inp list var is redeclared in output list.
+//i will then assume that, that input var is now shadowed by this output var. (therefore changed the order of search everywhere)
+//TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
+//TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
+//DONE: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
+//TODO: destroy (free) the symbol table and other constructs for continuous execution in driver. Every loop iteration must be a fresh start.
+//TODO: sort errors based on line nos.
+//TODO: handle TYPE ERRORs for a:=b where a and b are partially static arrays.
+//TODO: For semantics in codeGen: iterator value restore or last terminating value?
+//TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
+//DONE: bounds of for loop: left bound <= right bound
+//DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
+
+
 REVIEW:
 //DONE: stBreak.txt lead to segFaults in ST print funcs
 //DONE: make makefile submission ready
@@ -38,12 +61,12 @@ REVIEW:
         (a is integer variable, arr is Static integer array) check with other types of arrays too and see if typeCheckTESTCASE.txt compiles successfully
 
 TODOs: (add here if any for combined tracking of all remaining work)
-//TODO: segFault.txt breaks codeGen, Fix needed!
-//TODO: typecheckTC2.txt must not compile (Line 21 TYPE ERROR)
-//TODO: put our names in all the files
-//TODO: check that all the errors must be thrown in respective cases
-//TODO: change the names of arSize and scopeSize
-//TODO: verify that the parameters passed to throwSemanticError will never cause a NULL->thkinfo.... type error
+//DONE: segFault.txt breaks codeGen, Fix needed!
+//DONE: typecheckTC2.txt must not compile (Line 21 TYPE ERROR)
+//DONE: put our names in all the files
+//LITE: check that all the errors must be thrown in respective cases
+//LITE: change the names of arSize and scopeSize
+//LITE: verify that the parameters passed to throwSemanticError will never cause a NULL->tkinfo.... type error
 
 
 //TODO: test the code on empty source file and empty for and while loops, etc
@@ -67,12 +90,12 @@ TYPE CHECKER:
 
 
 CODE GENERATION:
-//TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
+//LITE: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
     True or False, Only 0 is false, rest is true. Move to DONE if True.
 
 
-//TODO: dynamic arrays need not be the last declared variable in a module..
-//TODO: Take input of arrays in the following format:
+//DONE: dynamic arrays need not be the last declared variable in a module..
+//DONE: Take input of arrays in the following format:
         Input: Enter 6 array elements of integer type for range 10 to 15
 
 
@@ -91,16 +114,8 @@ symbolTable.c
 
 codeGen.c
     // being worked on, delete this when all TODOs done
-    //TODO: Update runtime error messages:
+    //DONE: Update runtime error messages:
    // Array index out of bound[s]
    // The passed array (actual parameter) bounds do not match the array (formal parameter) bounds in callee's input list, instead of
    // Bounds do not match for formal and actual arrays
 
-driver.c
-    // being worked on, delete this when all TODOs done
-
-error.c
-    line 52
-
-typeCheck.c:
-    line 154

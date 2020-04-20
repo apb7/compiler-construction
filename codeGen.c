@@ -312,7 +312,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     fprintf(fp,"\t push %d \n",astNode->tkinfo->value.num);
                     break;
                 case g_RNUM:
-                    //TODO: Mov real constant to stack
+                    //DONE: Mov real constant to stack
                     break;
                 case g_ID:
                 {
@@ -511,7 +511,6 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             return;
         }
 
-        // TODO(apb7): Pull common functionality out and separate these cases if needed.
         case g_moduleDeclarations:
         case g_otherModules:
         case g_statements:

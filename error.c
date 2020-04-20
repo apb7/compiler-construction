@@ -49,7 +49,7 @@ void printError(error e){
             fprintf(stderr, "Line %u: TYPE ERROR: Expression evaluates to error type.\n", e.lno);
             break;        
         case E_SEMANTIC:
-            //TODO: MAKE SEMANTIC ERRORS DESCRIPTIVE
+            //Descriptive Semantic errors
             fprintf(stderr, "Line %u: SEMANTIC ERROR: ",e.lno);
             switch(e.edata.seme.etype){
                 case SEME_UNDECLARED:
@@ -263,7 +263,7 @@ void printAllErrors() {
         errorArray[i] = errorPtr_stack_pop(errorStack);
     }
 
-    //TODO: stable sort errors based on line nos.
+    //DONE: stable sort errors based on line nos.
     for(int i=1; i<size;i++){
         error *tmp = errorArray[i];
         int j;

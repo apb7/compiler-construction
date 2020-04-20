@@ -22,11 +22,10 @@ void printARSizes(symbolTable *funcTable, char *fname);
 
 
 void throwTypeError(ErrorType et, unsigned int lno);
-
-//TODO: put all the declarations here once symbolTable.c is done
 void initSymFuncInfo(symFuncInfo *funcInfo, char *funcName);
 void initSymVarInfo(symVarInfo *varInfo);
 int getSizeByType(gSymbol gs);
+int computeARSize(symbolTable *st, bool isFuncTable);
 void throwSemanticError(unsigned int lno, char* errStr1, char *errStr2, SemanticErrorType errorType);
 void setAssignedOutParam(paramOutNode *outNode);
 symbolTable *newScope(symbolTable *currST);
@@ -56,6 +55,7 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
 void handleSimpleStmt(ASTNode *simpleStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
+void setLoopStatePartial(ASTNode* idNode, symbolTable* currST, symFuncInfo* funcInfo);
 void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleStatements(ASTNode *statementsNode, symFuncInfo *funcInfo, symbolTable *currST);
 void handleModuleDef(ASTNode *startNode, symFuncInfo *funcInfo);

@@ -1,57 +1,30 @@
 **Program to calculate the factorial of n**
 
 declare module fibo;
-declare module factorialN;
-
 
 <<<driver program>>>
 start
-	declare k:integer;
-	declare s:integer;
-	get_value(k);
-	[s]:= use module factorialN with parameters k;
-	print(s); **factorial**
-
-	[s]:= use module fibo with parameters k;
-    print(s);
-
+	declare a,b,c,d:integer;
+	a:=4;
+	b:=8;
+	c:=-9;
+	d:=-78;
+	print(a);
+        print(b);
+        print(c);
+        print(d);
+        print(true);
+	[a]:= use module fibo with parameters c,b,a;
+	print(true);
+    print(a);
+    print(b);
+    print(c);
+    print(d);
 end
 
 <<module fibo>>
-takes input[n : integer];
+takes input[n : integer,k:integer, p:integer];
 returns  [res: integer];
 start
-	declare index:integer;
-	declare t:integer;
-	declare fib: array[1..n] of integer;
-	index:= 3;
-	fib[1] := 0;
-	fib[2] := 1;
-	while(index <= n)
-	start
-	    t:=index-1;
-		fib[index] := fib[t];
-		t:=t-1;
-		fib[index]:=fib[index]+fib[t];
-		index:= index+1;
-	end
-	res:=fib[n];
-end
-
-<<module factorialN>>
-takes input[n : integer];
-returns  [res: integer];
-start
-	declare index:integer;
-	declare t:integer;
-	declare fact: array[1..n] of integer;
-	index := 2;
-	fact[1] := 1;
-	while(index <= n)
-	start
-	    t:=index-1;
-		fact[index] := index * fact[t];
-		index := 1+index;
-	end
-	res := fact[n];
+	res:=47;
 end

@@ -17,28 +17,6 @@
 #include "lexerDef.h"
 #include "typeCheck.h"
 
-//DONE: when the scope of the function ends, check if all its output parameters have been assigned.
-//DONE: Use the error function to make all the errors rather than making them manually e.g. refactor boundsCheckIfStatic(..)
-//DONE: check while reading the input list for the first time that its arrays are STAT_ARR (can use getVType).
-//DONE: redeclaration of variables in input and output lists should be error. What if an inp list var is redeclared in output list.
-//i will then assume that, that input var is now shadowed by this output var. (therefore changed the order of search everywhere)
-//TODO: if dyn arrays allowed in input list : having a dynamic array in input list is no longer an error as long as its indices are pre declared in the same list. perform static checks (base type match and static bounds check)
-//TODO: add this at suitable place: printf("Input source code is semantically correct...........\n"); -- do this after code gen when all semantic checks have been performed
-//DONE: at least one of the variables involved in boolean expression of WHILE loop condition must be the LHS of an assignment statement inside the loop
-//TODO: destroy (free) the symbol table and other constructs for continuous execution in driver. Every loop iteration must be a fresh start.
-//TODO: sort errors based on line nos.
-//TODO: handle TYPE ERRORs for a:=b where a and b are partially static arrays.
-//TODO: For semantics in codeGen: iterator value restore or last terminating value?
-//TODO: only 1 is true and only 0 means false in codeGen. Any other value is a runtime error for codeGen.
-//DONE: bounds of for loop: left bound <= right bound
-//DONE: Complete the function handleUndefinedModules(...) -- subject to change if the following is an error: module was declared, not called and not defined. Currently this is not considered as an error.
-/* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
- *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,
- *  it does as you intended. If you only wanted an expression check on the passed node then set its next as NULL and then restore
- *  as done in handleExpressionSafe. Thus, do not call handleExpression if the handling of passed node's Expression is what you intend.
- *  Call handleExpressionSafe instead.
- */
-
 symbolTable funcTable;  //global symbol table to hold functions
 int nextGlobalOffset;   //used for assigning the next offset
 bool haveSemanticErrors;
@@ -497,7 +475,7 @@ varType getVtype(ASTNode *typeOrDataTypeNode, symFuncInfo *funcInfo, symbolTable
     initVarType(&vt);
     bool inpListParam = false;
     if(funcInfo == NULL && currST == NULL)
-        inpListParam = true;    //this can only happen for input lists, kyuki unke upar koi scope nhi
+        inpListParam = true;    //this can only happen for input lists, because there is no scope above them
 
     if(typeOrDataTypeNode == NULL){
         fprintf(stderr, "getVType: Received a NULL Node.\n");
@@ -945,7 +923,7 @@ void handleIOStmt(ASTNode *ioStmtNode, symFuncInfo *funcInfo, symbolTable *currS
                         if(idOrConst->gs == g_ID){
 //                      PRINT var_id_num->ID, ID
                             if((idOrConst->stNode = checkIDInScopesAndLists(idOrConst, funcInfo, currST, false)) == NULL){
-//                            TODO: dynamic bounds check on array in previous if and index given by this ID
+//                            DONE: dynamic bounds check on array in previous if and index given by this ID
                                 throwSemanticError(idOrConst->tkinfo->lno, idOrConst->tkinfo->lexeme, NULL, SEME_UNDECLARED);
                                 return;
                             }
@@ -1094,6 +1072,13 @@ bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
     }
     return true;
 }
+
+/* NOTE: The handleExpression will perform check on undesired statements if you pass it with a AST structure where the node on which it was called
+ *  has its next as non-NULL. This may result in throwing SEME_UNDECLARED twice. So ensure that whenever you call handleExpression,
+ *  it does as you intended. If you only wanted an expression check on the passed node then set its next as NULL and then restore
+ *  as done in handleExpressionSafe. Thus, do not call handleExpression if the handling of passed node's Expression is what you intend.
+ *  Call handleExpressionSafe instead.
+ */
 
 void handleExpressionSafe(ASTNode *someNode, symFuncInfo *funcInfo, symbolTable *currST){
     ASTNode *tmpnext = someNode->next;
@@ -1261,11 +1246,12 @@ void handleDeclareStmt(ASTNode *declareStmtNode, symFuncInfo *funcInfo, symbolTa
                         fv.var.vtype = vtype;
                         fv.var.forLoop=NOT_FOR;
                         fv.var.whileLevel=-1;
-                        //TODO: check Offset Calculation
-//                        if(vtype.vaType == VARIABLE || vtype.vaType == STAT_ARR){
+                        //DONE: check Offset Calculation
+                        // The following two lines used to apply to static arrays and non-array variables only, but now that we have
+                        // width of all the dynamic arrays as well, these two can apply to all variables (dynamic arrays included)
                         fv.var.offset = nextGlobalOffset;
                         nextGlobalOffset += fv.var.vtype.width;
-//                        }
+
                         stAdd(idNode->tkinfo->lexeme,fv,currST);
                         currST->scopeSize += vtype.width;
                         //adding symTableNode pointer in ASTNode

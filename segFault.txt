@@ -13,8 +13,8 @@ start
     print(true);
     **print(C[3]);**  **array received properly**
     **print(C[100]);**
-    print(low);
-    **print(high);**
+    **print(low);**
+    print(high);
 
     **print(true);
     B:=C;
