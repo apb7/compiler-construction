@@ -15,11 +15,12 @@
 #include "symbolTable.h"
 
 
+
 bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) {
     symTableNode *arrinfoEntry = idNode->stNode ;
     symVarInfo *arrinfo = &(arrinfoEntry->info.var);
 
-    if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM){
+    if((arrinfo->vtype).vaType == STAT_ARR && idOrNumNode->gs == g_NUM) {
         int idx = (idOrNumNode->tkinfo->value).num;
         if(!((idx >= (arrinfo->vtype).si.vt_num) && (idx <= (arrinfo->vtype).ei.vt_num))){
             //out of bounds
@@ -27,10 +28,22 @@ bool rhsBoundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode) {
         }
     }
 
+    else if((arrinfo->vtype).vaType == DYN_L_ARR && idOrNumNode->gs == g_NUM) {
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(idx > arrinfo->vtype.ei.vt_num)
+            return false;
+    }
+
+    else if((arrinfo->vtype).vaType == DYN_R_ARR && idOrNumNode->gs == g_NUM) {
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(idx < arrinfo->vtype.si.vt_num)
+            return false;
+    }
+
     else if((arrinfo->vtype).vaType == VARIABLE) 
         return false;
 
-    else if(idOrNumNode->gs == g_ID){
+    else if(idOrNumNode->gs == g_ID) {
         symTableNode *stn = idOrNumNode->stNode;
       
         if(stn == NULL)
