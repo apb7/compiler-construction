@@ -1,5 +1,0 @@
-
-<<<driver program>>>
-start
-	b := 5 AND 5 AND 6 OR 65 AND 5;
-end
