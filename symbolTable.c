@@ -1349,10 +1349,28 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
         }
         ptr=ptr->child; //on NUM
         ASTNode* it=ptr;
+        int caseCnt = 0;
+        while(it != NULL){
+            caseCnt++;
+            it = it->next;
+        }
+        int caseList[caseCnt];
+        it = ptr;
+        int caseIdx = 0;
         while(it!=NULL) {
             if(it->gs!=g_NUM) {
                 throwSemanticError(it->tkinfo->lno, it->tkinfo->lexeme, NULL, SEME_NON_INTEGER_IN_SWITCH);
                 // TOCHECK: ERROR not NUM
+            }
+            else{
+                int caseVal = it->tkinfo->value.num;
+                for(int pos=caseIdx-1;pos >=0; pos--){
+                    if(caseList[pos] == caseVal){
+                        throwSemanticError(it->tkinfo->lno,it->tkinfo->lexeme,NULL,SEME_DUPLICATE_CASE);
+                        break;
+                    }
+                }
+                caseList[caseIdx++] = caseVal;
             }
             it=it->next;
         }

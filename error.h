@@ -62,7 +62,8 @@ typedef enum{
     SEME_NOT_A_ARRAY,
     SEME_WHILE_COND_TYPE_MISMATCH,
     SEME_WHILE_COND_VARS_UNASSIGNED,
-    SEME_FOR_RANGE_L_NUM_EXCEED_R_NUM//add others here
+    SEME_FOR_RANGE_L_NUM_EXCEED_R_NUM,
+    SEME_DUPLICATE_CASE//add others here
 } SemanticErrorType;
 
 typedef struct{

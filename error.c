@@ -187,6 +187,9 @@ void printError(error e){
                 case SEME_WHILE_COND_VARS_UNASSIGNED:
                     fprintf(stderr,"None of the variables in WHILE loop condition is assigned inside the loop.\n");
                     break;
+                case SEME_DUPLICATE_CASE:
+                    fprintf(stderr,"Duplicate occurrence of case '%s'.\n",e.edata.seme.errStr1);
+                    break;
                 default:
                     fprintf(stderr,"\n");
                     break;
