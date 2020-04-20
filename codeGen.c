@@ -394,6 +394,11 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
                         fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
+                        fprintf(fp,"\t cmp %s%s, 0 \n",expreg[1],expSizeRegSuffix);
+                        fprintf(fp,"\t jne div0_safe_%p \n",astNode);
+                        fprintf(fp,"\t mov rsp, [preExpRSP] \n\t push r8 ;just for stack alignment\n");
+                        RUNTIME_EXIT_WITH_ERROR(fp,"DIV_BY_ZERO");
+                        fprintf(fp,"div0_safe_%p: \n",astNode);
                         fprintf(fp,"\t idiv %s%s \n",expreg[1],expSizeRegSuffix);
                         fprintf(fp,"\t mov %s, rax \n",expreg[0]);
                         fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
@@ -486,6 +491,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH2: db \"RUN TIME ERROR:  Bounds do not match for formal and actual arrays\", 10, 0 \n");
             fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound\", 10, 0 \n");
+            fprintf(fp, "\t DIV_BY_ZERO: db \"RUN TIME ERROR:  Division by Zero.\", 10, 0 \n");
+
+
 
             fprintf(fp, "\n section .text \n");
             fprintf(fp, "\t global main \n");
