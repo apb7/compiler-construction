@@ -1393,28 +1393,26 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
         return;
     int isVar; gSymbol ty;
         if(currNode->gs == g_var_id_num) {
-            currNode = currNode->child;
-            if(currNode->gs != g_ID)
-                return;
-            if(*myVarList == NULL) {
-                *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
-                (*myVarList)->node= findEntry(currNode, currST, funcInfo, &isVar, &ty);
-                (*myVarList)->next=NULL;
-            }
-            else {
-                whileVarList* last = *myVarList;
-                while(last->next!=NULL)
-                    last=last->next;
-                whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
-                tmp->node= findEntry(currNode, currST, funcInfo, &isVar, &ty);
-                tmp->next=NULL;
-                last->next=tmp;
+            ASTNode *idNode = currNode->child;
+            if(idNode->gs == g_ID){
+                if(*myVarList == NULL) {
+                    *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
+                    (*myVarList)->node= findEntry(idNode, currST, funcInfo, &isVar, &ty);
+                    (*myVarList)->next=NULL;
+                }
+                else {
+                    whileVarList* last = *myVarList;
+                    while(last->next!=NULL)
+                        last=last->next;
+                    whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
+                    tmp->node= findEntry(idNode, currST, funcInfo, &isVar, &ty);
+                    tmp->next=NULL;
+                    last->next=tmp;
+                }
             }
         }
-        else{
-            traverse(currNode->child, myVarList, funcInfo, currST);
-            traverse(currNode->next, myVarList, funcInfo, currST);
-        }
+        traverse(currNode->child, myVarList, funcInfo, currST);
+        traverse(currNode->next, myVarList, funcInfo, currST);
 
 }
 
