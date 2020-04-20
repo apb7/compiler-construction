@@ -1054,6 +1054,20 @@ bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
             return false;
         }
     }
+    else if((arrinfo->vtype).vaType == DYN_L_ARR && idOrNumNode->gs == g_NUM){
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(idx > arrinfo->vtype.ei.vt_num){
+            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
+            return false;
+        }
+    }
+    else if((arrinfo->vtype).vaType == DYN_R_ARR && idOrNumNode->gs == g_NUM){
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(idx < arrinfo->vtype.si.vt_num){
+            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
+            return false;
+        }
+    }
     else if((arrinfo->vtype).vaType == VARIABLE) {
         throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_NOT_A_ARRAY);
 
