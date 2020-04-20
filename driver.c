@@ -58,19 +58,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-//    printf("\n######################## STAGE 2 INFO ########################\n");
     printf("\n\t LEVEL 4: AST / Symbol Table / Type Checking / Semantic Rules modules work / Handled static and dynamic arrays in type checking and code generation.\n");
-
-//    printf("\n########################### ~ ** ~ ###########################\n\n");
-
-    printf("\n\t######################## STAGE 1 INFO ########################\n");
-    printf("\t FIRST and FOLLOW set automated. \n");
-    printf("\t Both lexical and syntax analysis modules implemented. \n");
-    printf("\t Modules work with all stage 1 testcases. \n");
-    printf("\t Source code is parsed successfully. \n");
-    printf("\t Parse tree is printed on the console (option 2). \n");
-    printf("\t Error detection and recovery done.");
-    printf("\n\t########################### ~ ** ~ ###########################\n\n");
 
     mt = createHashTable(SYMBOL_HT_SIZE); // 131 is the nearest prime > 114 (# of symbols (NT + T))
     fillHashTable(inverseMappingTable,mt);
@@ -341,6 +329,19 @@ int main(int argc, char *argv[]) {
 
                 buildSymbolTable(ASTroot);
 
+                if(!haveSemanticErrors){
+                    FILE *fpout = fopen(argv[2],"w");
+                    generateCode(ASTroot, &funcTable, fpout);
+                    printf("Code compiles successfully..........\n");
+                    fcloseSafe(fpout);
+                    char *ofilePath = generateOFilePath(argv[2]);
+                    printf("Please use the following command to run the asm file:\n\n\tnasm -felf64 %s && gcc %s && ./a.out\n\n",argv[2],ofilePath);
+                    free(ofilePath);
+                }
+                else{
+                    printf("\nThe given source code has semantic errors. Cannot proceed to generate assembly code.\n");
+                }
+
                 //____________________________________________________
                 end_time = clock();
 
@@ -396,61 +397,6 @@ int main(int argc, char *argv[]) {
 
             }
             break;
-            // TODO: TOTAL TIME
-            case 't':
-            {
-                clock_t start_time, end_time;
-                double total_CPU_time, total_CPU_time_in_seconds;
-
-                start_time = clock();
-
-                //__________________________________________________
-                // Initialise lexer every time.
-                fp = 0; bp = 0; line_number = 1; status = 1; count = 0;
-
-                treeNode *root = parseInputSourceCode(argv[1]); //this also frees the error stack
-
-                if(!stage1ErrorFree) {
-                    printf("\nThe given source code has syntactic errors. Cannot proceed to built AST.\n");
-                    break;
-                }
-
-                if(!root){
-                    break;
-                }
-                ASTNode *ASTroot = buildASTTree(root);
-                if(!ASTroot) {
-                    printf("\nTrivial source code. AST is empty. Hence, cannot proceed for building symbol table.\n");
-                    break;
-                }
-
-                buildSymbolTable(ASTroot);
-
-                if(!haveSemanticErrors){
-                    FILE *fpout = fopen(argv[2],"w");
-                    generateCode(ASTroot, &funcTable, fpout);
-                    printf("Code compiles successfully..........\n");
-                    fcloseSafe(fpout);
-                    char *ofilePath = generateOFilePath(argv[2]);
-                    printf("Please use the following command to run the asm file:\n\n\tnasm -felf64 %s && gcc %s && ./a.out\n\n",argv[2],ofilePath);
-                    free(ofilePath);
-                }
-                else{
-                    printf("\nThe given source code has semantic errors. Cannot proceed to generate assembly code.\n");
-                }
-
-                //____________________________________________________
-                end_time = clock();
-
-                total_CPU_time  =  (double) (end_time - start_time);
-                total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
-
-                printf("\nTotal CPU time = %lf \nTotal CPU time in secs = %lf \n", total_CPU_time, total_CPU_time_in_seconds);
-                destroySymbolTable(&funcTable,true);
-                destroyAST(ASTroot);
-                destroyTree(root);
-            }
-                break;
 
             // --------------------------------- ARCHIVED CASES FOR TESTING --------------------------------
 
