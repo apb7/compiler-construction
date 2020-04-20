@@ -1390,32 +1390,32 @@ void handleConditionalStmt(ASTNode *conditionalStmtNode, symFuncInfo *funcInfo, 
 
 
 
-void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo, symbolTable *currST) {
+void makeListWhileExpr(ASTNode* currNode, whileVarList **myVarList , symFuncInfo *funcInfo, symbolTable *currST) {
     if(currNode == NULL)
         return;
     int isVar; gSymbol ty;
-        if(currNode->gs == g_var_id_num) {
-            ASTNode *idNode = currNode->child;
-            if(idNode->gs == g_ID){
-                if(*myVarList == NULL) {
-                    *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
-                    (*myVarList)->node= findEntry(idNode, currST, funcInfo, &isVar, &ty);
-                    (*myVarList)->next=NULL;
-                }
-                else {
-                    whileVarList* last = *myVarList;
-                    while(last->next!=NULL)
-                        last=last->next;
-                    whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
-                    tmp->node= findEntry(idNode, currST, funcInfo, &isVar, &ty);
-                    tmp->next=NULL;
-                    last->next=tmp;
-                }
+    if(currNode->gs == g_var_id_num) {
+        ASTNode *idNode = currNode->child;
+        if(idNode->gs == g_ID){
+            if(*myVarList == NULL) {
+                *myVarList = (whileVarList*)malloc(sizeof(whileVarList));
+                (*myVarList)->node= findEntry(idNode, currST, funcInfo, &isVar, &ty);
+                (*myVarList)->next=NULL;
+            }
+            else {
+                whileVarList* last = *myVarList;
+                while(last->next!=NULL)
+                    last=last->next;
+                whileVarList* tmp = (whileVarList*)malloc(sizeof(whileVarList));
+                tmp->node= findEntry(idNode, currST, funcInfo, &isVar, &ty);
+                tmp->next=NULL;
+                last->next=tmp;
             }
         }
-        if(currNode->gs != g_ID)
-            traverse(currNode->next, myVarList, funcInfo, currST);
-        traverse(currNode->child, myVarList, funcInfo, currST);
+    }
+    if(currNode->gs != g_ID)
+        makeListWhileExpr(currNode->next, myVarList, funcInfo, currST);
+    makeListWhileExpr(currNode->child, myVarList, funcInfo, currST);
 
 }
 
@@ -1487,7 +1487,7 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
             //ptr is var_id_num or operator
             ASTNode *tmpNext = ptr->next;
             ptr->next = NULL;
-            traverse(ptr,&myVarList, funcInfo, currST);
+            makeListWhileExpr(ptr, &myVarList, funcInfo, currST);
             ptr->next = tmpNext;
         }
         whileVarList* cur=myVarList;
