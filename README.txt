@@ -28,6 +28,14 @@ REVIEW:
 //DONE: sort errors based on line nos.
 //DONE: traverse list for while stupid check has infinite loop for typeCheckTESTCASE.txt
 //DONE: FOR loop semantics in codeGen: iterator value restore or last terminating value? (last terminating value taken)
+//DONE: handle TYPE ERRORs for array assignment a:=b where atleast one of a or b is a (partially) dynamic array.
+//DONE: statements like
+        a := arr[4];
+        are generating TYPE ERROR.
+        though, statements like
+        a := arr[4] + 2;
+        are not generating TYPE ERROR
+        (a is integer variable, arr is Static integer array) check with other types of arrays too and see if typeCheckTESTCASE.txt compiles successfully
 
 TODOs: (add here if any for combined tracking of all remaining work)
 //TODO: segFault.txt breaks codeGen, Fix needed!
@@ -54,14 +62,7 @@ Note: Some of them may have been done long back just check and mark the `TODO` a
 SEMANTIC ANALYZER:
 
 TYPE CHECKER:
-//TODO: handle TYPE ERRORs for array assignment a:=b where atleast one of a or b is a (partially) dynamic array.
-//TODO: statements like
-        a := arr[4];
-        are generating TYPE ERROR.
-        though, statements like
-        a := arr[4] + 2;
-        are not generating TYPE ERROR
-        (a is integer variable, arr is Static integer array) check with other types of arrays too and see if typeCheckTESTCASE.txt compiles successfully
+
 
 
 

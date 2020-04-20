@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 // nasm -felf64 code.asm && gcc code.o && ./a.out
 // nasm -felf64 code.asm && gcc -no-pie code.o && ./a.out
 
@@ -22,10 +29,6 @@ void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
 }
 extern char *inverseMappingTable[];
 
-
-void printLeaf(ASTNode* leaf, FILE* fp) {
-
-}
 
 char *baseRegister[2] = {"RBP", "RBX"};
 
@@ -160,18 +163,16 @@ void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
 }
 
 //prereq: lower bound in expreg[0], upper bound in expreg[1], index in expreg[2]
-void boundCheckArrAndExit(void *someRefPtr, FILE *fp, bool stackAligned) {
+void boundCheckArrAndExit(void *someRefPtr, FILE *fp) {
     //someRefPtr is any unique address
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[0]);
     fprintf(fp,"\t jge lb_ok_%p \n",someRefPtr);
-    if(!stackAligned)
-        fprintf(fp,"\t push r8 ;just for stack alignment\n");
+    fprintf(fp,"\t mov rsp, [preExpRSP] \n\t push r8 ;just for stack alignment\n");
     RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
     fprintf(fp,"lb_ok_%p: \n",someRefPtr);
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[1]);
     fprintf(fp,"\t jle rb_ok_%p \n",someRefPtr);
-    if(!stackAligned)
-        fprintf(fp,"\t push r8 ;just for stack alignment\n");
+    fprintf(fp,"\t mov rsp, [preExpRSP] \n\t push r8 ;just for stack alignment\n");
     RUNTIME_EXIT_WITH_ERROR(fp,"OUT_OF_BOUNDS");
     fprintf(fp,"rb_ok_%p: \n",someRefPtr);
 }
@@ -209,7 +210,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
             }
             //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-            boundCheckArrAndExit(idNode->next, fp, true);
+            boundCheckArrAndExit(idNode->next, fp);
             getArrAddrAtIdx(idNode,fp);
             setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
             fprintf(fp,"\t pop %s \n",expreg[0]);
@@ -238,12 +239,12 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 getArrBoundsInExpReg(arr2Node,fp);
                 fprintf(fp,"\t cmp %s, %s \n",expreg[0],expreg[2]);
                 fprintf(fp,"\t je lb_match_%p_%p \n",arr1Node,arr2Node);
-                fprintf(fp,"\t push r8 ;just for stack alignment\n");
+                fprintf(fp,"\t mov rsp, [preExpRSP] \n\t push r8 ;just for stack alignment\n");
                 RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
                 fprintf(fp,"lb_match_%p_%p:\n",arr1Node,arr2Node);
                 fprintf(fp,"\t cmp %s, %s \n",expreg[1],expreg[3]);
                 fprintf(fp,"\t je rb_match_%p_%p \n",arr1Node,arr2Node);
-                fprintf(fp,"\t push r8 ;just for stack alignment\n");
+                fprintf(fp,"\t mov rsp, [preExpRSP] \n\t push r8 ;just for stack alignment\n");
                 RUNTIME_EXIT_WITH_ERROR(fp,"ARR_TYPE_MISMATCH");
                 fprintf(fp,"rb_match_%p_%p:\n",arr1Node,arr2Node);
                 //match successful, now copy
@@ -346,7 +347,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                             fprintf(fp,"\t mov %s, %d \n",expreg[2],astNode->next->tkinfo->value.num);
                         }
                         //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
-                        boundCheckArrAndExit(astNode->next, fp, false);
+                        boundCheckArrAndExit(astNode->next, fp);
                         //toSub from array base
                         getArrValueAtIdxInReg(astNode,fp);
                         fprintf(fp,"\t push %s \n",expreg[0]);
@@ -393,6 +394,11 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         setExpSize(g_INTEGER,&expSizeStr,&expSizeRegSuffix);
                         fprintf(fp,"\t push rax \n\t push rdx \n\t xor rdx,rdx \n");   //to save the prev value
                         fprintf(fp,"\t mov rax, %s \n",expreg[0]);
+                        fprintf(fp,"\t cmp %s%s, 0 \n",expreg[1],expSizeRegSuffix);
+                        fprintf(fp,"\t jne div0_safe_%p \n",astNode);
+                        fprintf(fp,"\t mov rsp, [preExpRSP] \n\t push r8 ;just for stack alignment\n");
+                        RUNTIME_EXIT_WITH_ERROR(fp,"DIV_BY_ZERO");
+                        fprintf(fp,"div0_safe_%p: \n",astNode);
                         fprintf(fp,"\t idiv %s%s \n",expreg[1],expSizeRegSuffix);
                         fprintf(fp,"\t mov %s, rax \n",expreg[0]);
                         fprintf(fp,"\t pop rdx \n\t pop rax \n");    //to restore the prev value
@@ -454,6 +460,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t boolc: resb 2 \n");
             fprintf(fp,"\t asgnLB: resb 8 \n");
             fprintf(fp,"\t asgnRB: resb 8 \n");
+            fprintf(fp,"\t preExpRSP: resb 8 \n");
 
             fprintf(fp, "section .data \n");
 
@@ -484,6 +491,9 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH2: db \"RUN TIME ERROR:  Bounds do not match for formal and actual arrays\", 10, 0 \n");
             fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound\", 10, 0 \n");
+            fprintf(fp, "\t DIV_BY_ZERO: db \"RUN TIME ERROR:  Division by Zero.\", 10, 0 \n");
+
+
 
             fprintf(fp, "\n section .text \n");
             fprintf(fp, "\t global main \n");
@@ -613,6 +623,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp," WHILE_loop_%p: \n", root->next->next); //pointer to WHILE's START ASTNode (uniqueness assured across entire code)
             fprintf(fp,"\t ; evaluating while condition \n");
+            fprintf(fp,"\t mov [preExpRSP], rsp \n");   //store the pre expression rsp into preExpRSP
             genExpr(root->next, fp, false, g_BOOLEAN); // puts 8 bytes containing result of condition evaluation on stack
             fprintf(fp,"\t ; while condition evaluated \n");
 
@@ -1258,6 +1269,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
         case g_assignmentStmt:
             fprintf(fp,"\t ; Expression generation starts\n");
+            fprintf(fp,"\t mov [preExpRSP], rsp \n");   //store the pre expression rsp into preExpRSP
             genExpr(root,fp,true,0);
             fprintf(fp,"\t ; Expression generation ends \n\n");
             return;

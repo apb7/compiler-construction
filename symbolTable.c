@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #include "symbolTable.h"
 #include "symbolTableDef.h"
 #include "symbolHash.h"
@@ -1047,6 +1054,20 @@ bool boundsCheckIfStatic(ASTNode *idNode, ASTNode *idOrNumNode, symFuncInfo *fun
             return false;
         }
     }
+    else if((arrinfo->vtype).vaType == DYN_L_ARR && idOrNumNode->gs == g_NUM){
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(idx > arrinfo->vtype.ei.vt_num){
+            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
+            return false;
+        }
+    }
+    else if((arrinfo->vtype).vaType == DYN_R_ARR && idOrNumNode->gs == g_NUM){
+        int idx = (idOrNumNode->tkinfo->value).num;
+        if(idx < arrinfo->vtype.si.vt_num){
+            throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL,  SEME_OUT_OF_BOUNDS);
+            return false;
+        }
+    }
     else if((arrinfo->vtype).vaType == VARIABLE) {
         throwSemanticError(idNode->tkinfo->lno, idNode->tkinfo->lexeme, NULL, SEME_NOT_A_ARRAY);
 
@@ -1148,6 +1169,10 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
                     throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
                 }
             }
+            if(vt1 != NULL)
+                free(vt1);
+            if(vt2 != NULL)
+                free(vt2);
         }
             break;
 
@@ -1160,17 +1185,21 @@ void handleAssignmentStmt(ASTNode *assignmentStmtNode, symFuncInfo *funcInfo, sy
             bool inBounds = boundsCheckIfStatic(idNode, idNode->next, funcInfo, currST);
 
             if(inBounds == false) {
+                if(vt1 != NULL)
+                    free(vt1);
                 vt1 = NULL;
             }
 
             handleExpressionSafe(idNode->next->next,funcInfo,currST);
             vt2 = getDataType(idNode->next->next);
             if (vt1 != NULL && vt2 != NULL) {
-                if(vt1->baseType == vt2->baseType && VARIABLE == vt2->vaType)
-                    return; // No error
-                else
+                if(!(vt1->baseType == vt2->baseType && VARIABLE == vt2->vaType))
                     throwTypeError(E_TYPE_MISMATCH, idNode->tkinfo->lno);
             }
+            if(vt1 != NULL)
+                free(vt1);
+            if(vt2 != NULL)
+                free(vt2);
         }
             break;
     }
@@ -1428,6 +1457,8 @@ void handleIterativeStmt(ASTNode *iterativeStmtNode, symFuncInfo *funcInfo, symb
         if(vt != NULL && vt->baseType != g_BOOLEAN){
             throwSemanticError(whileNode->tkinfo->lno, NULL, NULL, SEME_WHILE_COND_TYPE_MISMATCH);
         }
+        if(vt != NULL)
+            free(vt);
         //LIST OF VARIABLES IN EXPRESSION
         if(ptr->gs == g_TRUE || ptr->gs == g_FALSE)
             myVarList = NULL;

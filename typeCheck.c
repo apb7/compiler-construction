@@ -1,3 +1,10 @@
+// Group Number: 31
+// MADHUR PANWAR   2016B4A70933P
+// TUSSANK GUPTA   2016B3A70528P
+// SALMAAN SHAHID  2016B4A70580P
+// APURV BAJAJ     2016B3A70549P
+// HASAN NAQVI     2016B5A70452P
+
 #include "symbolTableDef.h"
 #include "symbolTable.h"
 #include "astDef.h"
@@ -151,15 +158,16 @@ primitiveDataType getExpressionPrimitiveType(ASTNode *ptr) {
     }
 }
 
-// TODO: handle memory leaks
+// DONE: handle memory leaks
 varType* getDataType(ASTNode *ptr) {
     switch(ptr->gs) {
         case g_ID:
         {
             if (ptr->stNode == NULL)
                 return NULL;
-
-            return &(ptr->stNode->info.var.vtype);
+            varType *vt = malloc(sizeof(varType));
+            *vt = (ptr->stNode->info.var.vtype);
+            return vt;
         }
 
         case g_var_id_num:
@@ -168,10 +176,15 @@ varType* getDataType(ASTNode *ptr) {
                 if (ptr->child->stNode == NULL){
                     return NULL;
                 }
-                
+
+
                 // Return array type for case A:=B
-                if (ptr->child->next == NULL)
-                    return &(ptr->child->stNode->info.var.vtype);
+                if (ptr->child->next == NULL){
+                    varType *vt = malloc(sizeof(varType));
+                    *vt = (ptr->child->stNode->info.var.vtype);
+                    return vt;
+                }
+
             }
             // otherwise let it fall through the case stmt
         }

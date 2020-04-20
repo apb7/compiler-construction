@@ -15,5 +15,5 @@ char * trim (char *str);
 int numTk(char *str,char tk);
 char **strSplit(char *str, char tk);
 void fcloseSafe(FILE *fp);
-
+char *generateOFilePath(char *asmFilePath);
 #endif //UTILS_H

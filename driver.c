@@ -383,6 +383,9 @@ int main(int argc, char *argv[]) {
                     generateCode(ASTroot, &funcTable, fpout);
                     printf("Code compiles successfully..........\n");
                     fcloseSafe(fpout);
+                    char *ofilePath = generateOFilePath(argv[2]);
+                    printf("Please use the following command to run the asm file:\n\n\tnasm -felf64 %s && gcc %s && ./a.out\n\n",argv[2],ofilePath);
+                    free(ofilePath);
                 }
                 else{
                     printf("\nThe given source code has semantic errors. Cannot proceed to generate assembly code.\n");
