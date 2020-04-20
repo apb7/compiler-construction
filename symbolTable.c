@@ -1411,8 +1411,9 @@ void traverse(ASTNode* currNode, whileVarList **myVarList ,symFuncInfo *funcInfo
                 }
             }
         }
+        if(currNode->gs != g_ID)
+            traverse(currNode->next, myVarList, funcInfo, currST);
         traverse(currNode->child, myVarList, funcInfo, currST);
-        traverse(currNode->next, myVarList, funcInfo, currST);
 
 }
 

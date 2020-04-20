@@ -489,7 +489,7 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
 
             fprintf(fp, "\t OUT_OF_BOUNDS: db \"RUN TIME ERROR:  Array index out of bound\", 10, 0 \n");
             fprintf(fp, "\t ARR_TYPE_MISMATCH: db \"RUN TIME ERROR:  Bounds do not match for LHS Array and RHS Array\", 10, 0 \n");
-            fprintf(fp, "\t ARR_TYPE_MISMATCH2: db \"RUN TIME ERROR:  Bounds do not match for formal and actual arrays\", 10, 0 \n");
+            fprintf(fp, "\t ARR_TYPE_MISMATCH2: db \"RUN TIME ERROR:  Bounds do not match for formal and actual argument arrays\", 10, 0 \n");
             fprintf(fp, "\t UPPER_BOUND_SMALL: db \"RUN TIME ERROR:  Upper bound of dynamic array is smaller than lower bound\", 10, 0 \n");
             fprintf(fp, "\t DIV_BY_ZERO: db \"RUN TIME ERROR:  Division by Zero.\", 10, 0 \n");
 
