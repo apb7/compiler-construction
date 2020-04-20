@@ -19,7 +19,7 @@
 #include "typeCheck.h"
 #include "lexerDef.h"
 
-//prereq: something related to stack alignment (odd number of pushes)
+//prereq: stack should be aligned (odd number of pushes)
 void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
     fprintf(fp, "\t mov rdi, %s \n", e); 
     fprintf(fp, "\t call printf \n"); 
@@ -27,9 +27,11 @@ void RUNTIME_EXIT_WITH_ERROR(FILE *fp, char *e) {
     fprintf(fp, "\t xor rdi, rdi \n"); 
     fprintf(fp, "\t syscall \n");
 }
+
 extern char *inverseMappingTable[];
 
-
+//first register is used for function activation record base
+//second register is used for IO List base
 char *baseRegister[2] = {"RBP", "RBX"};
 
 char *expreg[4] = {"r8","r9","r10","r11"};
@@ -131,7 +133,6 @@ void getArrBoundsInExpReg(ASTNode *arrNode, FILE *fp){
 void getArrAddrAtIdx(ASTNode *arrNode, FILE *fp){
     char *expSizeStr, *expSizeRegSuffix;
     fprintf(fp,"\t sub %s, %s \n",expreg[2],expreg[0]);
-    //    fprintf(fp,"\t add %s, 1 \n",expreg[2]);
     fprintf(fp,"\t add %s, %s \n",expreg[2],expreg[2]);
     setExpSize(arrNode->stNode->info.var.vtype.baseType, &expSizeStr, &expSizeRegSuffix);
     if(arrNode->stNode->info.var.vtype.baseType == g_INTEGER){
@@ -162,7 +163,7 @@ void getArrValueAtIdxInReg(ASTNode *arrNode, FILE *fp){
     fprintf(fp,"\t mov %s%s, %s[%s] \n",expreg[0],expSizeRegSuffix,expSizeStr,expreg[1]);
 }
 
-//prereq: lower bound in expreg[0], upper bound in expreg[1], index in expreg[2]
+//prereq: lower bound in expreg[0], upper bound in expreg[1], index in expreg[2], preExpRSP already populated
 void boundCheckArrAndExit(void *someRefPtr, FILE *fp) {
     //someRefPtr is any unique address
     fprintf(fp,"\t cmp %s, %s \n",expreg[2],expreg[0]);
@@ -185,7 +186,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         if(astNode == NULL)
             return;
         else if(astNode->gs != g_assignmentStmt){
-            //            printf("%d \n",astNode->gs);
+//                        printf("%d \n",astNode->gs);
             genExpr(astNode->next,fp,true,expType);
             genExpr(astNode->child,fp,true,expType);
             return;
@@ -194,11 +195,14 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
         ASTNode *idNode = astNode->child->child->child;
         expType = idNode->stNode->info.var.vtype.baseType;
         setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
-        // printf("%s \n",idNode->tkinfo->lexeme);
+        //array element on LHS
         if(idNode->next->next != NULL){
+            //get the result of the RHS expression on the stack
             genExpr(idNode->next->next,fp,false,expType);
             getArrBoundsInExpReg(idNode,fp);
+            //get the index dynamic or static in the eR[2]
             if(idNode->next->gs == g_ID){
+                //dynamic index
                 ASTNode *idxIdNode = idNode->next;
                 bool isIOlistVar = idxIdNode->stNode->info.var.isIOlistVar;
                 int toSub = scale * (idxIdNode->stNode->info.var.offset + idxIdNode->stNode->info.var.vtype.width);
@@ -207,20 +211,23 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 fprintf(fp,"\t mov %s%s, %s[%s-%d] \n",expreg[2],expSizeRegSuffix,expSizeStr,baseRegister[isIOlistVar],toSub);
             }
             else{
+                //static index
                 fprintf(fp,"\t mov %s, %d \n",expreg[2],idNode->next->tkinfo->value.num);
             }
             //now we have left bound in expreg[0], right bound in expreg[1] and index in expreg[2]
             boundCheckArrAndExit(idNode->next, fp);
             getArrAddrAtIdx(idNode,fp);
+            //now we have the target address in expreg[1]
             setExpSize(idNode->stNode->info.var.vtype.baseType,&expSizeStr,&expSizeRegSuffix);
             fprintf(fp,"\t pop %s \n",expreg[0]);
             fprintf(fp, "\t mov %s[%s], %s%s \n", expSizeStr, expreg[1],expreg[0], expSizeRegSuffix);
             return;
         }
         else{
-            //array or variable
+            //array assignment or variable
             if(idNode->stNode->info.var.vtype.vaType == VARIABLE){
                 //variable
+                //get the RHS Expression's result on stack
                 genExpr(idNode->next,fp,false,expType);
                 bool isIOlistVar = idNode->stNode->info.var.isIOlistVar;
                 int toSub = scale * (idNode->stNode->info.var.offset + idNode->stNode->info.var.vtype.width);
@@ -335,6 +342,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                     else{
                         //for bounds
                         getArrBoundsInExpReg(astNode,fp);
+                        //move index to eR[2]
                         if(astNode->next->gs == g_ID){
                             ASTNode *idxIdNode = astNode->next;
                             bool isIOlistVar = idxIdNode->stNode->info.var.isIOlistVar;
@@ -350,6 +358,7 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                         boundCheckArrAndExit(astNode->next, fp);
                         //toSub from array base
                         getArrValueAtIdxInReg(astNode,fp);
+                        //now we have array value at index in eR[0]
                         fprintf(fp,"\t push %s \n",expreg[0]);
                     }
                 }
@@ -370,8 +379,10 @@ void genExpr(ASTNode *astNode, FILE *fp, bool firstCall, gSymbol expType){
                 //handle real operations
             }
             else{
+                //pop the right subtree's result
                 fprintf(fp,"\t xor %s,%s \n",expreg[1],expreg[1]);
                 fprintf(fp,"\t pop %s \n",expreg[1]);
+                //pop the left subtree's result
                 fprintf(fp,"\t xor %s,%s \n",expreg[0],expreg[0]);
                 fprintf(fp,"\t pop %s \n",expreg[0]);
                 char *jCmd = NULL;
