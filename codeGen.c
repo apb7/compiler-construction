@@ -1214,16 +1214,17 @@ void generateCode(ASTNode* root, symbolTable* symT, FILE* fp) {
                 else if(idVar.vtype.vaType == STAT_ARR) {
                     fprintf(fp, "\t mov rsi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
                     fprintf(fp, "\t mov rdi, rsi \n");
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Base address
-                    fprintf(fp, "\t sub rsi, %d \n", 2 * (idVar.offset + 1 + getSizeByType(idVar.vtype.baseType))); // First elem
+                    fprintf(fp, "\t sub rdi, %d \n", scale * (idVar.offset + 1)); // Base address
+                    fprintf(fp, "\t sub rsi, %d \n", scale * (idVar.offset + 1 + getSizeByType(idVar.vtype.baseType))); // First elem
                     fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
                     fprintf(fp, "\t mov word[rdi], si \n"); // only 1 location = 2B available!
                 }
 
                 else {
                     fprintf(fp, "\t mov rdi, %s \n", baseRegister[idVar.isIOlistVar]); // isIOlistVar must be 0!
-                    fprintf(fp, "\t sub rdi, %d \n", 2 * (idVar.offset + 1)); // Location for Base address
+                    fprintf(fp, "\t sub rdi, %d \n", scale * (idVar.offset + 1)); // Location for Base address
                     fprintf(fp, "\t mov rsi, rsp \n");
+                    fprintf(fp, "\t sub rsi, %d \n", scale * getSizeByType(idVar.vtype.baseType)); // First elem
                     fprintf(fp, "\t sub rsi, [stack_top] \n"); // Find location relative to top of stack!
                     fprintf(fp, "\t mov word[rdi], si \n"); // stack position where dynamic array begins!
 
