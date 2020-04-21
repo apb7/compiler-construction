@@ -1,0 +1,31 @@
+declare module factorialN;
+
+<<<driver program>>>
+start
+	declare k:integer;
+	declare s:integer;
+	while(true)
+	start
+        get_value(k);
+        [s]:= use module factorialN with parameters k;
+        print(s);
+    end
+
+end
+
+<<module factorialN>>
+takes input[n : integer];
+returns  [res: integer];
+start
+	switch(n)
+	start
+	case 0:
+	    res:= 1;
+	    break;
+    default:
+        n:=n-1;
+        [res]:=use module factorialN with parameters n;
+        res:= (n+1)*res;
+        break;
+	end
+end
