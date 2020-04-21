@@ -78,5 +78,7 @@ CMakeLists.txt~
 *.iml
 /cgt
 *.asm
+*.o
 test*
+compiler
 ./compiler
