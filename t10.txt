@@ -26,7 +26,6 @@ start
 			 get_value(Q);
 			 for(m in 10..15)
 			 start
-			    declare uhj: boolean;
 				n:= n+m;
 			 end
 			 E[7]:= k+12 - Q*10;       
@@ -37,7 +36,7 @@ start
 			 break;			 	
 	end
 
-	u:= u+ x*m-n;
+	u:= u+ x*m-n;  **No problem if u was not initialized as long as it is not a code generation test case**
 
 	switch(p)				**ERROR: switch variable cannot be of type real**
 	start
@@ -59,28 +58,12 @@ start
 			 get_value(Q);
 			 for(m in 10..15)
 			 start
-			    declare ninja:real;
-			    for(m in 10..15)
-                start
-                    declare hakuna:real;
-                    n:= n+m;
-                end
 				n:= n+m;
 			 end
 			 E[7]:= k+12 - Q*10;       
 			 break;
 		case true: m:=m-n;
-			 print(m);
-			 for(m in 10..15)
-             			 start
-             			    declare ninja:real;
-             			    for(m in 10..15)
-                             start
-                                 declare hakuna:real;
-                                 n:= n+m;
-                             end
-             				n:= n+m;
-             			 end
+			 print(m);			
 			 break;
 		default: E[9]:= B[15]+Q;	      **ERROR: presence of default statement is incorrect as condiiton variable type is boolean** 
 			 break;			 	
@@ -109,16 +92,9 @@ start
 	[a]:=use module for_loop_demo with parameters b, c, d;
 	switch(a)
 	start
-		case 1:
-		    declare k:integer;
-		    a:=a+b;
+		case 1: a:=a+b;
 			break;
 		case 2: a:=a-b;
-		    for(k in 12..70)
-            	start
-            		u:= x+k;
-            		k:= k+2;                            **ERROR: for loop variable k cannot be assigned a value**
-            	end
 			break;
 		case 3: a:= a*b;
 			break;
