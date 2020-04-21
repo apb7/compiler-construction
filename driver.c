@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
                 }
                 printf("\n################################################################### ABSTRACT SYNTAX TREE "
                        "###################################################################\n");
-                printf("\nThe following AST has been printed using inorder traversal order:"
+                printf("\nThe following AST has been printed using inorder traversal:"
                        "\nLeftmost child ‐‐> parent node‐‐> remaining siblings (excluding the leftmost child)\n\n");
                 print_Inorder_ASTTree(ASTroot, NULL); // NULL prints to console, pass a file name to print in the file
                 printf("\n########################################################################## ~ ** ~ "
