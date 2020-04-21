@@ -41,6 +41,16 @@
  */
 #define BUFFER_SIZE 512
 
+/*
+ * This defines the size of error string used in error.c
+ */
+#define ERROR_STRING_LENGTH 30
+
 #define TMP_SRC_FILE_PATH "source.tmp"
+
+#define SYMBOL_TABLE_SIZE 101
+#define SIZE_INTEGER 2
+#define SIZE_REAL 4
+#define SIZE_BOOLEAN 1
 
 #endif //CONFIG_H

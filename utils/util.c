@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <stdio.h>
 /*
  * Some helper functions
  */
@@ -83,6 +83,41 @@ char **strSplit(char *str, char tk){
         arr[i++] = token;
     arr[i] = NULL;
     return arr;
+}
+
+void fcloseSafe(FILE *fp){
+    if(fp != NULL && fp != stdout){
+        fclose(fp);
+    }
+}
+
+char *generateOFilePath(char *asmFilePath){
+    if(asmFilePath == NULL)
+        return NULL;
+    char *ofile = (char *)(calloc(100,sizeof(char)));
+    strcpy(ofile,asmFilePath);
+    int sz = strlen(asmFilePath);
+    bool dotFound = false;
+    int i;
+    for(i=sz-1; i>=0; i--){
+        if(ofile[i] == '.'){
+            dotFound = true;
+            break;
+        }
+        else if(ofile[i] == '/' || ofile[i] == '\\')
+            break;
+    }
+    if(dotFound){
+        ofile[i+1] = 'o';
+        ofile[i+2] = '\0';
+        return ofile;
+    }
+    else{
+        ofile[sz] = '.';
+        ofile[sz+1] = 'o';
+        ofile[sz+2] = '\0';
+        return ofile;
+    }
 }
 
 /*

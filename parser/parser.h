@@ -8,8 +8,10 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../utils/set.h"
+#include "set.h"
 #include "parserDef.h"
+
+int isTerminal(gSymbol symbol);
 
 void printRuleRange();
 void populateGrammarStruct(char *grFile);
@@ -25,11 +27,12 @@ void printFirst();
 void printFollow();
 void printPredictSets();
 treeNode *parseInputSourceCode(char *src);
-grammarNode createRuleNode(char *rule);
-void printTreeOld(treeNode *root);
+grammarNode createRuleNode(char *rule, int ruleIndex);
+void printTreeOld(treeNode *root, char *fname);
+void printTreeUtil(treeNode* cur, FILE* fpt);
 void printTree(treeNode* root,  char* fname);
 void destroyTree(treeNode *root);
 
-treeNode *newTreeNode(gSymbol sym, treeNode *parent);
+treeNode *newTreeNode(gSymbol sym, treeNode *parent, int gRuleIndex);
 
 #endif //PARSER_H
